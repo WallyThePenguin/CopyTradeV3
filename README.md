@@ -1,8 +1,8 @@
-# CopyTradeV2: AI-Powered Trading Message Analysis
+# CopyTradeV3: AI-Powered Trading Message Analysis
 
 ## Overview
 
-CopyTradeV2 is an advanced trading message analysis backend that combines:
+CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Regex-based pre-filtering** for ultra-fast detection of buy/sell/exit signals (including Gen Z slang, abbreviations, and emoji)
 - **LLM (Large Language Model) confirmation** for high-accuracy trade intent detection
 - **Context-rich LLM prompts** for extracting detailed trade information
@@ -35,6 +35,7 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Live Price Checks**: `mistral.js` fetches current quotes from Robinhood to evaluate stoploss and take‑profit conditions.
 - **Service Initialization**: The Robinhood service exposes an `initialize()`
   method so trading services can ensure a valid session before placing orders.
+- **Account Positions Endpoint**: `/api/positions` exposes current holdings from the active trading service.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
 
 ## Setup
@@ -96,6 +97,8 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
   - List recent trade signals with optional `limit` parameter.
 - **GET /api/trades**
   - List recent trades. Supports `mode` (`TEST`, `PROD` or `ALL`) and `channel` query parameters.
+- **GET /api/positions**
+  - Retrieve current account positions from the active trading service.
 - **GET /api/channels?mode=TYPE**
   - Retrieve channels filtered by `mode`. `TYPE` can be `TEST` for disabled channels, `PROD` for enabled channels or omitted for all.
 

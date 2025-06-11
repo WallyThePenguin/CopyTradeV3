@@ -27,6 +27,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Market Calendar Endpoint** – `/api/market-calendar` lists upcoming economic events stored by `api/market_calendar.py`. The calendar is refreshed nightly.
 - **Scheduled Maintenance** – the Python service runs channel analysis and market calendar updates every day.
 - **Trading Service Initialization** – the Robinhood service exposes an `initialize()` method so simulators and live trading share the same startup flow.
+- **Positions Endpoint** – `/api/positions` now returns open positions from the active trading service so the dashboard can display current holdings.
 
 ## Areas for Improvement
 
@@ -43,4 +44,4 @@ All messages, trades and market events will be collected from roughly fifty trad
 
 ## Completion Status
 
-The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, and initial price retrieval via Robinhood has been added. With the new trading service initialization the project feels around **83% complete** toward a production‑ready tool.
+The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, initial price retrieval via Robinhood is available and positions can be queried via the new endpoint. With these additions the project feels around **84% complete** toward a production‑ready tool.

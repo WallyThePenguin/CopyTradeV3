@@ -350,9 +350,10 @@ class TradeTracker {
 
         if (!trades.length) return;
 
-        const total = trades.length;
-        const wins = trades.filter(t => t.profitLoss > 0).length;
-        const avgProfitLoss = trades.reduce((sum, t) => sum + (t.profitLoss || 0), 0) / total;
+        const closed = trades.filter(t => t.profitLoss !== null && t.profitLoss !== undefined);
+        const total = closed.length;
+        const wins = closed.filter(t => t.profitLoss > 0).length;
+        const avgProfitLoss = total > 0 ? closed.reduce((sum, t) => sum + t.profitLoss, 0) / total : 0;
 
         // You can expand this to avgConfidence once you start storing it
         await this.prisma.traderStats.upsert({

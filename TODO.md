@@ -14,11 +14,12 @@ write to the same log directory.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Done: Node and Python use file-based loggers under `data/logs`.*
 - **Authentication** – basic API key protection added to POST routes. Review session based auth for the Web UI in the future.
 - **WebUI Enhancements** –
-  - Fix P&L calculation issues in trader stats.
+  - Fix P&L calculation issues in trader stats. *Done: `updateTraderStats` now ignores trades without a profit/loss value.*
   - Display which channel or trader executed each trade in the recent trades table. *Done*
   - Ensure period-selection buttons update the timeframe correctly.
   - Allow combined performance view across all simulated channels. *Done: channel selector reloads by mode and "Simulated" now aggregates disabled channels.*
   - When "Production" mode is selected, show only enabled channels. *Done via `mode` query on `/api/channels`.*
+  - Add an endpoint to fetch open positions so the dashboard can display current holdings. *Implemented as `/api/positions`.*
 - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and consider storing its output for later use. *Scheduled along with nightly market calendar updates.*
 - **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.*
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
