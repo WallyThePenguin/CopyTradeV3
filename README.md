@@ -29,6 +29,7 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Manual Labels & Market Updates**: The API can store human-provided labels and short market summaries for later analysis.
 - **Trade Signal & Channel Config Storage**: Confirmed signals and per-channel settings persist through dedicated endpoints.
 - **Market Calendar**: A helper script populates a `MarketCalendar` table with events from an ICS feed, and `/api/market-calendar` exposes upcoming events.
+- **Market News Importer**: `api/market_news.py` reads a JSON feed nightly to create `MarketUpdate` records automatically.
 - **Daily Calendar Updates**: The FastAPI server refreshes the market calendar every night so new events appear automatically.
 - **Unified Logging**: Both the Node and Python services write logs to `data/logs` for easier troubleshooting.
 - **Live Price Checks**: `mistral.js` fetches current quotes from Robinhood to evaluate stoploss and take‑profit conditions.
@@ -50,13 +51,18 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
  ```bash
  npm start
  ```
-  On Windows you can start both services with `start.bat`, which opens two terminals for the Python and Node processes.
+ On Windows you can start both services with `start.bat`, which opens two terminals for the Python and Node processes.
 7. **Optional**: manually refresh the market calendar
 ```bash
 python api/market_calendar.py
 ```
 The FastAPI server updates the calendar nightly, but this command forces an immediate refresh.
-8. **Optional**: run a data quality check
+8. **Optional**: import the sample market news feed
+```bash
+python api/market_news.py
+```
+This populates the `MarketUpdate` table using `data/news/sample_news.json`.
+9. **Optional**: run a data quality check
 ```bash
 npm run quality
 ```

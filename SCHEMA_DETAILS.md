@@ -17,7 +17,7 @@ Logged messages from Discord. Added in `TradeTracker.trackMessage` and used to d
 Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to record quotes. `mistral.js` pulls the latest quote when checking stoploss or take‑profit levels. Snapshots are exposed via `/api/price-snapshots`.
 
 ## MarketUpdate
-Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`.
+Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`. A nightly task in `api/market_news.py` also inserts headlines from a JSON feed.
 
 ## MarketCalendar
 Stores scheduled economic events such as FOMC meetings. Events are inserted by `api/market_calendar.update_market_calendar`, which runs nightly from the FastAPI service. Upcoming events can be retrieved with `GET /api/market-calendar`.

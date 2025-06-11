@@ -1,0 +1,26 @@
+[
+  {
+    "messageId": "news1",
+    "channelId": "general",
+    "summary": "SPY opens higher as investors await Fed minutes",
+    "sentiment": "NEUTRAL",
+    "symbol": "SPY",
+    "createdAt": "2024-01-10T14:00:00Z"
+  },
+  {
+    "messageId": "news2",
+    "channelId": "general",
+    "summary": "Tech stocks lead market rally on earnings optimism",
+    "sentiment": "BULLISH",
+    "symbol": "QQQ",
+    "createdAt": "2024-01-10T15:00:00Z"
+  },
+  {
+    "messageId": "news3",
+    "channelId": "general",
+    "summary": "Oil prices slide amid demand concerns",
+    "sentiment": "BEARISH",
+    "symbol": "USO",
+    "createdAt": "2024-01-10T16:00:00Z"
+  }
+]
