@@ -18,7 +18,7 @@ Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to 
 Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`.
 
 ## MarketCalendar
-Planned table for scheduled market events such as FOMC meetings or earnings season. The data will come from a free calendar API or a scraper of the Federal Reserve schedule. No code writes to this table yet.
+Stores scheduled economic events such as FOMC meetings. Events are inserted by running `api/market_calendar.py`, which parses a public ICS feed.
 
 ## ModelLog
 Stores each analysis prompt and response from the Mistral server. Entries are now created in `trackMessage` when a message is processed.
@@ -38,8 +38,6 @@ Historical channel stats created in `updateChannelPerformance` and read by the s
 ## ChannelConfig
 Stores channel settings separately from the core `Channel` model. Configs can be created or updated with `POST /api/channel-config` and fetched via `/api/channel-config/:id`.
 
-## MarketCalendar
-New table storing scheduled economic events. Events are populated by running `api/market_calendar.py` which parses an ICS calendar feed.
 
 ## TraderStats
 Aggregated statistics for each trader within a channel. Updated in `TradeTracker.updateTraderStats` and fetched by the stats API.

@@ -29,7 +29,16 @@ export async function sendTradeSignalWebhook(webhookUrl, data) {
             embed.addField('Strike Price', `$${analysis.strikePrice}`, true);
         }
 
+        if (analysis.expirationDate || trade?.expirationDate) {
+            embed.addField('Expiration', analysis.expirationDate || trade.expirationDate, true);
+        }
+
         embed.addField('Entry Price', trade?.entryPrice ? `$${trade.entryPrice.toFixed(2)}` : 'Market Order', true);
+
+        if (typeof trade?.profitLoss === 'number') {
+            embed.addField('P&L', formatProfitLoss(trade.profitLoss), true);
+        }
+
         embed.addField('Quantity', `${trade?.quantity || 1}`, true);
         embed.addField('Signal Type', analysis.signalType || 'ENTRY', true);
         embed.addField('Trader', message.author.username, true);

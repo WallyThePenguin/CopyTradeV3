@@ -23,6 +23,7 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Gen Z/Abbreviation/Emoji Support**: Regex patterns and LLM prompts are tuned for modern trading lingo.
 - **Example-Driven LLM Prompts**: Prompts include real-world examples for better accuracy.
 - **Webhook Integration**: All results are sent to your webhook for further automation.
+- **Detailed Discord Embeds**: Webhook messages now include strike, optional expiration and real-time P&L when available.
 - **Error Handling**: All errors are logged and sent to the webhook.
 - **Extensible**: Add more regex patterns, examples, or context as needed.
 - **Manual Labels & Market Updates**: The API can store human-provided labels and short market summaries for later analysis.
@@ -33,18 +34,25 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 ## Setup
 
 1. **Clone the repo**
-2. **Install dependencies** (Python 3.10+, FastAPI, llama-cpp-python, requests, etc)
+2. **Install dependencies** by running `bash setup.sh` on Linux/macOS or `setup.bat` on Windows. This script creates a fresh Python virtual environment under `api/venv` and installs both Python and Node packages.
 3. **Set environment variables**:
    - `WEBHOOK_URL` (your endpoint to receive analysis results)
 4. **Configure your model path and GPU settings** in `mistral_server.py` (see `initialize_model`)
-5. **Run the server**:
- ```bash
+5. **Run the Python backend**:
+```bash
   uvicorn mistral_server:app --host 0.0.0.0 --port 8000
   ```
-6. **Optional**: populate the market calendar
+6. **Run the Node worker**:
+ ```bash
+ npm start
+ ```
+   On Windows you can start both services with `start.bat`, which opens two terminals for the Python and Node processes.
+7. **Optional**: populate the market calendar
   ```bash
-  python api/market_calendar.py
+ python api/market_calendar.py
   ```
+
+The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/venv` and is ignored by git.
 
 ## API Usage
 
