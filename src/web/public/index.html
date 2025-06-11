@@ -56,18 +56,16 @@
                 </div>
                 
                 <div class="flex flex-wrap gap-2">
-                    <button class="mode-btn active" data-mode="ALL" 
-                        onclick="updateStats(currentPeriod, 'ALL')">
-                        <i class="fas fa-globe"></i> All
+                    <button class="mode-btn active" data-mode="TEST" onclick="updateStats(currentPeriod, 'TEST')">
+                        <i class="fas fa-flask"></i> Simulated
                     </button>
-                    <button class="mode-btn" data-mode="TEST" 
-                        onclick="updateStats(currentPeriod, 'TEST')">
-                        <i class="fas fa-flask"></i> Test Mode
-                    </button>
-                    <button class="mode-btn" data-mode="PROD"
-                        onclick="updateStats(currentPeriod, 'PROD')">
+                    <button class="mode-btn" data-mode="PROD" onclick="updateStats(currentPeriod, 'PROD')">
                         <i class="fas fa-rocket"></i> Production
                     </button>
+
+                    <select id="channelSelector" class="bg-gray-700 text-white rounded px-2 py-1" onchange="onChannelChange(this.value)">
+                        <option value="">All Channels</option>
+                    </select>
                 </div>
             </div>
         </header>
@@ -189,6 +187,8 @@
                             <tr>
                                 <th class="px-4 py-3">Symbol</th>
                                 <th class="px-4 py-3">Action</th>
+                                <th class="px-4 py-3">Channel</th>
+                                <th class="px-4 py-3">Trader</th>
                                 <th class="px-4 py-3">Entry</th>
                                 <th class="px-4 py-3">Exit</th>
                                 <th class="px-4 py-3">P/L</th>
