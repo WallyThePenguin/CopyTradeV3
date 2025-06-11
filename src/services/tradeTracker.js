@@ -258,7 +258,10 @@ class TradeTracker {
                 authorId,
                 messageId,
                 content,
-                timestamp = new Date()
+                timestamp = new Date(),
+                parsedData = null,
+                modelUsed = null,
+                parsedAt = null
             } = messageData;
 
             await this.prisma.channel.upsert({
@@ -277,6 +280,9 @@ class TradeTracker {
                     discordId: messageId,
                     author: authorId,
                     content,
+                    parsedData,
+                    modelUsed,
+                    parsedAt,
                     type: 'DISCORD',
                     createdAt: timestamp
                 }
@@ -285,6 +291,26 @@ class TradeTracker {
             return message;
         } catch (error) {
             console.error('Error tracking message:', error);
+            throw error;
+        }
+    }
+
+    async logModelResult(log) {
+        const { messageId, prompt, response, inputTokens = 0, outputTokens = 0, latencyMs = 0, modelName = 'mistral' } = log;
+        try {
+            return await this.prisma.modelLog.create({
+                data: {
+                    messageId,
+                    prompt,
+                    response: JSON.stringify(response),
+                    inputTokens,
+                    outputTokens,
+                    latencyMs,
+                    modelName
+                }
+            });
+        } catch (error) {
+            console.error('Error logging model result:', error);
             throw error;
         }
     }

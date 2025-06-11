@@ -20,6 +20,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Web UI Dashboard** – `src/web/public` displays performance cards, charts and recent trades.  WebSocket signals keep the UI in sync.
 - **Channel Selector** – the dashboard can filter statistics by channel and toggle between **Simulated** and **Production** modes.
 - **Webhook Notifications** – trade events are posted to Discord webhooks, though the embeds lack detailed fields.
+- **Model Logging** – each LLM analysis is stored in the `ModelLog` table so prompts and responses can be reviewed later.
 
 ## Areas for Improvement
 
@@ -32,4 +33,4 @@ All messages, trades and market events will be collected from roughly fifty trad
 
 ## Completion Status
 
-The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard.  Price data, security hardening and some UI bugs remain unresolved, so the project feels around **70% complete** towards a production‑ready tool.
+The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard.  Basic model logging has been added, but price data, security hardening and some UI bugs remain unresolved, so the project feels around **75% complete** towards a production‑ready tool.

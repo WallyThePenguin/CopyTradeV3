@@ -18,10 +18,10 @@ Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to 
 Table for summarised market posts. Only queried by `/api/market-updates`; no inserts detected in the current code.
 
 ## ModelLog
-Intended to store LLM prompts and responses. Data is served through `/api/model-logs` but no creation logic was found in the Node or Python services.
+Stores each analysis prompt and response from the Mistral server. Entries are now created in `trackMessage` when a message is processed.
 
 ## ManualLabel
-Holds human annotations for messages. Like `ModelLog`, rows are returned by an API endpoint but there is no write path implemented.
+Holds human annotations for messages. Rows are returned by an API endpoint but creation logic has not been implemented yet.
 
 ## TradeSignal
 Represents detected trade signals. The schema defines a relation to `Trade` but the application does not currently create `TradeSignal` entries. Signals are only broadcast to WebSocket clients.
