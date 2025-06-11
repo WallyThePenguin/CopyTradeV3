@@ -20,7 +20,7 @@ This document collects ideas and reminders for future contributors (including fu
 - **Automatic Market Updates**
   - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud.
 - **Data Quality Standards**
-  - Poor data hurts model training and decision making. List common issues, set clear quality rules for all contributors and appoint a steward to check new entries.
+  - Poor data hurts model training and decision making. A simple script (`npm run quality`) now reports missing exit prices and other anomalies. Define rules based on this output and appoint a steward to check it regularly.
 
 ## Medium‑Term Goals
 
