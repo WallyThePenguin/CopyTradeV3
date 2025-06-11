@@ -164,6 +164,19 @@ model PerformanceHistory {
   channel     Channel  @relation(fields: [channelId], references: [id])
 }
 
+model OrderRecord {
+  id           String   @id @default(uuid())
+  brokerOrderId String  @unique
+  symbol       String
+  type         String?
+  side         String?
+  quantity     Int
+  price        Float?
+  status       String?
+  filledAt     DateTime?
+  createdAt    DateTime @default(now())
+}
+
 model ChannelConfig {
   id            String   @id @default(uuid())
   channelId     String   @unique

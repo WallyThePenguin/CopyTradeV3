@@ -24,7 +24,10 @@ Table for summarised market posts. Entries can now be created via `POST /api/mar
 Stores scheduled economic events such as FOMC meetings. Events are inserted by `api/market_calendar.update_market_calendar`, which runs nightly from the FastAPI service. Upcoming events can be retrieved with `GET /api/market-calendar`.
 
 ## Order History
-Order information is pulled from the trading service via `/api/order-history`. These records are not yet stored in the database but provide a quick audit trail.
+Order information is pulled from the trading service via `/api/order-history`. Responses are now saved to an `OrderRecord` table. Saved records can be fetched with `/api/order-records`.
+
+## OrderRecord
+Stores individual broker orders. Entries are written when order history is requested. The Web API exposes these records via `/api/order-records` for audit purposes.
 
 ## Open Positions
 Current holdings are fetched from the active trading service using `/api/positions`. No table exists for these records; the endpoint simply forwards whatever the broker returns so the dashboard can show live positions.
