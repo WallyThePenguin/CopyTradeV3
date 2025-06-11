@@ -36,6 +36,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Service Initialization**: The trading service now initializes automatically when the web server starts and is verified before each order so Robinhood sessions remain valid.
 - **Account Positions Endpoint**: `/api/positions` exposes current holdings from the active trading service.
 - **Order History Endpoint**: `/api/order-history` lists recent orders from the trading service.
+- **Open Positions Dashboard**: A new table on the web UI shows current holdings retrieved from `/api/positions`.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
 
 ## Setup
