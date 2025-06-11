@@ -44,9 +44,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 
 1. **Clone the repo**
 2. **Install dependencies** by running `bash setup.sh` on Linux/macOS or `setup.bat` on Windows. This script creates a fresh Python virtual environment under `api/venv` and installs both Python and Node packages.
-3. **Set environment variables**:
-   - `WEBHOOK_URL` (your endpoint to receive analysis results)
-   - `API_KEY` (optional token for securing POST requests)
+3. **Copy `.env.example` to `.env`** and update the values for your environment. At minimum set `WEBHOOK_URL`, `DISCORD_TOKEN` and database credentials. `API_KEY` is optional but recommended for securing POST routes.
 4. **Configure your model path and GPU settings** in `mistral_server.py` (see `initialize_model`)
 5. **Run the Python backend**:
 ```bash

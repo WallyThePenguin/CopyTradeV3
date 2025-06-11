@@ -40,6 +40,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **UI Polishing** – the dashboard occasionally shows incorrect P&L and the period buttons still have quirks.  Trader statistics could also highlight which channel executed a trade.
 - **Error Logging** – a unified logging strategy across Node and Python would improve troubleshooting. *Node now uses a simple logger but Python still relies on the standard library.*
 - **Repository Size** – the included Python virtual environment inflates the repo; a setup script may be preferable. *`api/venv` is now ignored and `setup.sh` (or `setup.bat`) recreates it on demand.*
+- **Environment Files** – secrets were accidentally committed. A template `.env.example` now provides sample variables and `.env` is git‑ignored. Copy the example to configure your own credentials.
 - **Market Calendar** – create a table to store scheduled economic events (e.g. FOMC meetings) by parsing a public calendar like the Federal Reserve's or an equivalent API.  Insert these dates into SQL so the UI can display upcoming market events.
 - **Market Update Sources** – find a reliable API or broker feed to automatically populate the `MarketUpdate` table with news headlines or summaries. *Initial implementation added `api/market_news.py` which imports a JSON feed nightly.*
 - **Data Quality** – document and monitor problems that lead to bad data. Bad data increases cost and hurts decision making. Establish collection standards and assign a data steward to perform regular checks.
