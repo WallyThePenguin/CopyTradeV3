@@ -23,6 +23,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Model Logging** – each LLM analysis is stored in the `ModelLog` table so prompts and responses can be reviewed later.
 - **Trade Signal Logging** – each confirmed signal now creates a `TradeSignal` row so the dataset reflects every alert.
 - **Channel Configuration API** – `/api/channel-config` allows saving per-channel settings to the `ChannelConfig` table.
+- **Market Calendar Endpoint** – `/api/market-calendar` lists upcoming economic events stored by `api/market_calendar.py`.
 
 ## Areas for Improvement
 

@@ -16,7 +16,7 @@ This document collects ideas and reminders for future contributors (including fu
   - Display the trader/channel responsible for each trade in the "Recent Trades" table.
   - Add combined statistics for all simulated channels so performance can be assessed before enabling them.
 - **Market Calendar Table**
-  - A `MarketCalendar` model and Python ingestion script now exist. Schedule the script periodically to pull the Federal Reserve calendar or a free API so upcoming catalysts appear in the UI.
+  - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. Schedule the script periodically to pull the Federal Reserve calendar or a free API so catalysts appear in the UI.
 - **Automatic Market Updates**
   - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud.
 - **Data Quality Standards**

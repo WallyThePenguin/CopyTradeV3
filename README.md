@@ -28,7 +28,7 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Extensible**: Add more regex patterns, examples, or context as needed.
 - **Manual Labels & Market Updates**: The API can store human-provided labels and short market summaries for later analysis.
 - **Trade Signal & Channel Config Storage**: Confirmed signals and per-channel settings persist through dedicated endpoints.
-- **Market Calendar**: A helper script populates a `MarketCalendar` table with events from an ICS feed.
+- **Market Calendar**: A helper script populates a `MarketCalendar` table with events from an ICS feed, and `/api/market-calendar` exposes upcoming events.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
 
 ## Setup
@@ -48,9 +48,10 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
  ```
    On Windows you can start both services with `start.bat`, which opens two terminals for the Python and Node processes.
 7. **Optional**: populate the market calendar
-  ```bash
+ ```bash
  python api/market_calendar.py
-  ```
+ ```
+  Events will be available through `/api/market-calendar` once inserted.
 
 The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/venv` and is ignored by git.
 
@@ -68,6 +69,8 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
   - Use these labels to build a high quality training set for future models.
 - **POST /api/channel-config**
   - Save per-channel settings: `{ "channelId": "123", "isEnabled": true, "minConfidence": 0.8 }`
+- **GET /api/market-calendar**
+  - List upcoming economic events stored in the `MarketCalendar` table.
 - **GET /api/signals**
   - List recent trade signals with optional `limit` parameter.
 

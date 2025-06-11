@@ -6,8 +6,8 @@ import torch
 import gc
 import os
 from typing import Optional, Dict, Any
-import logging
 from utils.gpu import clear_gpu_memory, get_gpu_info, optimize_for_rtx2060
+from utils.logger import logger
 from analysis.channel_analyzer import ChannelAnalyzer
 import threading
 import schedule
@@ -18,9 +18,7 @@ import requests
 from collections import defaultdict
 from datetime import datetime
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Logger is configured in utils.logger
 
 app = FastAPI()
 
