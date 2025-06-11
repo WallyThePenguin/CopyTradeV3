@@ -19,6 +19,7 @@ class TradeTracker {
             optionType,
             strikePrice,
             quantity = 1,
+            author = null,
             signalType = 'ENTRY', // ← new
             entryPrice = null      // ← new (can override simulator price if known)
         } = tradeData;
@@ -120,10 +121,21 @@ class TradeTracker {
                 strikePrice,
                 entryPrice: actualEntryPrice,
                 quantity,
+                author,
                 status: 'OPEN',
                 channel: {
                     connect: { id: channelId }
                 }
+            }
+        });
+
+        // record execution stats so we always use the table
+        await this.prisma.executionStats.create({
+            data: {
+                tradeId: trade.id,
+                executedAt: new Date(),
+                executedPrice: actualEntryPrice,
+                result: 'OPEN'
             }
         });
 
@@ -145,6 +157,15 @@ class TradeTracker {
             });
 
             if (updateData.status === 'CLOSED') {
+                await this.prisma.executionStats.updateMany({
+                    where: { tradeId },
+                    data: {
+                        exitPrice: updateData.exitPrice,
+                        pnl: updateData.profitLoss,
+                        durationSec: trade.exitTime && trade.entryTime ? Math.floor((trade.exitTime - trade.entryTime) / 1000) : null,
+                        result: updateData.profitLoss > 0 ? 'WIN' : 'LOSS'
+                    }
+                });
                 await this.updateChannelPerformance(trade.channelId);
                 await this.updateTraderStats(trade);
             }
@@ -268,11 +289,16 @@ class TradeTracker {
         }
     }
     async updateTraderStats(trade) {
-        if (!trade.author || !trade.channelId) return;
+        let traderName = trade.author;
+        if (!traderName) {
+            const channel = trade.channel || await this.prisma.channel.findUnique({ where: { id: trade.channelId } });
+            traderName = channel ? channel.name : `channel:${trade.channelId}`;
+        }
+        if (!traderName || !trade.channelId) return;
 
         const trades = await this.prisma.trade.findMany({
             where: {
-                author: trade.author,
+                author: traderName,
                 channelId: trade.channelId,
                 status: 'CLOSED'
             }
@@ -288,7 +314,7 @@ class TradeTracker {
         await this.prisma.traderStats.upsert({
             where: {
                 author_channelId: {
-                    author: trade.author,
+                    author: traderName,
                     channelId: trade.channelId
                 }
             },
@@ -299,7 +325,7 @@ class TradeTracker {
                 lastActive: new Date()
             },
             create: {
-                author: trade.author,
+                author: traderName,
                 channelId: trade.channelId,
                 totalSignals: total,
                 successfulSignals: wins,

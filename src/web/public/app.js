@@ -6,7 +6,8 @@ let tradesChart = null;
 
 // Current time period and mode
 let currentPeriod = 'DAILY';
-let currentMode = 'ALL';
+let currentMode = 'TEST';
+let currentChannel = '';
 
 // WebSocket for live signals
 let signalsWebSocket = null;
@@ -18,6 +19,7 @@ Chart.defaults.borderColor = '#374151';
 // Initialize the dashboard
 document.addEventListener('DOMContentLoaded', () => {
     initializeLiveSignals();
+    loadChannels();
     updateStats(currentPeriod, currentMode);
     setInterval(() => updateStats(currentPeriod, currentMode), 30000); // Update every 30 seconds
 });
@@ -46,6 +48,27 @@ function initializeLiveSignals() {
     } catch (error) {
         console.error('Failed to initialize WebSocket:', error);
     }
+}
+
+async function loadChannels() {
+    try {
+        const res = await fetch('/api/channels');
+        const channels = await res.json();
+        const selector = document.getElementById('channelSelector');
+        channels.forEach(ch => {
+            const opt = document.createElement('option');
+            opt.value = ch.id;
+            opt.textContent = ch.name;
+            selector.appendChild(opt);
+        });
+    } catch (err) {
+        console.error('Failed to load channels', err);
+    }
+}
+
+function onChannelChange(channelId) {
+    currentChannel = channelId;
+    updateStats(currentPeriod, currentMode);
 }
 
 // Display live signal
@@ -107,7 +130,8 @@ async function updateStats(period, mode) {
     updateModeButtons();
 
     try {
-        const response = await fetch(`/api/stats?period=${period}&mode=${mode}`);
+        const channelParam = currentChannel ? `&channel=${currentChannel}` : '';
+        const response = await fetch(`/api/stats?period=${period}&mode=${mode}${channelParam}`);
         const data = await response.json();
 
         updatePerformanceCards(data);
@@ -309,7 +333,7 @@ function updateRecentTradesTable(trades) {
         const row = document.createElement('tr');
         const plClass = trade.profitLoss >= 0 ? 'text-profit' : 'text-loss';
         const actionIcon = trade.action === 'BUY' ? '📈' : '📉';
-        
+
         row.innerHTML = `
             <td class="px-4 py-3">
                 <span class="font-medium">${trade.symbol}</span>
@@ -318,6 +342,8 @@ function updateRecentTradesTable(trades) {
             <td class="px-4 py-3">
                 <span>${actionIcon} ${trade.action}</span>
             </td>
+            <td class="px-4 py-3">${trade.channel?.name || '-'}</td>
+            <td class="px-4 py-3">${trade.author || '-'}</td>
             <td class="px-4 py-3">${formatCurrency(trade.entryPrice)}</td>
             <td class="px-4 py-3">${trade.exitPrice ? formatCurrency(trade.exitPrice) : '-'}</td>
             <td class="px-4 py-3 ${plClass} font-medium">${trade.profitLoss ? formatCurrency(trade.profitLoss) : '-'}</td>
@@ -400,8 +426,7 @@ function setPeriodAndModeLabels() {
         'ALL_TIME': 'All Time'
     };
     const modeMap = {
-        'ALL': 'All',
-        'TEST': 'Test Mode',
+        'TEST': 'Simulated',
         'PROD': 'Production'
     };
     document.getElementById('currentPeriodLabel').textContent = `Time Period: ${periodMap[currentPeriod] || currentPeriod}`;

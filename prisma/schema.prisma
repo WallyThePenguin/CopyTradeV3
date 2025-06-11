@@ -42,6 +42,7 @@ model Trade {
   entryPrice  Float
   exitPrice   Float?
   quantity    Int
+  author      String?
   status      String
   entryTime   DateTime  @default(now())
   exitTime    DateTime?
