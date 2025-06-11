@@ -30,4 +30,5 @@ fsspec
 jinja2
 networkx
 setuptools
-sympy>=1.13.3 
+sympy>=1.13.3
+ics==0.7.2

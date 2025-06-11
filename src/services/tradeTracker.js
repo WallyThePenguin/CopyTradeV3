@@ -314,6 +314,24 @@ class TradeTracker {
             throw error;
         }
     }
+
+    async logTradeSignal(signal) {
+        const {
+            tradeId,
+            confidence,
+            triggeredAt = new Date(),
+            source = 'DISCORD',
+            autoExecuted = false
+        } = signal;
+        try {
+            return await this.prisma.tradeSignal.create({
+                data: { tradeId, confidence, triggeredAt, source, autoExecuted }
+            });
+        } catch (error) {
+            console.error('Error logging trade signal:', error);
+            throw error;
+        }
+    }
     async updateTraderStats(trade) {
         let traderName = trade.author;
         if (!traderName) {

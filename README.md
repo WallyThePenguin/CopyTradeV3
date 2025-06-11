@@ -26,7 +26,8 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Error Handling**: All errors are logged and sent to the webhook.
 - **Extensible**: Add more regex patterns, examples, or context as needed.
 - **Manual Labels & Market Updates**: The API can store human-provided labels and short market summaries for later analysis.
-- **Planned Market Calendar**: Upcoming economic events like FOMC meetings will be ingested from a public calendar API into a `MarketCalendar` table.
+- **Trade Signal & Channel Config Storage**: Confirmed signals and per-channel settings persist through dedicated endpoints.
+- **Market Calendar**: A helper script populates a `MarketCalendar` table with events from an ICS feed.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
 
 ## Setup
@@ -37,9 +38,13 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
    - `WEBHOOK_URL` (your endpoint to receive analysis results)
 4. **Configure your model path and GPU settings** in `mistral_server.py` (see `initialize_model`)
 5. **Run the server**:
-   ```bash
-   uvicorn mistral_server:app --host 0.0.0.0 --port 8000
-   ```
+ ```bash
+  uvicorn mistral_server:app --host 0.0.0.0 --port 8000
+  ```
+6. **Optional**: populate the market calendar
+  ```bash
+  python api/market_calendar.py
+  ```
 
 ## API Usage
 
@@ -53,6 +58,10 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **POST /api/manual-labels**
   - Label a message manually: `{ "messageId": "123", "label": "SCALP", "confidence": 0.9 }`
   - Use these labels to build a high quality training set for future models.
+- **POST /api/channel-config**
+  - Save per-channel settings: `{ "channelId": "123", "isEnabled": true, "minConfidence": 0.8 }`
+- **GET /api/signals**
+  - List recent trade signals with optional `limit` parameter.
 
 ## Example Regex/LLM Flow
 

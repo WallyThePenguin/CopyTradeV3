@@ -7,13 +7,12 @@ and market updates can now be created through the Web UI API.
 
 - **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context.
 - **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values.
-- **Persist Every Table** – add write logic for all schema models. `MarketUpdate` and `ManualLabel` now have POST endpoints, while `TradeSignal` and `ChannelConfig` still need create flows.
+- **Persist Every Table** – add write logic for all schema models. `TradeSignal` and `ChannelConfig` now have create/update paths alongside `MarketUpdate` and `ManualLabel`.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs.
 - **Authentication** – secure the API and Web UI with token or session based auth before exposing it publicly.
 - **WebUI Enhancements** –
   - Fix P&L calculation issues in trader stats.
   - Display which channel or trader executed each trade in the recent trades table.
-  - Remove the obsolete "All" button and rename "Test mode" to "Simulated".
   - Ensure period-selection buttons update the timeframe correctly.
   - Allow combined performance view across all simulated channels.
   - When "Production" mode is selected, show only enabled channels.

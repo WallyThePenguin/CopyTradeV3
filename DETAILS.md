@@ -27,9 +27,9 @@ This file provides a high level overview of how the main pieces of the system fi
 Good data is vital for training models and making decisions. We should track issues that reduce quality, set clear standards for new contributions and consider appointing a data steward to review incoming records.
 
 ## Missing Pieces
-* Several Prisma tables lacked write paths. `marketUpdate` and `manualLabel` records can now be created through the Web UI API, but `tradeSignal` and `channelConfig` still need persistence.
+* Several Prisma tables lacked write paths. `marketUpdate` and `manualLabel` records can be created through the Web UI API and recent work added persistence for `tradeSignal` and `channelConfig`.
 * Webhook notifications contain minimal information compared to earlier versions of the project.
 * Live price data is simulated for many operations, reducing accuracy of P&L metrics.
-* No market calendar yet – a scheduled task should parse the Federal Reserve or another calendar API and insert upcoming events.
+* A `MarketCalendar` table has been added along with a Python script (`api/market_calendar.py`) that fetches an ICS calendar and stores upcoming events. A periodic job should call this script.
 
 These notes should help developers understand where features live and what areas still need attention.

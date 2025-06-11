@@ -21,6 +21,8 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Channel Selector** – the dashboard can filter statistics by channel and toggle between **Simulated** and **Production** modes.
 - **Webhook Notifications** – trade events are posted to Discord webhooks, though the embeds lack detailed fields.
 - **Model Logging** – each LLM analysis is stored in the `ModelLog` table so prompts and responses can be reviewed later.
+- **Trade Signal Logging** – each confirmed signal now creates a `TradeSignal` row so the dataset reflects every alert.
+- **Channel Configuration API** – `/api/channel-config` allows saving per-channel settings to the `ChannelConfig` table.
 
 ## Areas for Improvement
 
@@ -36,4 +38,4 @@ All messages, trades and market events will be collected from roughly fifty trad
 
 ## Completion Status
 
-The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard.  Basic model logging has been added and manual labels/market updates are now persisted. Price data, security hardening and some UI bugs remain unresolved, so the project feels around **78% complete** towards a production‑ready tool.
+The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Price data, security hardening and some UI bugs remain unresolved, so the project feels around **80% complete** towards a production‑ready tool.
