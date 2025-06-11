@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
-import robinhoodService from '../services/robinhood.js';
+import tradingService from '../services/tradingService.js';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 
@@ -175,6 +175,18 @@ app.get('/api/health', async (req, res) => {
     } catch (error) {
         console.error('Error fetching system health:', error);
         res.status(500).json({ error: 'Failed to fetch system health' });
+    }
+});
+
+// New endpoint: Get current account positions
+app.get('/api/positions', async (req, res) => {
+    try {
+        await tradingService.initialize();
+        const positions = await tradingService.getPositions();
+        res.json(positions);
+    } catch (error) {
+        console.error('Error fetching positions:', error);
+        res.status(500).json({ error: 'Failed to fetch positions' });
     }
 });
 

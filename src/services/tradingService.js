@@ -35,9 +35,16 @@ class TradingService {
     getActivePositions() {
         return this.service.getActivePositions?.() || [];
     }
+
+    async getPositions() {
+        if (typeof this.service.getPositions === 'function') {
+            return await this.service.getPositions();
+        }
+        return this.getActivePositions();
+    }
     async getExitPrice(symbol, strikePrice, optionType, expirationDate, entryPrice) {
         return await this.service.getExitPrice(symbol, strikePrice, optionType, expirationDate, entryPrice);
-}
+    }
 }
 
 // Export singleton instance

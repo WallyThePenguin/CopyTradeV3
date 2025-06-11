@@ -305,6 +305,10 @@ async getExitPrice(symbol, strikePrice, optionType, expirationDate, entryPrice) 
     getActivePositions() {
         return Array.from(this.activePositions.values());
     }
+
+    async getPositions() {
+        return this.getActivePositions();
+    }
 }
 
 // Export singleton instance
