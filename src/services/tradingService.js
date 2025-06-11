@@ -42,10 +42,18 @@ class TradingService {
         }
         return this.getActivePositions();
     }
+
+    async getOrderHistory() {
+        if (typeof this.service.getOrderHistory === 'function') {
+            return await this.service.getOrderHistory();
+        }
+        return [];
+    }
+
     async getExitPrice(symbol, strikePrice, optionType, expirationDate, entryPrice) {
         return await this.service.getExitPrice(symbol, strikePrice, optionType, expirationDate, entryPrice);
     }
 }
 
 // Export singleton instance
-export default new TradingService(); 
+export default new TradingService();

@@ -198,6 +198,18 @@ app.get('/api/positions', async (req, res) => {
     }
 });
 
+// New endpoint: Order history
+app.get('/api/order-history', async (req, res) => {
+    try {
+        await tradingService.initialize();
+        const orders = await tradingService.getOrderHistory();
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching order history:', error);
+        res.status(500).json({ error: 'Failed to fetch order history' });
+    }
+});
+
 // New endpoint: Trade signals history
 app.get('/api/signals', async (req, res) => {
     try {

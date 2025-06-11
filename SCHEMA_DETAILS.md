@@ -23,6 +23,9 @@ Table for summarised market posts. Entries can now be created via `POST /api/mar
 ## MarketCalendar
 Stores scheduled economic events such as FOMC meetings. Events are inserted by `api/market_calendar.update_market_calendar`, which runs nightly from the FastAPI service. Upcoming events can be retrieved with `GET /api/market-calendar`.
 
+## Order History
+Order information is pulled from the trading service via `/api/order-history`. These records are not yet stored in the database but provide a quick audit trail.
+
 ## ModelLog
 Stores each analysis prompt and response from the Mistral server. Entries are now created in `trackMessage` when a message is processed.
 
