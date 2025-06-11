@@ -149,14 +149,24 @@ async function processMessage(message, isShortform = true) {
         }
 
         // Track message for analysis
-        await tradeTracker.trackMessage({
+        const msgRecord = await tradeTracker.trackMessage({
             channelId: message.channel.id,
             channelName: channelConfig?.name || message.channel.name || 'Unknown Channel',
             messageId: message.id,
             content: message.content,
             authorId: message.author.id,
             authorName: message.author.username,
-            timestamp: message.createdAt
+            timestamp: message.createdAt,
+            parsedData: analysis,
+            modelUsed: 'mistral',
+            parsedAt: new Date()
+        });
+
+        await tradeTracker.logModelResult({
+            messageId: msgRecord.id,
+            prompt: message.content,
+            response: analysis,
+            modelName: 'mistral'
         });
 
     } catch (error) {

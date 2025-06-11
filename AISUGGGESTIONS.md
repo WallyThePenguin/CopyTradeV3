@@ -5,7 +5,7 @@ This document collects ideas and reminders for future contributors (including fu
 ## Short‑Term Improvements
 
 - **Complete Table Coverage**
-  - The Prisma schema defines several models that still lack create/update logic (`MarketUpdate`, `ManualLabel`, `ModelLog`, `TradeSignal`, `ChannelConfig`). Implementing these will ensure every table accumulates data for later analysis.
+  - The Prisma schema defines several models that still lack create/update logic (`MarketUpdate`, `ManualLabel`, `TradeSignal`, `ChannelConfig`). `ModelLog` entries are now written during message processing.
   - Expand existing services (Node and Python) so important events always result in a database write.
 - **Webhook Embeds**
   - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful.

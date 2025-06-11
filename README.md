@@ -7,6 +7,7 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **LLM (Large Language Model) confirmation** for high-accuracy trade intent detection
 - **Context-rich LLM prompts** for extracting detailed trade information
 - **Webhook integration** to send all analysis results to your custom endpoint in real time
+- **Model logging** stores every analysis result in the database for later review
 - **Optimized GPU inference** for sub-5s response times on consumer GPUs (e.g., RTX 2060 Super)
 
 ## How It Works
@@ -66,10 +67,6 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Add more LLM examples** to improve accuracy
 - **Tune model settings** for your GPU in `initialize_model()`
 
-## Troubleshooting
-- If inference is slow, check GPU memory and model settings
-- If webhooks fail, check your `WEBHOOK_URL` and server logs
-- All errors are logged and sent to the webhook
 
 ## License
 MIT

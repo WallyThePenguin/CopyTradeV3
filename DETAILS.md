@@ -18,7 +18,8 @@ This file provides a high level overview of how the main pieces of the system fi
 1. Discord messages are queued and analysed by the Python server.
 2. If a trade signal is confirmed, `TradeTracker` records the trade in PostgreSQL and optionally places an order through Robinhood.
 3. Execution stats and price snapshots are saved whether the trade is real or simulated.
-4. The Web UI pulls aggregated statistics from the database and receives live trade updates via WebSocket.
+4. Model prompts and responses are stored in the `ModelLog` table for later review.
+5. The Web UI pulls aggregated statistics from the database and receives live trade updates via WebSocket.
 
 ## Missing Pieces
 * Several Prisma tables (see `SCHEMA_DETAILS.md`) are read but never written to. Implementing those write paths would improve the dataset.

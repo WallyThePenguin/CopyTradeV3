@@ -2,9 +2,11 @@
 
 The following items outline areas where the project could be expanded or refined. They are based on the current code base and the goal of capturing detailed trade data for algorithmic training.
 
+Progress: model logs are now persisted whenever a message is analysed.
+
 - **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context.
 - **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values.
-- **Persist Every Table** – many schema models are unused. Add write logic for `MarketUpdate`, `ManualLabel`, `ModelLog`, `TradeSignal` and `ChannelConfig` so rows are created during normal operation.
+- **Persist Every Table** – many schema models are unused. Add write logic for `MarketUpdate`, `ManualLabel`, `TradeSignal` and `ChannelConfig` so rows are created during normal operation.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs.
 - **Authentication** – secure the API and Web UI with token or session based auth before exposing it publicly.
 - **WebUI Enhancements** –
