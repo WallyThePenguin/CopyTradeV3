@@ -271,3 +271,11 @@ isTradeSignal
 2025-06-10 20:59:40,362 - analysis.channel_analyzer - INFO - Analyzing channel 1375771480037785640
 2025-06-10 20:59:40,367 - analysis.channel_analyzer - ERROR - Error calculating channel performance: float() argument must be a string or a real number, not 'NoneType'
 2025-06-10 20:59:40,368 - analysis.channel_analyzer - WARNING - Insufficient data for channel 1375771480037785640
+2025-06-10 22:01:21,360 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 22:01:24,573 - mistral_server - INFO - Model initialized successfully
+2025-06-10 22:01:24,602 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 22:01:24,603 - mistral_server - INFO - Trade context initialized
+2025-06-10 22:01:24,668 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 22:01:24,732 - analysis.channel_analyzer - INFO - Analyzing channel 1375771480037785640
+2025-06-10 22:01:24,736 - analysis.channel_analyzer - ERROR - Error calculating channel performance: float() argument must be a string or a real number, not 'NoneType'
+2025-06-10 22:01:24,736 - analysis.channel_analyzer - WARNING - Insufficient data for channel 1375771480037785640

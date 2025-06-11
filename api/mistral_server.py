@@ -28,11 +28,18 @@ app = FastAPI()
 model = None
 channel_analyzer = None
 trade_context = None
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, "..", "model",
+                          "mistral-7b-instruct-v0.2.Q4_K_M.gguf")
+model_path = os.path.abspath(model_path)  # Normalize the path
 
 # Trade context tracking
+
+
 class TradeContext:
     def __init__(self):
-        self.active_trades = defaultdict(dict)  # ticker -> {strike: trade_info}
+        # ticker -> {strike: trade_info}
+        self.active_trades = defaultdict(dict)
         self.last_trade = None  # Last trade info for context
         self.history_file = "data/logs/trade_history.json"
         self.load_history()
@@ -58,7 +65,7 @@ class TradeContext:
         if 'strikePrice' in trade_info:
             self.active_trades[ticker][trade_info['strikePrice']] = trade_info
         self.last_trade = trade_info
-        
+
         # Add to history with timestamp
         history_entry = {
             "timestamp": datetime.now().isoformat(),
@@ -91,6 +98,7 @@ class TradeContext:
     def get_recent_trades(self, count=5):
         """Get the most recent trades for context"""
         return self.trade_history[-count:] if self.trade_history else []
+
 
 # --- Regex patterns for buy/sell detection, including abbreviations and Gen Z slang ---
 SELL_PATTERNS = [
@@ -186,18 +194,20 @@ EXAMPLES = [
     }
 ]
 
+
 def is_exit_signal(message_content):
     """Enhanced exit signal detector with partial exit detection"""
     message = message_content.lower()
-    
+
     # Check if it's an exit signal
     is_exit = any(re.search(pattern, message) for pattern in SELL_PATTERNS)
     if not is_exit:
         return None
-        
+
     # Check if it's a partial exit
-    is_partial = any(re.search(pattern, message) for pattern in PARTIAL_PATTERNS)
-    
+    is_partial = any(re.search(pattern, message)
+                     for pattern in PARTIAL_PATTERNS)
+
     return {
         "is_exit": True,
         "exit_type": "partial" if is_partial else "full",
@@ -205,13 +215,15 @@ def is_exit_signal(message_content):
         "reasoning": "Exit signal detected" + (" (partial)" if is_partial else "")
     }
 
+
 def get_enhanced_prompt(message_content, trade_context):
     """Get optimized prompt for Mistral with trade context"""
     # Get active trades for context
     active_trades = []
     for ticker, trades in trade_context.active_trades.items():
         for strike, trade in trades.items():
-            active_trades.append(f"{ticker} {strike} {trade.get('optionType', '')} @{trade.get('entryPrice', '')}")
+            active_trades.append(
+                f"{ticker} {strike} {trade.get('optionType', '')} @{trade.get('entryPrice', '')}")
 
     # Get recent trade history
     recent_trades = trade_context.get_recent_trades(3)  # Last 3 trades
@@ -220,7 +232,8 @@ def get_enhanced_prompt(message_content, trade_context):
         for trade in recent_trades
     ]) if recent_trades else "No recent trades"
 
-    context_str = "\n".join(active_trades) if active_trades else "No active trades"
+    context_str = "\n".join(
+        active_trades) if active_trades else "No active trades"
 
     return f"""[INST] You are a trading message analyzer. Extract trade information into JSON format.
 
@@ -298,8 +311,10 @@ Now analyze this message:
 
 Return only the JSON object, nothing else. If no trade is detected, return an empty object {{}}. [/INST]"""
 
+
 class MessageRequest(BaseModel):
     content: str
+
 
 class MessageResponse(BaseModel):
     isTradeSignal: bool
@@ -313,19 +328,20 @@ class MessageResponse(BaseModel):
     processing_time: Optional[float] = None
     error: Optional[str] = None
 
+
 def initialize_model():
     """Initialize the Mistral model with GPU optimization for RTX 2060 Super"""
     global model
-    
+
     # Clear GPU memory
     clear_gpu_memory()
-    
+
     try:
         # Get optimal settings for RTX 2060 Super
         settings = optimize_for_rtx2060()
-        
+
         model = Llama(
-            model_path="C:/Users/manso/Desktop/Class Projects/CopyTradeV2/model/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+            model_path=model_path,
             **settings,
             chat_format="mistral-instruct",
             verbose=False
@@ -335,6 +351,7 @@ def initialize_model():
     except Exception as e:
         logger.error(f"Error initializing model: {str(e)}")
         raise
+
 
 def initialize_channel_analyzer():
     """Initialize the channel analyzer"""
@@ -346,6 +363,7 @@ def initialize_channel_analyzer():
         logger.error(f"Error initializing channel analyzer: {str(e)}")
         raise
 
+
 def run_channel_analysis():
     """Run channel analysis in a separate thread"""
     if channel_analyzer:
@@ -354,39 +372,43 @@ def run_channel_analysis():
         except Exception as e:
             logger.error(f"Error running channel analysis: {str(e)}")
 
+
 def schedule_analysis():
     """Schedule periodic channel analysis"""
     schedule.every().day.at("00:00").do(run_channel_analysis)
-    
+
     while True:
         schedule.run_pending()
         time.sleep(60)
+
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
     global trade_context
-    
+
     # Initialize Mistral model
     initialize_model()
-    
+
     # Initialize trade context
     trade_context = TradeContext()
     logger.info("Trade context initialized")
-    
+
     # Initialize channel analyzer
     initialize_channel_analyzer()
-    
+
     # Start analysis scheduler in a separate thread
     analysis_thread = threading.Thread(target=schedule_analysis, daemon=True)
     analysis_thread.start()
-    
+
     # Run initial analysis
     run_channel_analysis()
+
 
 def regex_maybe_action(message, patterns):
     message = message.lower()
     return any(re.search(pattern, message) for pattern in patterns)
+
 
 def get_action_confirmation_prompt(message, action):
     # Use examples in the prompt for better LLM accuracy
@@ -402,17 +424,18 @@ Message: "{message}"
 
 Return only the JSON object. If not a {action} signal, return false. [/INST]'''
 
+
 @app.post("/analyze", response_model=MessageResponse)
 async def analyze_message(request: MessageRequest) -> dict:
     start_time = time.time()
     msg = request.content
     logger.info(f"Received message for analysis: {msg}")
     webhook_url = os.environ.get("WEBHOOK_URL")
-    
+
     try:
         # First check if it's an exit signal using enhanced detection
         exit_result = is_exit_signal(msg)
-        
+
         # If it's an exit signal, use the active trade details
         if exit_result and exit_result.get('is_exit', False):
             # Get the last active trade
@@ -423,10 +446,11 @@ async def analyze_message(request: MessageRequest) -> dict:
                     last_trade.get('symbol'),
                     last_trade.get('strikePrice')
                 )
-                
+
                 processing_time = time.time() - start_time
-                logger.info(f"Confirmed {exit_result['exit_type']} exit in {round(processing_time, 3)}s")
-                
+                logger.info(
+                    f"Confirmed {exit_result['exit_type']} exit in {round(processing_time, 3)}s")
+
                 response_dict = {
                     "isTradeSignal": True,
                     "symbol": last_trade.get('symbol'),
@@ -442,7 +466,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                 }
                 send_webhook(response_dict, webhook_url)
                 return response_dict
-        
+
         # Step 1: Regex pre-filter for sell (backup check)
         if regex_maybe_action(msg, SELL_PATTERNS):
             t_llm = time.time()
@@ -458,14 +482,16 @@ async def analyze_message(request: MessageRequest) -> dict:
                 echo=False
             )
             t_llm_done = time.time()
-            logger.info(f"Sell LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
-            
+            logger.info(
+                f"Sell LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
+
             try:
                 result = json.loads(response['choices'][0]['text'].strip())
                 if result.get("is_exit") is True:
                     processing_time = time.time() - start_time
-                    logger.info(f"Confirmed sell/exit in {round(processing_time, 3)}s")
-                    
+                    logger.info(
+                        f"Confirmed sell/exit in {round(processing_time, 3)}s")
+
                     # Use last trade info if available
                     last_trade = trade_context.last_trade or {}
                     response_dict = {
@@ -485,7 +511,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                     return response_dict
             except json.JSONDecodeError:
                 logger.warning(f"Failed to parse exit confirmation response")
-        
+
         # Step 2: Regex pre-filter for buy
         if regex_maybe_action(msg, BUY_PATTERNS):
             t_llm = time.time()
@@ -501,13 +527,15 @@ async def analyze_message(request: MessageRequest) -> dict:
                 echo=False
             )
             t_llm_done = time.time()
-            logger.info(f"Buy LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
-            
+            logger.info(
+                f"Buy LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
+
             try:
                 result = json.loads(response['choices'][0]['text'].strip())
                 if result.get("is_buy") is True:
                     processing_time = time.time() - start_time
-                    logger.info(f"Confirmed buy in {round(processing_time, 3)}s")
+                    logger.info(
+                        f"Confirmed buy in {round(processing_time, 3)}s")
                     response_dict = {
                         "isTradeSignal": True,
                         "action": "BUY",
@@ -521,7 +549,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                     return response_dict
             except json.JSONDecodeError:
                 logger.warning(f"Failed to parse buy confirmation response")
-        
+
         # Step 3: Full LLM analysis if not confirmed by above
         t_full = time.time()
         # Use enhanced context-rich prompt for full analysis
@@ -537,12 +565,13 @@ async def analyze_message(request: MessageRequest) -> dict:
             echo=False
         )
         t_full_done = time.time()
-        logger.info(f"Full LLM analysis time: {round(t_full_done - t_full, 3)}s")
-        
+        logger.info(
+            f"Full LLM analysis time: {round(t_full_done - t_full, 3)}s")
+
         try:
             result = json.loads(response['choices'][0]['text'].strip())
             processing_time = time.time() - start_time
-            
+
             # Map the internal format to the API response format
             if result.get('action') == 'open' and result.get('type') == 'option':
                 # Add to trade context
@@ -554,7 +583,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                     'confidence': result.get('confidence', 0.95)
                 }
                 trade_context.add_trade(result.get('ticker'), trade_info)
-                
+
                 response_dict = {
                     "isTradeSignal": True,
                     "symbol": result.get('ticker'),
@@ -573,7 +602,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                     result.get('ticker'),
                     result.get('strike_price')
                 )
-                
+
                 response_dict = {
                     "isTradeSignal": True,
                     "symbol": result.get('ticker'),
@@ -600,13 +629,15 @@ async def analyze_message(request: MessageRequest) -> dict:
                     "processing_time": round(processing_time, 3),
                     "error": None
                 }
-            
-            logger.info(f"Analysis completed in {response_dict['processing_time']} seconds")
+
+            logger.info(
+                f"Analysis completed in {response_dict['processing_time']} seconds")
             send_webhook(response_dict, webhook_url)
             return response_dict
-            
+
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse LLM response: {response['choices'][0]['text'].strip()}")
+            logger.error(
+                f"Failed to parse LLM response: {response['choices'][0]['text'].strip()}")
             error_response = {
                 "isTradeSignal": False,
                 "symbol": None,
@@ -619,10 +650,11 @@ async def analyze_message(request: MessageRequest) -> dict:
                 "error": f"JSON parsing error: {str(e)}",
                 "processing_time": round(time.time() - start_time, 3)
             }
-            logger.info(f"Error response sent in {error_response['processing_time']} seconds")
+            logger.info(
+                f"Error response sent in {error_response['processing_time']} seconds")
             send_webhook(error_response, webhook_url)
             return error_response
-            
+
     except Exception as e:
         logger.error(f"Error analyzing message: {str(e)}")
         error_response = {
@@ -637,9 +669,11 @@ async def analyze_message(request: MessageRequest) -> dict:
             "error": str(e),
             "processing_time": round(time.time() - start_time, 3)
         }
-        logger.info(f"Error response sent in {error_response['processing_time']} seconds")
+        logger.info(
+            f"Error response sent in {error_response['processing_time']} seconds")
         send_webhook(error_response, webhook_url)
         return error_response
+
 
 def send_webhook(data, webhook_url):
     if webhook_url:
@@ -648,6 +682,7 @@ def send_webhook(data, webhook_url):
             logger.info(f"Webhook sent: {resp.status_code}")
         except Exception as e:
             logger.error(f"Error sending webhook: {str(e)}")
+
 
 @app.get("/health")
 async def health_check():
@@ -658,16 +693,18 @@ async def health_check():
         "channel_analyzer": "initialized" if channel_analyzer else "not_initialized"
     }
 
+
 @app.get("/trade-history")
 async def get_trade_history():
     """Get trade history and active trades"""
     if not trade_context:
-        raise HTTPException(status_code=503, detail="Trade context not initialized")
-    
+        raise HTTPException(
+            status_code=503, detail="Trade context not initialized")
+
     active_trades = {}
     for ticker, trades in trade_context.active_trades.items():
         active_trades[ticker] = list(trades.values())
-    
+
     return {
         "active_trades": active_trades,
         "last_trade": trade_context.last_trade,
@@ -678,11 +715,11 @@ async def get_trade_history():
 if __name__ == "__main__":
     # Create necessary directories
     os.makedirs('data/logs', exist_ok=True)
-    
+
     # Run the FastAPI server
     uvicorn.run(
         "mistral_server:app",
         host="127.0.0.1",
         port=8000,
         reload=False  # Disable reload to prevent multiple model instances
-    ) 
+    )
