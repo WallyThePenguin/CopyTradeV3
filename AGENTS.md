@@ -19,6 +19,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Statistics API** – `/api/stats` aggregates trade, channel and trader metrics.  Additional routes expose market updates, manual labels, model logs, price snapshots, channel configs and bot stats.  Manual labels and market updates also support POST requests for data entry.
 - **Web UI Dashboard** – `src/web/public` displays performance cards, charts and recent trades.  WebSocket signals keep the UI in sync.
 - **Channel Selector** – the dashboard can filter statistics by channel and toggle between **Simulated** and **Production** modes.
+- **Filtered Channel Lists** – `/api/channels` accepts a `mode` query so only enabled or disabled channels appear depending on the selected view.
 - **Webhook Notifications** – trade events are posted to Discord webhooks and the embeds now include symbol, strike, expiration, trader and P&L when available.
 - **Model Logging** – each LLM analysis is stored in the `ModelLog` table so prompts and responses can be reviewed later.
 - **Trade Signal Logging** – each confirmed signal now creates a `TradeSignal` row so the dataset reflects every alert.

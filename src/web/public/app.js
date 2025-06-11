@@ -19,7 +19,7 @@ Chart.defaults.borderColor = '#374151';
 // Initialize the dashboard
 document.addEventListener('DOMContentLoaded', () => {
     initializeLiveSignals();
-    loadChannels();
+    loadChannels(currentMode);
     updateStats(currentPeriod, currentMode);
     setInterval(() => updateStats(currentPeriod, currentMode), 30000); // Update every 30 seconds
 });
@@ -50,17 +50,22 @@ function initializeLiveSignals() {
     }
 }
 
-async function loadChannels() {
+let loadedMode = null;
+async function loadChannels(mode = 'ALL') {
+    if (loadedMode === mode) return;
+    loadedMode = mode;
     try {
-        const res = await fetch('/api/channels');
+        const res = await fetch(`/api/channels?mode=${mode}`);
         const channels = await res.json();
         const selector = document.getElementById('channelSelector');
+        selector.innerHTML = '<option value="">All Channels</option>';
         channels.forEach(ch => {
             const opt = document.createElement('option');
             opt.value = ch.id;
             opt.textContent = ch.name;
             selector.appendChild(opt);
         });
+        currentChannel = '';
     } catch (err) {
         console.error('Failed to load channels', err);
     }
@@ -128,6 +133,7 @@ async function updateStats(period, mode) {
     setPeriodAndModeLabels();
     updatePeriodButtons();
     updateModeButtons();
+    loadChannels(mode);
 
     try {
         const channelParam = currentChannel ? `&channel=${currentChannel}` : '';
