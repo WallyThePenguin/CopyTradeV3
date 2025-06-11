@@ -26,7 +26,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Channel Configuration API** – `/api/channel-config` allows saving per-channel settings to the `ChannelConfig` table.
 - **Market Calendar Endpoint** – `/api/market-calendar` lists upcoming economic events stored by `api/market_calendar.py`. The calendar is refreshed nightly.
 - **Scheduled Maintenance** – the Python service runs channel analysis and market calendar updates every day.
-- **Trading Service Initialization** – the Robinhood service exposes an `initialize()` method so simulators and live trading share the same startup flow.
+- **Trading Service Initialization** – the Robinhood service exposes an `initialize()` method so simulators and live trading share the same startup flow. The web server now initializes the trading service on startup and `TradeTracker` calls it before executing orders.
 - **Positions Endpoint** – `/api/positions` now returns open positions from the active trading service so the dashboard can display current holdings.
 
 ## Areas for Improvement

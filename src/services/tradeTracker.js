@@ -24,6 +24,9 @@ class TradeTracker {
             entryPrice = null      // ← new (can override simulator price if known)
         } = tradeData;
 
+        // Ensure the underlying trading service is ready before placing orders
+        await tradingService.initialize();
+
         // 🔄 Ensure the channel exists and check if it's disabled
         const channel = await this.prisma.channel.upsert({
             where: { id: channelId },

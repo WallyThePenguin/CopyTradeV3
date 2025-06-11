@@ -33,8 +33,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Daily Calendar Updates**: The FastAPI server refreshes the market calendar every night so new events appear automatically.
 - **Unified Logging**: Both the Node and Python services write logs to `data/logs` for easier troubleshooting.
 - **Live Price Checks**: `mistral.js` fetches current quotes from Robinhood to evaluate stoploss and take‑profit conditions.
-- **Service Initialization**: The Robinhood service exposes an `initialize()`
-  method so trading services can ensure a valid session before placing orders.
+- **Service Initialization**: The trading service now initializes automatically when the web server starts and is verified before each order so Robinhood sessions remain valid.
 - **Account Positions Endpoint**: `/api/positions` exposes current holdings from the active trading service.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
 
