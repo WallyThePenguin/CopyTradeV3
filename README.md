@@ -25,6 +25,9 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Webhook Integration**: All results are sent to your webhook for further automation.
 - **Error Handling**: All errors are logged and sent to the webhook.
 - **Extensible**: Add more regex patterns, examples, or context as needed.
+- **Manual Labels & Market Updates**: The API can store human-provided labels and short market summaries for later analysis.
+- **Planned Market Calendar**: Upcoming economic events like FOMC meetings will be ingested from a public calendar API into a `MarketCalendar` table.
+- **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
 
 ## Setup
 
@@ -44,6 +47,12 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
   - Request: `{ "content": "QQQ 515 P" }`
   - Response: JSON with trade signal info, confidence, and timing
   - Webhook: Same JSON is POSTed to your `WEBHOOK_URL`
+- **POST /api/market-updates**
+  - Create a market summary record: `{ "channelId": "id", "messageId": "123", "summary": "FOMC today", "sentiment": "NEUTRAL" }`
+  - Updates may come from news APIs or broker feeds so the database tracks significant headlines.
+- **POST /api/manual-labels**
+  - Label a message manually: `{ "messageId": "123", "label": "SCALP", "confidence": 0.9 }`
+  - Use these labels to build a high quality training set for future models.
 
 ## Example Regex/LLM Flow
 
@@ -66,6 +75,9 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 - **Add more regex patterns** in `mistral_server.py` for new slang/abbreviations
 - **Add more LLM examples** to improve accuracy
 - **Tune model settings** for your GPU in `initialize_model()`
+
+## Data Quality
+Bad data can cost organizations millions each year and leads to bad decisions. Identify quality issues, set standards everyone can follow and appoint someone to audit new records.
 
 
 ## License
