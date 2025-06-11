@@ -154,6 +154,20 @@ app.get('/api/market-updates', async (req, res) => {
     }
 });
 
+// Create a new market update
+app.post('/api/market-updates', async (req, res) => {
+    try {
+        const { channelId, messageId, summary, sentiment, symbol = null } = req.body;
+        const update = await prisma.marketUpdate.create({
+            data: { channelId, messageId, summary, sentiment, symbol }
+        });
+        res.json(update);
+    } catch (error) {
+        console.error('Error creating market update:', error);
+        res.status(500).json({ error: 'Failed to create update' });
+    }
+});
+
 app.get('/api/manual-labels', async (req, res) => {
     try {
         const labels = await prisma.manualLabel.findMany({
@@ -164,6 +178,20 @@ app.get('/api/manual-labels', async (req, res) => {
     } catch (error) {
         console.error('Error fetching manual labels:', error);
         res.status(500).json({ error: 'Failed to fetch labels' });
+    }
+});
+
+// Manually label a message
+app.post('/api/manual-labels', async (req, res) => {
+    try {
+        const { messageId, label, source = 'manual', confidence = 1 } = req.body;
+        const manualLabel = await prisma.manualLabel.create({
+            data: { messageId, label, source, confidence }
+        });
+        res.json(manualLabel);
+    } catch (error) {
+        console.error('Error creating manual label:', error);
+        res.status(500).json({ error: 'Failed to create label' });
     }
 });
 

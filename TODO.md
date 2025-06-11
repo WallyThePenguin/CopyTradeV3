@@ -2,11 +2,12 @@
 
 The following items outline areas where the project could be expanded or refined. They are based on the current code base and the goal of capturing detailed trade data for algorithmic training.
 
-Progress: model logs are now persisted whenever a message is analysed.
+Progress: model logs are now persisted whenever a message is analysed. Manual labels
+and market updates can now be created through the Web UI API.
 
 - **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context.
 - **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values.
-- **Persist Every Table** – many schema models are unused. Add write logic for `MarketUpdate`, `ManualLabel`, `TradeSignal` and `ChannelConfig` so rows are created during normal operation.
+- **Persist Every Table** – add write logic for all schema models. `MarketUpdate` and `ManualLabel` now have POST endpoints, while `TradeSignal` and `ChannelConfig` still need create flows.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs.
 - **Authentication** – secure the API and Web UI with token or session based auth before exposing it publicly.
 - **WebUI Enhancements** –
@@ -19,5 +20,8 @@ Progress: model logs are now persisted whenever a message is analysed.
 - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and consider storing its output for later use.
 - **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight.
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
+- **Market Calendar Table** – create a new `MarketCalendar` model and job to ingest schedules from the Federal Reserve or another free API. Events should be stored in SQL for reference and display.
+- **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically.
+- **Data Quality Plan** – document known issues, create collection standards and assign a steward to verify new data. Bad data can be expensive and lead to poor decisions.
 
 These improvements will help achieve the goal of collecting comprehensive trader data while keeping the system maintainable and secure.
