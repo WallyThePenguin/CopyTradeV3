@@ -13,6 +13,14 @@ const app = express();
 const prisma = new PrismaClient();
 const port = process.env.WEB_PORT || 3000;
 
+// Initialize trading service once on startup so broker sessions are ready
+try {
+    await tradingService.initialize();
+    console.log('Trading service initialized');
+} catch (err) {
+    console.error('Failed to initialize trading service:', err);
+}
+
 // Create HTTP server
 const server = createServer(app);
 
