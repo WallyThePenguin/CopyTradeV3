@@ -107,18 +107,26 @@ async function processMessage(message, isShortform = true) {
         if (analysis.isTradeSignal) {
             // Track the trade
         const trade = await tradeTracker.trackTrade({
-    symbol: analysis.symbol,
-    action: analysis.action,
-    optionType: analysis.optionType,
-    strikePrice: analysis.strikePrice,
-    quantity: analysis.quantity || 1,
-    entryPrice: analysis.entryPrice ?? null, // fallback if Python provides a price
-    channelId: message.channel.id,
-    channelName: channelConfig?.name || message.channel.name || 'Unknown Channel',
-    channelType: channelConfig?.type || (isShortform ? 'shortform' : 'longform'),
-    signalType: analysis.signalType || 'ENTRY', // make sure this is passed
-    author: message.author.id,
-});
+            symbol: analysis.symbol,
+            action: analysis.action,
+            optionType: analysis.optionType,
+            strikePrice: analysis.strikePrice,
+            quantity: analysis.quantity || 1,
+            entryPrice: analysis.entryPrice ?? null, // fallback if Python provides a price
+            channelId: message.channel.id,
+            channelName: channelConfig?.name || message.channel.name || 'Unknown Channel',
+            channelType: channelConfig?.type || (isShortform ? 'shortform' : 'longform'),
+            signalType: analysis.signalType || 'ENTRY', // make sure this is passed
+            author: message.author.id,
+        });
+
+            await tradeTracker.logTradeSignal({
+                tradeId: trade.id,
+                confidence: analysis.confidence,
+                source: 'DISCORD',
+                autoExecuted: channelConfig?.enabled !== false,
+                triggeredAt: new Date()
+            });
 
 
             // Broadcast signal to WebSocket clients

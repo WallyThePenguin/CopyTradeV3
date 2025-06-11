@@ -27,7 +27,7 @@ Stores each analysis prompt and response from the Mistral server. Entries are no
 Holds human annotations for messages. Labels can be created with `POST /api/manual-labels` and fetched via `/api/manual-labels`.
 
 ## TradeSignal
-Represents detected trade signals. The schema defines a relation to `Trade` but the application does not currently create `TradeSignal` entries. Signals are only broadcast to WebSocket clients.
+Represents detected trade signals. Entries are now created in `TradeTracker.logTradeSignal` whenever a message produces a valid trade. Signals can be listed via `/api/signals`.
 
 ## ExecutionStats
 Execution details for trades. Records are created and updated in `TradeTracker.trackTrade`, `TradeTracker.updateTrade` and the simulator.
@@ -36,7 +36,10 @@ Execution details for trades. Records are created and updated in `TradeTracker.t
 Historical channel stats created in `updateChannelPerformance` and read by the stats API.
 
 ## ChannelConfig
-Stores channel settings separately from the core `Channel` model. An API endpoint returns configs, but there is no code writing new rows.
+Stores channel settings separately from the core `Channel` model. Configs can be created or updated with `POST /api/channel-config` and fetched via `/api/channel-config/:id`.
+
+## MarketCalendar
+New table storing scheduled economic events. Events are populated by running `api/market_calendar.py` which parses an ICS calendar feed.
 
 ## TraderStats
 Aggregated statistics for each trader within a channel. Updated in `TradeTracker.updateTraderStats` and fetched by the stats API.

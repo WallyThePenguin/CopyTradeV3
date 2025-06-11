@@ -5,8 +5,8 @@ This document collects ideas and reminders for future contributors (including fu
 ## Short‑Term Improvements
 
 - **Complete Table Coverage**
-  - The Prisma schema defines several models that still lack create/update logic. `MarketUpdate` and `ManualLabel` are now persisted via new API endpoints but `TradeSignal` and `ChannelConfig` still need write flows.
-  - Expand existing services (Node and Python) so important events always result in a database write.
+  - The Prisma schema defines several models that lacked create/update logic. `TradeSignal` and `ChannelConfig` are now persisted, joining `MarketUpdate` and `ManualLabel`.
+  - Ensure future tables also receive write paths so important events always result in a database record.
 - **Webhook Embeds**
   - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful.
 - **Real Price Feeds**
@@ -16,7 +16,7 @@ This document collects ideas and reminders for future contributors (including fu
   - Display the trader/channel responsible for each trade in the "Recent Trades" table.
   - Add combined statistics for all simulated channels so performance can be assessed before enabling them.
 - **Market Calendar Table**
-  - Introduce a `MarketCalendar` model for scheduled events (e.g. FOMC meetings). Parse the Federal Reserve calendar or a free API and store events in SQL so upcoming market catalysts are visible in the UI.
+  - A `MarketCalendar` model and Python ingestion script now exist. Schedule the script periodically to pull the Federal Reserve calendar or a free API so upcoming catalysts appear in the UI.
 - **Automatic Market Updates**
   - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud.
 - **Data Quality Standards**

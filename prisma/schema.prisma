@@ -95,6 +95,14 @@ model MarketUpdate {
   channel   Channel  @relation(fields: [channelId], references: [id])
 }
 
+model MarketCalendar {
+  id        String   @id @default(uuid())
+  eventDate DateTime
+  title     String
+  source    String
+  createdAt DateTime @default(now())
+}
+
 model ModelLog {
   id           String   @id @default(uuid())
   messageId    String

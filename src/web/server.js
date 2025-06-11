@@ -236,6 +236,21 @@ app.get('/api/channel-config/:id', async (req, res) => {
     }
 });
 
+app.post('/api/channel-config', async (req, res) => {
+    try {
+        const { channelId, isEnabled = true, minConfidence = 0.7, maxTrades = 5, riskLevel = 'MEDIUM' } = req.body;
+        const config = await prisma.channelConfig.upsert({
+            where: { channelId },
+            update: { isEnabled, minConfidence, maxTrades, riskLevel },
+            create: { channelId, isEnabled, minConfidence, maxTrades, riskLevel }
+        });
+        res.json(config);
+    } catch (error) {
+        console.error('Error saving channel config:', error);
+        res.status(500).json({ error: 'Failed to save config' });
+    }
+});
+
 app.get('/api/bot-stats', async (req, res) => {
     try {
         const period = req.query.period || 'DAILY';
