@@ -15,13 +15,16 @@ Logged messages from Discord. Added in `TradeTracker.trackMessage` and used to d
 Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to record quotes. Exposed via `/api/price-snapshots`.
 
 ## MarketUpdate
-Table for summarised market posts. Only queried by `/api/market-updates`; no inserts detected in the current code.
+Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`.
+
+## MarketCalendar
+Planned table for scheduled market events such as FOMC meetings or earnings season. The data will come from a free calendar API or a scraper of the Federal Reserve schedule. No code writes to this table yet.
 
 ## ModelLog
 Stores each analysis prompt and response from the Mistral server. Entries are now created in `trackMessage` when a message is processed.
 
 ## ManualLabel
-Holds human annotations for messages. Rows are returned by an API endpoint but creation logic has not been implemented yet.
+Holds human annotations for messages. Labels can be created with `POST /api/manual-labels` and fetched via `/api/manual-labels`.
 
 ## TradeSignal
 Represents detected trade signals. The schema defines a relation to `Trade` but the application does not currently create `TradeSignal` entries. Signals are only broadcast to WebSocket clients.
@@ -40,4 +43,7 @@ Aggregated statistics for each trader within a channel. Updated in `TradeTracker
 
 ## BotStats
 Overall bot performance metrics. Populated on-demand in `/api/bot-stats` when the endpoint is called.
+
+## Data Quality Considerations
+Every table should store accurate, complete information. Log data issues and define validation rules so future analytics are reliable. A dedicated steward can help enforce these standards.
 
