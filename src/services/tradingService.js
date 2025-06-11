@@ -22,6 +22,13 @@ class TradingService {
         return await this.service.getQuote(symbol);
     }
 
+    async getHistoricalPrices(symbol, interval = '5minute', span = 'day') {
+        if (typeof this.service.getHistoricalPrices === 'function') {
+            return await this.service.getHistoricalPrices(symbol, interval, span);
+        }
+        return [];
+    }
+
     async placeOrder(orderData) {
         return await this.service.placeOrder(orderData);
     }
