@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { logger } from '../utils/logger.js';
 import Trade from '../models/trade.js';
 import Signal from '../models/signal.js';
+import tradingService from './tradingService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -244,8 +245,14 @@ class MistralService {
     }
 
     async getCurrentPrice(symbol) {
-        // TODO: Implement price fetching from your preferred source
-        return 0;
+        try {
+            const quote = await tradingService.getQuote(symbol);
+            const price = parseFloat(quote.last_trade_price || quote.price || 0);
+            return isNaN(price) ? 0 : price;
+        } catch (error) {
+            logger.error('Error fetching current price', { symbol, error });
+            return 0;
+        }
     }
 }
 

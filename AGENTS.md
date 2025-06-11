@@ -28,7 +28,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 
 ## Areas for Improvement
 
-- **Price Retrieval** – real entry and exit prices are simulated.  Integrating a reliable price feed would make P&L and risk metrics accurate.
+- **Price Retrieval** – real entry and exit prices were simulated. A basic integration now pulls quotes from Robinhood for stoploss checks, but full price history is still needed.
 - **Webhook Details** – webhook embeds should show symbol, strike, expiration and trader so notifications are clearer. *Initial improvements added expiration and P&L fields.*
  - **Authentication & Security** – API POST routes now accept an `X-API-KEY` header when `API_KEY` is set. This provides a minimal layer of protection.
 - **UI Polishing** – the dashboard occasionally shows incorrect P&L and the period buttons still have quirks.  Trader statistics could also highlight which channel executed a trade.
@@ -40,4 +40,4 @@ All messages, trades and market events will be collected from roughly fifty trad
 
 ## Completion Status
 
-The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, but price data and some UI bugs remain unresolved. Overall progress feels around **82% complete** toward a production‑ready tool.
+The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, but initial price retrieval via Robinhood has been added, though full history and some UI bugs remain unresolved. Overall progress feels around **82% complete** toward a production‑ready tool.

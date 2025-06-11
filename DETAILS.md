@@ -7,7 +7,7 @@ This file provides a high level overview of how the main pieces of the system fi
 ### Node Worker (`src/`)
 * **index.js** – Discord self‑bot that ingests messages from configured channels, uses Mistral (via the Python service) to analyse them and forwards trade signals to `TradeTracker`.
 * **services/tradeTracker.js** – Handles all database writes for trades, messages and trader stats. It also calls the Robinhood service to execute or simulate orders.
-* **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution.
+* **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution. Quotes are also used by `mistral.js` to check stoploss and take‑profit levels.
 * **services/robinhoodSimulator.js** – Simulation layer used when a channel is disabled. Generates price data and maintains virtual positions while still writing to the database.
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI.
 * **Authentication** – POST routes honor an `X-API-KEY` header when `API_KEY` is defined in the environment. This secures market updates, manual labels and channel configuration.

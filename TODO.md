@@ -9,7 +9,7 @@ The market calendar is refreshed automatically each night and both Node and Pyth
 write to the same log directory.
 
 - **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context. *Completed: embeds now include these details.*
-- **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values.
+- **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values. *In progress: `getCurrentPrice` in `mistral.js` now retrieves real quotes from the trading service.*
 - **Persist Every Table** – add write logic for all schema models. `TradeSignal` and `ChannelConfig` now have create/update paths alongside `MarketUpdate` and `ManualLabel`.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Done: Node and Python use file-based loggers under `data/logs`.*
 - **Authentication** – basic API key protection added to POST routes. Review session based auth for the Web UI in the future.
