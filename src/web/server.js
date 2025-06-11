@@ -119,13 +119,51 @@ app.get('/api/channels/:channelId/performance', async (req, res) => {
 // List available channels
 app.get('/api/channels', async (req, res) => {
     try {
+        const mode = req.query.mode || 'ALL';
+        const where = mode === 'TEST'
+            ? { enabled: false }
+            : mode === 'PROD'
+                ? { enabled: true }
+                : {};
         const channels = await prisma.channel.findMany({
+            where,
             orderBy: { name: 'asc' }
         });
         res.json(channels);
     } catch (error) {
         console.error('Error fetching channels:', error);
         res.status(500).json({ error: 'Failed to fetch channels' });
+    }
+});
+
+// List recent trades with optional mode/channel filter
+app.get('/api/trades', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const mode = req.query.mode || 'ALL';
+        const channelId = req.query.channel || undefined;
+        const modeFilter = mode === 'TEST'
+            ? { channel: { enabled: false } }
+            : mode === 'PROD'
+                ? { channel: { enabled: true } }
+                : {};
+
+        const trades = await prisma.trade.findMany({
+            where: {
+                ...(channelId ? { channelId } : {}),
+                ...modeFilter
+            },
+            include: {
+                channel: true
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit
+        });
+
+        res.json(trades);
+    } catch (error) {
+        console.error('Error fetching trades:', error);
+        res.status(500).json({ error: 'Failed to fetch trades' });
     }
 });
 

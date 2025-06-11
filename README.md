@@ -86,6 +86,10 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
   - List upcoming economic events stored in the `MarketCalendar` table.
 - **GET /api/signals**
   - List recent trade signals with optional `limit` parameter.
+- **GET /api/trades**
+  - List recent trades. Supports `mode` (`TEST`, `PROD` or `ALL`) and `channel` query parameters.
+- **GET /api/channels?mode=TYPE**
+  - Retrieve channels filtered by `mode`. `TYPE` can be `TEST` for disabled channels, `PROD` for enabled channels or omitted for all.
 
 ## Example Regex/LLM Flow
 

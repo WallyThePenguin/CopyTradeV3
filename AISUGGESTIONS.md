@@ -14,7 +14,7 @@ This document collects ideas and reminders for future contributors (including fu
 - **UI Refinements**
   - Ensure mode and period selectors always reflect the active view.
   - Display the trader/channel responsible for each trade in the "Recent Trades" table.
-  - Add combined statistics for all simulated channels so performance can be assessed before enabling them.
+  - Add combined statistics for all simulated channels so performance can be assessed before enabling them. *Implemented via new `mode` filter on `/api/channels` and `/api/trades`.*
 - **Market Calendar Table**
   - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` every night so upcoming catalysts appear automatically.*
 - **Automatic Market Updates**

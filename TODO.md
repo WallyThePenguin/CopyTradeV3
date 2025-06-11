@@ -17,8 +17,8 @@ write to the same log directory.
   - Fix P&L calculation issues in trader stats.
   - Display which channel or trader executed each trade in the recent trades table. *Done*
   - Ensure period-selection buttons update the timeframe correctly.
-  - Allow combined performance view across all simulated channels.
-  - When "Production" mode is selected, show only enabled channels.
+  - Allow combined performance view across all simulated channels. *Done: channel selector reloads by mode and "Simulated" now aggregates disabled channels.*
+  - When "Production" mode is selected, show only enabled channels. *Done via `mode` query on `/api/channels`.*
 - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and consider storing its output for later use. *Scheduled along with nightly market calendar updates.*
 - **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.*
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
