@@ -54,6 +54,18 @@ export function broadcastSignal(signal) {
 // Middleware
 app.use(express.json());
 
+// Simple API key authentication for write operations
+const API_KEY = process.env.API_KEY;
+function authenticateWrite(req, res, next) {
+    if (!API_KEY || !['POST', 'PUT', 'DELETE'].includes(req.method)) return next();
+    const key = req.headers['x-api-key'];
+    if (key && key === API_KEY) {
+        return next();
+    }
+    res.status(401).json({ error: 'Unauthorized' });
+}
+app.use(authenticateWrite);
+
 // Add CORS for development
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');

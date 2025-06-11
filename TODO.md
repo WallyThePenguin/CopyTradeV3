@@ -12,10 +12,10 @@ write to the same log directory.
 - **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values.
 - **Persist Every Table** – add write logic for all schema models. `TradeSignal` and `ChannelConfig` now have create/update paths alongside `MarketUpdate` and `ManualLabel`.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Done: Node and Python use file-based loggers under `data/logs`.*
-- **Authentication** – secure the API and Web UI with token or session based auth before exposing it publicly.
+- **Authentication** – basic API key protection added to POST routes. Review session based auth for the Web UI in the future.
 - **WebUI Enhancements** –
   - Fix P&L calculation issues in trader stats.
-  - Display which channel or trader executed each trade in the recent trades table.
+  - Display which channel or trader executed each trade in the recent trades table. *Done*
   - Ensure period-selection buttons update the timeframe correctly.
   - Allow combined performance view across all simulated channels.
   - When "Production" mode is selected, show only enabled channels.

@@ -39,6 +39,7 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
 2. **Install dependencies** by running `bash setup.sh` on Linux/macOS or `setup.bat` on Windows. This script creates a fresh Python virtual environment under `api/venv` and installs both Python and Node packages.
 3. **Set environment variables**:
    - `WEBHOOK_URL` (your endpoint to receive analysis results)
+   - `API_KEY` (optional token for securing POST requests)
 4. **Configure your model path and GPU settings** in `mistral_server.py` (see `initialize_model`)
 5. **Run the Python backend**:
 ```bash
@@ -63,14 +64,18 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
   - Request: `{ "content": "QQQ 515 P" }`
   - Response: JSON with trade signal info, confidence, and timing
   - Webhook: Same JSON is POSTed to your `WEBHOOK_URL`
+  - Include `X-API-KEY` header if `API_KEY` is configured
 - **POST /api/market-updates**
   - Create a market summary record: `{ "channelId": "id", "messageId": "123", "summary": "FOMC today", "sentiment": "NEUTRAL" }`
   - Updates may come from news APIs or broker feeds so the database tracks significant headlines.
+  - Include `X-API-KEY` header if `API_KEY` is configured
 - **POST /api/manual-labels**
   - Label a message manually: `{ "messageId": "123", "label": "SCALP", "confidence": 0.9 }`
   - Use these labels to build a high quality training set for future models.
+  - Include `X-API-KEY` header if `API_KEY` is configured
 - **POST /api/channel-config**
   - Save per-channel settings: `{ "channelId": "123", "isEnabled": true, "minConfidence": 0.8 }`
+  - Include `X-API-KEY` header if `API_KEY` is configured
 - **GET /api/market-calendar**
   - List upcoming economic events stored in the `MarketCalendar` table.
 - **GET /api/signals**
