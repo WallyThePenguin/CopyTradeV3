@@ -3,7 +3,8 @@
 The following items outline areas where the project could be expanded or refined. They are based on the current code base and the goal of capturing detailed trade data for algorithmic training.
 
 Progress: model logs are now persisted whenever a message is analysed. Manual labels
-and market updates can now be created through the Web UI API.
+and market updates can be created through the Web UI API. A `/api/market-calendar`
+endpoint now exposes upcoming economic events from the new `MarketCalendar` table.
 
 - **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context. *Initial fields for expiration and P&L were added.*
 - **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values.
@@ -19,7 +20,7 @@ and market updates can now be created through the Web UI API.
 - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and consider storing its output for later use.
 - **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.*
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
-- **Market Calendar Table** – create a new `MarketCalendar` model and job to ingest schedules from the Federal Reserve or another free API. Events should be stored in SQL for reference and display.
+ - **Market Calendar Table** – a `MarketCalendar` model now exists and events can be queried via `/api/market-calendar`. A periodic job should run `api/market_calendar.py` to keep the table populated.
 - **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically.
 - **Data Quality Plan** – document known issues, create collection standards and assign a steward to verify new data. Bad data can be expensive and lead to poor decisions.
 

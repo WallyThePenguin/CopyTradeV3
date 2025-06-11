@@ -10,7 +10,7 @@ This file provides a high level overview of how the main pieces of the system fi
 * **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution.
 * **services/robinhoodSimulator.js** – Simulation layer used when a channel is disabled. Generates price data and maintains virtual positions while still writing to the database.
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI.
-* **market calendar pipeline** – planned job that fetches scheduled events like FOMC meetings and stores them in a new `MarketCalendar` table for reference in the dashboard.
+* **market calendar pipeline** – planned job that fetches scheduled events like FOMC meetings and stores them in a `MarketCalendar` table. Events can be queried via `/api/market-calendar` for display in the dashboard.
 
 ### Python FastAPI Service (`api/`)
 * **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It can also analyse channels on a schedule, though output is currently only sent to the console.

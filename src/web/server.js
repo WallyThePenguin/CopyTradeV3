@@ -224,6 +224,20 @@ app.get('/api/price-snapshots', async (req, res) => {
     }
 });
 
+app.get('/api/market-calendar', async (req, res) => {
+    try {
+        const events = await prisma.marketCalendar.findMany({
+            where: { eventDate: { gte: new Date() } },
+            orderBy: { eventDate: 'asc' },
+            take: 20
+        });
+        res.json(events);
+    } catch (error) {
+        console.error('Error fetching market calendar:', error);
+        res.status(500).json({ error: 'Failed to fetch calendar events' });
+    }
+});
+
 app.get('/api/channel-config/:id', async (req, res) => {
     try {
         const config = await prisma.channelConfig.findUnique({

@@ -6,23 +6,14 @@ import numpy as np
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
-import logging
 from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 import schedule
 import time
 import pytz
+from utils.logger import logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('data/logs/channel_analysis.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Logger is configured in utils.logger
 
 # Load environment variables from project root
 project_root = Path(__file__).parent.parent.parent

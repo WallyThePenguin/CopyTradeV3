@@ -18,7 +18,7 @@ Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to 
 Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`.
 
 ## MarketCalendar
-Stores scheduled economic events such as FOMC meetings. Events are inserted by running `api/market_calendar.py`, which parses a public ICS feed.
+Stores scheduled economic events such as FOMC meetings. Events are inserted by running `api/market_calendar.py`, which parses a public ICS feed. Upcoming events can be retrieved with `GET /api/market-calendar`.
 
 ## ModelLog
 Stores each analysis prompt and response from the Mistral server. Entries are now created in `trackMessage` when a message is processed.
