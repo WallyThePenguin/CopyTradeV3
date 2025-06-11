@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeLiveSignals();
     loadChannels(currentMode);
     updateStats(currentPeriod, currentMode);
+    loadPositions();
     setInterval(() => updateStats(currentPeriod, currentMode), 30000); // Update every 30 seconds
+    setInterval(loadPositions, 60000); // Refresh positions every minute
 });
 
 // Initialize live signals WebSocket
@@ -494,6 +496,35 @@ function updateMessagesChart(messageCounts) {
             }
         }
     });
+}
+
+// Fetch and display open positions
+async function loadPositions() {
+    try {
+        const res = await fetch('/api/positions');
+        const data = await res.json();
+        const positions = Array.isArray(data)
+            ? data
+            : Array.isArray(data.results)
+                ? data.results
+                : [];
+
+        const tbody = document.querySelector('#positionsTable tbody');
+        tbody.innerHTML = '';
+
+        positions.forEach(pos => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-4 py-3">${pos.symbol || pos.instrument}</td>
+                <td class="px-4 py-3">${pos.quantity}</td>
+                <td class="px-4 py-3">${parseFloat(pos.average_buy_price || pos.averagePrice).toFixed(2)}</td>
+                <td class="px-4 py-3">${parseFloat(pos.market_value || pos.equity || 0).toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Failed to load positions', err);
+    }
 }
 
 // Update trades chart with dark theme

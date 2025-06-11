@@ -26,6 +26,9 @@ Stores scheduled economic events such as FOMC meetings. Events are inserted by `
 ## Order History
 Order information is pulled from the trading service via `/api/order-history`. These records are not yet stored in the database but provide a quick audit trail.
 
+## Open Positions
+Current holdings are fetched from the active trading service using `/api/positions`. No table exists for these records; the endpoint simply forwards whatever the broker returns so the dashboard can show live positions.
+
 ## ModelLog
 Stores each analysis prompt and response from the Mistral server. Entries are now created in `trackMessage` when a message is processed.
 
