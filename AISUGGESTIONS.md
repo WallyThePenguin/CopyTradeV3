@@ -8,7 +8,7 @@ This document collects ideas and reminders for future contributors (including fu
   - The Prisma schema defines several models that lacked create/update logic. `TradeSignal` and `ChannelConfig` are now persisted, joining `MarketUpdate` and `ManualLabel`.
   - Ensure future tables also receive write paths so important events always result in a database record.
 - **Webhook Embeds**
-  - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful. *The current embed now shows expiration and P&L when provided.*
+  - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful. *Done – embeds now include these fields.*
 - **Real Price Feeds**
   - The current simulator generates entry/exit prices. Integrate a reliable market data API so simulated trades mirror real‑world moves and P&L calculations become accurate.
 - **UI Refinements**
@@ -16,7 +16,7 @@ This document collects ideas and reminders for future contributors (including fu
   - Display the trader/channel responsible for each trade in the "Recent Trades" table.
   - Add combined statistics for all simulated channels so performance can be assessed before enabling them.
 - **Market Calendar Table**
-  - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. Schedule the script periodically to pull the Federal Reserve calendar or a free API so catalysts appear in the UI.
+  - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` every night so upcoming catalysts appear automatically.*
 - **Automatic Market Updates**
   - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud.
 - **Data Quality Standards**

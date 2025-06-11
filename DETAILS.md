@@ -10,10 +10,10 @@ This file provides a high level overview of how the main pieces of the system fi
 * **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution.
 * **services/robinhoodSimulator.js** – Simulation layer used when a channel is disabled. Generates price data and maintains virtual positions while still writing to the database.
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI.
-* **market calendar pipeline** – planned job that fetches scheduled events like FOMC meetings and stores them in a `MarketCalendar` table. Events can be queried via `/api/market-calendar` for display in the dashboard.
+* **market calendar pipeline** – nightly job that fetches scheduled events like FOMC meetings and stores them in a `MarketCalendar` table. Events can be queried via `/api/market-calendar` for display in the dashboard.
 
 ### Python FastAPI Service (`api/`)
-* **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It can also analyse channels on a schedule, though output is currently only sent to the console.
+* **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It also schedules channel analysis and market calendar updates.
 
 ## Data Flow
 1. Discord messages are queued and analysed by the Python server.
@@ -30,8 +30,8 @@ Good data is vital for training models and making decisions. We should track iss
 * Several Prisma tables lacked write paths. `marketUpdate` and `manualLabel` records can be created through the Web UI API and recent work added persistence for `tradeSignal` and `channelConfig`.
 * Webhook notifications contain minimal information compared to earlier versions of the project. Initial improvements now include expiration and profit/loss fields when available.
 * Live price data is simulated for many operations, reducing accuracy of P&L metrics.
-* A `MarketCalendar` table has been added along with a Python script (`api/market_calendar.py`) that fetches an ICS calendar and stores upcoming events. A periodic job should call this script.
-* A simple file logger has been introduced for Node (`src/utils/logger.js`) and is used in `index.js`. Python still relies on the standard `logging` module.
+* A `MarketCalendar` table has been added along with a Python script (`api/market_calendar.py`) that fetches an ICS calendar and stores upcoming events. This script now runs nightly from the FastAPI server.
+* A simple file logger has been introduced for Node (`src/utils/logger.js`) and Python (`api/utils/logger.py`) so both components write structured logs under `data/logs`.
 * The Python virtual environment under `api/venv` is excluded from version control and recreated with `setup.sh` (or `setup.bat`).
 
 These notes should help developers understand where features live and what areas still need attention.
