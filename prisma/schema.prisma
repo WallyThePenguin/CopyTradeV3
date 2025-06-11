@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Channel {
+  id            String    @id @default(uuid())
+  name          String
+  type          String
+  enabled       Boolean   @default(true)
+  minConfidence Float     @default(0.8)
+  maxTrades     Int       @default(5)
+  riskLevel     String    @default("MEDIUM")
+  webhook_url   String?
+  lastAnalyzed  DateTime?
+
+  // 🔽 Add these fields for stats tracking
+  totalTrades Int   @default(0)
+  winRate     Float @default(0)
+  avgProfit   Float @default(0)
+  performance Float @default(0)
+
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  marketUpdates      MarketUpdate[]
+  messages           Message[]
+  performanceHistory PerformanceHistory[]
+  trades             Trade[]
+  traderStats        TraderStats[]
+}
+
+model Trade {
+  id          String    @id @default(uuid())
+  symbol      String
+  action      String
+  optionType  String?
+  strikePrice Float?
+  entryPrice  Float
+  exitPrice   Float?
+  quantity    Int
+  status      String
+  entryTime   DateTime  @default(now())
+  exitTime    DateTime?
+  profitLoss  Float?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Channel relationship
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId String
+
+  // ✅ One-to-one relation
+  executionStats ExecutionStats?
+  signals        TradeSignal[]
+}
+
+model Message {
+  id           String        @id @default(uuid())
+  channelId    String
+  discordId    String        @unique
+  author       String
+  content      String
+  parsedData   Json?
+  type         String
+  modelUsed    String?
+  parsedAt     DateTime?
+  createdAt    DateTime      @default(now())
+  manualLabels ManualLabel[]
+  channel      Channel       @relation(fields: [channelId], references: [id])
+  modelLogs    ModelLog[]
+  traderStats  TraderStats?  @relation(fields: [author, channelId], references: [author, channelId])
+}
+
+model PriceSnapshot {
+  id         String   @id @default(uuid())
+  symbol     String
+  source     String
+  price      Float
+  recordedAt DateTime @default(now())
+}
+
+model MarketUpdate {
+  id        String   @id @default(uuid())
+  channelId String
+  messageId String   @unique
+  summary   String
+  sentiment String
+  symbol    String?
+  createdAt DateTime @default(now())
+  channel   Channel  @relation(fields: [channelId], references: [id])
+}
+
+model ModelLog {
+  id           String   @id @default(uuid())
+  messageId    String
+  prompt       String
+  response     String
+  inputTokens  Int
+  outputTokens Int
+  latencyMs    Int
+  modelName    String
+  createdAt    DateTime @default(now())
+  message      Message  @relation(fields: [messageId], references: [id])
+}
+
+model ManualLabel {
+  id         String   @id @default(uuid())
+  messageId  String
+  label      String
+  source     String
+  confidence Float
+  labeledAt  DateTime @default(now())
+  message    Message  @relation(fields: [messageId], references: [id])
+}
+
+model TradeSignal {
+  id           String   @id @default(uuid())
+  tradeId      String
+  confidence   Float
+  triggeredAt  DateTime
+  source       String
+  autoExecuted Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  trade        Trade    @relation(fields: [tradeId], references: [id])
+}
+
+model ExecutionStats {
+  id            String   @id @default(uuid())
+  tradeId       String   @unique // ✅ enforce 1-to-1
+  executedAt    DateTime
+  executedPrice Float
+  exitPrice     Float?
+  result        String
+  pnl           Float?
+  durationSec   Int?
+  createdAt     DateTime @default(now())
+  trade         Trade    @relation(fields: [tradeId], references: [id])
+}
+
+model PerformanceHistory {
+  id          String   @id @default(uuid())
+  channelId   String
+  period      String
+  startDate   DateTime
+  endDate     DateTime
+  totalTrades Int
+  winRate     Float
+  avgProfit   Float
+  performance Float
+  createdAt   DateTime @default(now())
+  channel     Channel  @relation(fields: [channelId], references: [id])
+}
+
+model ChannelConfig {
+  id            String   @id @default(uuid())
+  channelId     String   @unique
+  isEnabled     Boolean  @default(true)
+  minConfidence Float    @default(0.7)
+  maxTrades     Int      @default(5)
+  riskLevel     String   @default("MEDIUM")
+  updatedAt     DateTime @updatedAt
+}
+
+model TraderStats {
+  id                String    @id @default(uuid())
+  author            String // Discord username/ID
+  channelId         String
+  channel           Channel   @relation(fields: [channelId], references: [id])
+  totalSignals      Int       @default(0)
+  successfulSignals Int       @default(0)
+  avgConfidence     Float     @default(0)
+  avgProfitLoss     Float     @default(0)
+  bestSymbols       Json // Array of {symbol, winRate, totalTrades}
+  tradingHours      Json // Array of {hour, winRate, totalTrades}
+  lastActive        DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  messages          Message[] // Relation to messages from this trader
+
+  @@unique([author, channelId])
+}
+
+model BotStats {
+  id        String   @id @default(uuid())
+  period    String // "DAILY", "WEEKLY", "MONTHLY", "ALL_TIME"
+  startDate DateTime
+  endDate   DateTime
+
+  // Basic Performance Metrics
+  totalTrades      Int   @default(0)
+  successfulTrades Int   @default(0)
+  totalProfitLoss  Float @default(0)
+  avgProfitLoss    Float @default(0)
+  winRate          Float @default(0)
+  avgConfidence    Float @default(0)
+  avgTradeDuration Int   @default(0) // in seconds
+
+  // Advanced Performance Metrics
+  profitFactor         Float @default(0) // Total profit / Total loss
+  expectancy           Float @default(0) // (Win% * Avg Win) - (Loss% * Avg Loss)
+  maxConsecutiveWins   Int   @default(0)
+  maxConsecutiveLosses Int   @default(0)
+  avgWinAmount         Float @default(0)
+  avgLossAmount        Float @default(0)
+  largestWin           Float @default(0)
+  largestLoss          Float @default(0)
+
+  // Time-based Analysis
+  bestTradingHour   Int? // 0-23
+  worstTradingHour  Int? // 0-23
+  bestTradingDay    Int? // 0-6 (Sunday-Saturday)
+  worstTradingDay   Int? // 0-6
+  avgTradesPerDay   Float     @default(0)
+  busiestTradingDay DateTime?
+
+  // Asset Class Analysis
+  optionsRatio   Float @default(0) // Ratio of options trades
+  stockRatio     Float @default(0) // Ratio of stock trades
+  cryptoRatio    Float @default(0) // Ratio of crypto trades
+  optionsWinRate Float @default(0)
+  stockWinRate   Float @default(0)
+  cryptoWinRate  Float @default(0)
+
+  // Risk Metrics
+  maxDrawdown       Float @default(0)
+  sharpeRatio       Float @default(0)
+  sortinoRatio      Float @default(0)
+  calmarRatio       Float @default(0)
+  var95             Float @default(0) // 95% Value at Risk
+  expectedShortfall Float @default(0) // Conditional VaR
+
+  // Channel Analysis
+  totalChannels          Int     @default(0)
+  activeChannels         Int     @default(0)
+  bestPerformingChannel  String? // Channel ID
+  worstPerformingChannel String?
+  channelWinRates        Json // Array of {channelId, winRate, totalTrades}
+  channelProfitLoss      Json // Array of {channelId, profitLoss, totalTrades}
+
+  // Trader Analysis
+  totalTraders          Int     @default(0)
+  activeTraders         Int     @default(0)
+  bestPerformingTrader  String? // Trader username
+  worstPerformingTrader String?
+  traderWinRates        Json // Array of {trader, winRate, totalTrades}
+  traderProfitLoss      Json // Array of {trader, profitLoss, totalTrades}
+
+  // Symbol Analysis
+  mostTradedSymbol  String?
+  symbolStats       Json // Array of {symbol, winRate, profitLoss, totalTrades}
+  sectorPerformance Json // Array of {sector, winRate, profitLoss, totalTrades}
+
+  // Signal Quality
+  avgSignalLatency    Int   @default(0) // Time between signal and execution
+  signalAccuracy      Float @default(0) // How often signals lead to profitable trades
+  falsePositiveRate   Float @default(0) // Rate of unprofitable signals
+  avgConfidenceByType Json // Confidence levels by trade type
+
+  // System Health
+  uptime              Float @default(0) // Percentage of time system is active
+  errorRate           Float @default(0) // Rate of system errors
+  avgProcessingTime   Int   @default(0) // Average time to process signals
+  resourceUtilization Json // CPU, Memory, Network usage stats
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

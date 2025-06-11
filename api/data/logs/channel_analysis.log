@@ -1,0 +1,273 @@
+2025-06-10 03:34:01,509 - mistral_server - ERROR - Error initializing model: Model path does not exist: ../models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+2025-06-10 03:34:38,245 - mistral_server - ERROR - Error initializing model: Model path does not exist: ../../model/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+2025-06-10 03:35:05,054 - mistral_server - INFO - Model initialized successfully
+2025-06-10 03:35:05,055 - mistral_server - INFO - GPU Info: {'available': False}
+2025-06-10 03:35:05,106 - mistral_server - ERROR - Error initializing channel analyzer: DLL load failed while importing _psycopg: The specified module could not be found.
+2025-06-10 03:37:33,299 - mistral_server - INFO - Model initialized successfully
+2025-06-10 03:37:33,300 - mistral_server - INFO - GPU Info: {'available': False}
+2025-06-10 03:37:33,346 - mistral_server - ERROR - Error initializing channel analyzer: DLL load failed while importing _psycopg: The specified module could not be found.
+2025-06-10 03:41:18,113 - mistral_server - INFO - Model initialized successfully
+2025-06-10 03:41:18,114 - mistral_server - INFO - GPU Info: {'available': False}
+2025-06-10 03:41:18,176 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 03:51:45,039 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 03:51:45,154 - mistral_server - INFO - Model initialized successfully
+2025-06-10 03:51:45,159 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 03:51:45,245 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 03:52:26,660 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 03:53:26,506 - mistral_server - ERROR - Error analyzing message: 1 validation error for MessageResponse
+confidence
+  none is not an allowed value (type=type_error.none.not_allowed)
+2025-06-10 03:55:49,679 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 03:55:50,075 - mistral_server - INFO - Model initialized successfully
+2025-06-10 03:55:50,079 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 03:55:50,128 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 03:56:46,025 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 03:57:57,945 - mistral_server - ERROR - Error analyzing message: 1 validation error for MessageResponse
+confidence
+  none is not an allowed value (type=type_error.none.not_allowed)
+2025-06-10 03:59:26,654 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 03:59:27,063 - mistral_server - INFO - Model initialized successfully
+2025-06-10 03:59:27,067 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 03:59:27,119 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 04:21:14,927 - mistral_server - INFO - Received message for analysis: QQQ 515 P
+2025-06-10 04:21:14,983 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 04:22:46,450 - mistral_server - ERROR - Error analyzing message: 1 validation error for MessageResponse
+confidence
+  none is not an allowed value (type=type_error.none.not_allowed)
+2025-06-10 04:22:46,451 - mistral_server - INFO - Error response sent in 91.524 seconds
+2025-06-10 04:29:45,600 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 04:29:46,016 - mistral_server - INFO - Model initialized successfully
+2025-06-10 04:29:46,020 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 04:29:46,091 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 04:30:10,529 - mistral_server - INFO - Received message for analysis: QQQ 515 P
+2025-06-10 04:30:10,529 - mistral_server - INFO - Prompt creation time: 0.0s
+2025-06-10 04:31:09,435 - mistral_server - INFO - Model inference time: 58.905s
+2025-06-10 04:31:09,436 - mistral_server - ERROR - Error analyzing message: 1 validation error for MessageResponse
+confidence
+  none is not an allowed value (type=type_error.none.not_allowed)
+2025-06-10 04:31:09,436 - mistral_server - INFO - Error response sent in 58.907 seconds
+2025-06-10 04:51:52,968 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 04:51:53,375 - mistral_server - INFO - Model initialized successfully
+2025-06-10 04:51:53,379 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 04:51:53,441 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 04:55:02,308 - mistral_server - INFO - Received message for analysis: testing
+2025-06-10 04:56:25,507 - mistral_server - INFO - Full LLM analysis time: 83.194s
+2025-06-10 04:56:25,508 - mistral_server - ERROR - Error parsing LLM response: 1 validation error for MessageResponse
+isTradeSignal
+  field required (type=value_error.missing)
+2025-06-10 04:56:25,508 - mistral_server - INFO - Analysis completed in 83.199 seconds
+2025-06-10 05:23:21,662 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 05:23:22,080 - mistral_server - INFO - Model initialized successfully
+2025-06-10 05:23:22,083 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 05:23:22,217 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 05:23:51,186 - mistral_server - INFO - Received message for analysis: qqq 515 p
+2025-06-10 05:24:56,032 - mistral_server - INFO - Full LLM analysis time: 64.84s
+2025-06-10 05:24:56,033 - mistral_server - ERROR - Error analyzing message: 'dict' object has no attribute 'strip'
+2025-06-10 05:24:56,033 - mistral_server - INFO - Error response sent in 64.848 seconds
+2025-06-10 05:57:01,447 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 05:57:01,852 - mistral_server - INFO - Model initialized successfully
+2025-06-10 05:57:01,856 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 05:57:01,856 - mistral_server - INFO - Trade context initialized
+2025-06-10 05:57:01,912 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 06:02:56,054 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 06:02:56,455 - mistral_server - INFO - Model initialized successfully
+2025-06-10 06:02:56,458 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 06:02:56,459 - mistral_server - INFO - Trade context initialized
+2025-06-10 06:02:56,512 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 06:08:43,685 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 06:08:44,081 - mistral_server - INFO - Model initialized successfully
+2025-06-10 06:08:44,085 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 06:08:44,085 - mistral_server - INFO - Trade context initialized
+2025-06-10 06:08:44,139 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 06:08:55,780 - mistral_server - INFO - Received message for analysis: qqq 515 p
+2025-06-10 06:14:19,279 - mistral_server - INFO - Full LLM analysis time: 323.493s
+2025-06-10 06:14:19,280 - mistral_server - INFO - Analysis completed in 323.499 seconds
+2025-06-10 06:14:20,131 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 06:19:21,591 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 06:19:21,985 - mistral_server - INFO - Model initialized successfully
+2025-06-10 06:19:21,989 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 06:19:21,990 - mistral_server - INFO - Trade context initialized
+2025-06-10 06:19:22,043 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 06:51:24,229 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 06:51:24,233 - utils.gpu - INFO - CUDA device set to: NVIDIA GeForce RTX 2060 SUPER
+2025-06-10 06:51:24,233 - mistral_server - ERROR - Error initializing model: llama_cpp.llama.Llama() got multiple values for keyword argument 'verbose'
+2025-06-10 06:52:39,299 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 06:52:39,306 - utils.gpu - INFO - CUDA device set to: NVIDIA GeForce RTX 2060 SUPER
+2025-06-10 06:52:39,555 - mistral_server - INFO - Model initialized successfully
+2025-06-10 06:52:39,557 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 06:52:39,558 - mistral_server - INFO - Trade context initialized
+2025-06-10 06:52:39,665 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 06:54:40,713 - mistral_server - INFO - Received message for analysis: qqq 515 p
+2025-06-10 07:22:03,687 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 07:22:03,692 - utils.gpu - INFO - CUDA device set to: NVIDIA GeForce RTX 2060 SUPER
+2025-06-10 07:22:06,736 - mistral_server - INFO - Model initialized successfully
+2025-06-10 07:22:06,737 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 07:22:06,738 - mistral_server - INFO - Trade context initialized
+2025-06-10 07:22:06,817 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 07:24:38,162 - mistral_server - INFO - Received message for analysis: qqq 515 p
+2025-06-10 07:24:41,145 - mistral_server - INFO - Full LLM analysis time: 2.979s
+2025-06-10 07:24:41,146 - mistral_server - INFO - Analysis completed in 2.984 seconds
+2025-06-10 07:24:41,790 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 08:27:20,527 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 08:27:23,379 - mistral_server - INFO - Model initialized successfully
+2025-06-10 08:27:23,416 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 08:27:23,417 - mistral_server - INFO - Trade context initialized
+2025-06-10 08:27:23,479 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 08:28:54,325 - mistral_server - INFO - Received message for analysis: QQQ 515 P
+2025-06-10 08:28:57,201 - mistral_server - INFO - Full LLM analysis time: 2.868s
+2025-06-10 08:28:57,202 - mistral_server - INFO - Analysis completed in 2.876 seconds
+2025-06-10 08:28:57,871 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 08:29:06,005 - mistral_server - INFO - Received message for analysis: QQQ 515 P
+2025-06-10 08:29:08,807 - mistral_server - INFO - Full LLM analysis time: 2.802s
+2025-06-10 08:29:08,808 - mistral_server - INFO - Analysis completed in 2.803 seconds
+2025-06-10 08:29:09,519 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 08:30:40,978 - mistral_server - INFO - Received message for analysis: QQQ 515 P
+2025-06-10 08:30:43,758 - mistral_server - INFO - Full LLM analysis time: 2.778s
+2025-06-10 08:30:43,759 - mistral_server - INFO - Analysis completed in 2.78 seconds
+2025-06-10 08:30:44,399 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 08:33:59,806 - mistral_server - INFO - Received message for analysis: QQQ 515 P
+2025-06-10 08:34:01,606 - mistral_server - INFO - Full LLM analysis time: 1.8s
+2025-06-10 08:34:01,607 - mistral_server - INFO - Analysis completed in 1.8 seconds
+2025-06-10 08:34:02,201 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 08:36:42,652 - mistral_server - INFO - Received message for analysis: SPY 500 P
+2025-06-10 08:36:44,408 - mistral_server - INFO - Full LLM analysis time: 1.753s
+2025-06-10 08:36:44,410 - mistral_server - INFO - Analysis completed in 1.757 seconds
+2025-06-10 08:36:45,089 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 08:51:51,490 - mistral_server - INFO - Received message for analysis: SPY 515 P
+2025-06-10 08:51:54,531 - mistral_server - INFO - Full LLM analysis time: 3.04s
+2025-06-10 08:51:54,533 - mistral_server - INFO - Analysis completed in 3.041 seconds
+2025-06-10 08:51:55,341 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:06:19,554 - mistral_server - INFO - Received message for analysis: SPY 515 P
+2025-06-10 09:06:22,329 - mistral_server - INFO - Full LLM analysis time: 2.774s
+2025-06-10 09:06:22,332 - mistral_server - INFO - Analysis completed in 2.776 seconds
+2025-06-10 09:06:22,998 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:13:31,730 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 09:13:34,661 - mistral_server - INFO - Model initialized successfully
+2025-06-10 09:13:34,692 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 09:13:34,693 - mistral_server - INFO - Trade context initialized
+2025-06-10 09:13:34,793 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 09:13:57,921 - mistral_server - INFO - Received message for analysis: NVDA 135 PUT
+2025-06-10 09:14:00,779 - mistral_server - INFO - Full LLM analysis time: 2.85s
+2025-06-10 09:14:00,781 - mistral_server - INFO - Analysis completed in 2.859 seconds
+2025-06-10 09:14:01,457 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:23:29,757 - mistral_server - INFO - Received message for analysis: Test
+2025-06-10 09:23:31,784 - mistral_server - INFO - Full LLM analysis time: 2.027s
+2025-06-10 09:23:31,785 - mistral_server - ERROR - Failed to parse LLM response: Based on the provided message "Test", there is no trade information detected. Therefore, an empty JSON object will be returned:
+
+```json
+{}
+```
+2025-06-10 09:23:31,786 - mistral_server - INFO - Error response sent in 2.03 seconds
+2025-06-10 09:23:32,417 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:24:56,746 - mistral_server - INFO - Full LLM analysis time: 2.926s
+2025-06-10 09:24:56,747 - mistral_server - INFO - Analysis completed in 3.2 seconds
+2025-06-10 09:24:57,357 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:31:35,492 - mistral_server - INFO - Received message for analysis: NVDA 134 PUT
+2025-06-10 09:31:37,253 - mistral_server - INFO - Full LLM analysis time: 1.759s
+2025-06-10 09:31:37,255 - mistral_server - INFO - Analysis completed in 1.761 seconds
+2025-06-10 09:31:37,870 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:44:49,242 - mistral_server - INFO - Received message for analysis: NVDA 133 PUT
+2025-06-10 09:44:52,055 - mistral_server - INFO - Full LLM analysis time: 2.813s
+2025-06-10 09:44:52,057 - mistral_server - INFO - Analysis completed in 2.815 seconds
+2025-06-10 09:44:52,673 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:47:20,764 - mistral_server - INFO - Received message for analysis: NVDA 132 PUT
+2025-06-10 09:47:23,595 - mistral_server - INFO - Full LLM analysis time: 2.829s
+2025-06-10 09:47:23,597 - mistral_server - INFO - Analysis completed in 2.833 seconds
+2025-06-10 09:47:24,219 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 09:51:57,237 - mistral_server - INFO - Received message for analysis: DONT LIKE SPY TODAY
+2025-06-10 09:51:59,801 - mistral_server - INFO - Full LLM analysis time: 2.564s
+2025-06-10 09:51:59,802 - mistral_server - INFO - Analysis completed in 2.565 seconds
+2025-06-10 09:52:00,698 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 10:03:23,184 - mistral_server - INFO - Received message for analysis: NVDA 131 PUT
+2025-06-10 10:03:24,904 - mistral_server - INFO - Full LLM analysis time: 1.719s
+2025-06-10 10:03:24,906 - mistral_server - INFO - Analysis completed in 1.721 seconds
+2025-06-10 10:03:25,535 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 10:47:47,388 - mistral_server - INFO - Received message for analysis: testing
+2025-06-10 10:47:48,914 - mistral_server - INFO - Full LLM analysis time: 1.524s
+2025-06-10 10:47:48,914 - mistral_server - INFO - Analysis completed in 1.526 seconds
+2025-06-10 10:47:49,620 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 10:47:52,418 - mistral_server - INFO - Received message for analysis: NVDA 100 PUT
+2025-06-10 10:47:54,162 - mistral_server - INFO - Full LLM analysis time: 1.743s
+2025-06-10 10:47:54,164 - mistral_server - INFO - Analysis completed in 1.744 seconds
+2025-06-10 10:47:54,838 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 10:51:46,934 - mistral_server - INFO - Received message for analysis: NVDA 99 PUT
+2025-06-10 10:51:49,703 - mistral_server - INFO - Full LLM analysis time: 2.767s
+2025-06-10 10:51:49,705 - mistral_server - INFO - Analysis completed in 2.77 seconds
+2025-06-10 10:51:50,306 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 11:37:12,558 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 11:37:15,487 - mistral_server - INFO - Model initialized successfully
+2025-06-10 11:37:15,521 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 11:37:15,522 - mistral_server - INFO - Trade context initialized
+2025-06-10 11:37:15,590 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 11:38:04,124 - mistral_server - INFO - Received message for analysis: NVDA 100 PUT
+2025-06-10 11:38:07,168 - mistral_server - INFO - Full LLM analysis time: 3.038s
+2025-06-10 11:38:07,169 - mistral_server - INFO - Analysis completed in 3.044 seconds
+2025-06-10 11:38:07,843 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 11:44:18,821 - mistral_server - INFO - Received message for analysis: NVDA 99 PUT
+2025-06-10 11:44:21,825 - mistral_server - INFO - Full LLM analysis time: 3.003s
+2025-06-10 11:44:21,827 - mistral_server - INFO - Analysis completed in 3.005 seconds
+2025-06-10 11:44:22,508 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 11:49:25,748 - mistral_server - INFO - Received message for analysis: NVDA 98 PUT
+2025-06-10 11:49:28,770 - mistral_server - INFO - Full LLM analysis time: 3.021s
+2025-06-10 11:49:28,772 - mistral_server - INFO - Analysis completed in 3.022 seconds
+2025-06-10 11:49:29,473 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 11:50:06,067 - mistral_server - INFO - Received message for analysis: selling
+2025-06-10 11:50:06,069 - mistral_server - INFO - Confirmed full exit in 0.002s
+2025-06-10 11:50:06,695 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 11:50:13,137 - mistral_server - INFO - Received message for analysis: selling all
+2025-06-10 11:50:13,138 - mistral_server - INFO - Confirmed full exit in 0.001s
+2025-06-10 11:50:13,807 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:03:16,074 - mistral_server - INFO - Received message for analysis: NVDA 100 PUT
+2025-06-10 12:03:19,049 - mistral_server - INFO - Full LLM analysis time: 2.972s
+2025-06-10 12:03:19,051 - mistral_server - INFO - Analysis completed in 2.975 seconds
+2025-06-10 12:03:19,655 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:03:23,099 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:03:23,106 - mistral_server - INFO - Confirmed full exit in 0.007s
+2025-06-10 12:03:23,740 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:05:18,207 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:05:18,207 - mistral_server - INFO - Confirmed full exit in 0.0s
+2025-06-10 12:05:18,844 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:07:11,733 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:07:11,733 - mistral_server - INFO - Confirmed full exit in 0.0s
+2025-06-10 12:07:12,386 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:29:09,364 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:29:09,365 - mistral_server - INFO - Confirmed full exit in 0.001s
+2025-06-10 12:29:10,008 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:34:12,882 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:34:12,883 - mistral_server - INFO - Confirmed full exit in 0.001s
+2025-06-10 12:34:13,529 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:37:04,262 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:37:04,262 - mistral_server - INFO - Confirmed full exit in 0.0s
+2025-06-10 12:37:04,898 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:39:40,761 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:39:40,761 - mistral_server - INFO - Confirmed full exit in 0.0s
+2025-06-10 12:39:41,370 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:40:13,003 - mistral_server - INFO - Received message for analysis: nvda 100 put
+2025-06-10 12:40:15,963 - mistral_server - INFO - Full LLM analysis time: 2.957s
+2025-06-10 12:40:15,964 - mistral_server - INFO - Analysis completed in 2.96 seconds
+2025-06-10 12:40:16,556 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:40:45,303 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:40:45,305 - mistral_server - INFO - Confirmed full exit in 0.002s
+2025-06-10 12:40:45,898 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:49:45,274 - mistral_server - INFO - Received message for analysis: QQQ 515 P
+2025-06-10 12:49:48,378 - mistral_server - INFO - Full LLM analysis time: 3.104s
+2025-06-10 12:49:48,379 - mistral_server - INFO - Analysis completed in 3.105 seconds
+2025-06-10 12:49:49,001 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:50:13,512 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 12:50:13,514 - mistral_server - INFO - Confirmed full exit in 0.002s
+2025-06-10 12:50:14,153 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 12:59:35,882 - mistral_server - INFO - Received message for analysis: qqq 515 p
+2025-06-10 12:59:38,827 - mistral_server - INFO - Full LLM analysis time: 2.942s
+2025-06-10 12:59:38,829 - mistral_server - INFO - Analysis completed in 2.944 seconds
+2025-06-10 12:59:39,532 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 13:00:02,102 - mistral_server - INFO - Received message for analysis: sell
+2025-06-10 13:00:02,105 - mistral_server - INFO - Confirmed full exit in 0.003s
+2025-06-10 13:00:02,765 - mistral_server - INFO - Webhook sent: 400
+2025-06-10 20:59:37,187 - utils.gpu - INFO - GPU memory cleared
+2025-06-10 20:59:40,141 - mistral_server - INFO - Model initialized successfully
+2025-06-10 20:59:40,173 - mistral_server - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-10 20:59:40,183 - mistral_server - INFO - Trade context initialized
+2025-06-10 20:59:40,304 - mistral_server - INFO - Channel analyzer initialized successfully
+2025-06-10 20:59:40,362 - analysis.channel_analyzer - INFO - Analyzing channel 1375771480037785640
+2025-06-10 20:59:40,367 - analysis.channel_analyzer - ERROR - Error calculating channel performance: float() argument must be a string or a real number, not 'NoneType'
+2025-06-10 20:59:40,368 - analysis.channel_analyzer - WARNING - Insufficient data for channel 1375771480037785640

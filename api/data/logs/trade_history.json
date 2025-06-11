@@ -1,0 +1,299 @@
+[
+  {
+    "timestamp": "2025-06-10T06:14:19.279641",
+    "action": "open",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T08:28:57.201428",
+    "action": "open",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T08:29:08.807838",
+    "action": "open",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T08:30:43.758888",
+    "action": "open",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T08:34:01.606207",
+    "action": "open",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T08:36:44.409839",
+    "action": "open",
+    "trade_info": {
+      "symbol": "SPY",
+      "optionType": "PUT",
+      "strikePrice": 500,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T08:51:54.531036",
+    "action": "open",
+    "trade_info": {
+      "symbol": "SPY",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T09:06:22.330999",
+    "action": "open",
+    "trade_info": {
+      "symbol": "SPY",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T09:14:00.780314",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 135,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T09:31:37.253004",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 134,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T09:44:52.056852",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 133,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T09:47:23.596682",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 132,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T10:03:24.905677",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 131,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T10:47:54.163228",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 100,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T10:51:49.704342",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 99,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T11:38:07.168985",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 100,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T11:44:21.827000",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 99,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T11:49:28.770309",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 98,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T11:50:06.067794",
+    "action": "close",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 98,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T12:03:19.049450",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 100,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T12:03:23.100882",
+    "action": "close",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 100,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T12:40:15.963011",
+    "action": "open",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 100,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T12:40:45.304386",
+    "action": "close",
+    "trade_info": {
+      "symbol": "NVDA",
+      "optionType": "PUT",
+      "strikePrice": 100,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T12:49:48.378777",
+    "action": "open",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T12:50:13.512808",
+    "action": "close",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T12:59:38.827126",
+    "action": "open",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  },
+  {
+    "timestamp": "2025-06-10T13:00:02.102927",
+    "action": "close",
+    "trade_info": {
+      "symbol": "QQQ",
+      "optionType": "PUT",
+      "strikePrice": 515,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
+  }
+]
