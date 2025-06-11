@@ -1,6 +1,7 @@
 import { Client, WebhookClient } from 'discord.js-selfbot-v13';
 import { mistralService } from './services/mistral.js';
 import { tradeTracker } from './services/tradeTracker.js';
+import { logger } from './utils/logger.js';
 import chokidar from 'chokidar';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -31,9 +32,9 @@ async function initializeMistral() {
     try {
         await mistralService.initialize();
         mistralInitialized = true;
-        console.log('Mistral model initialized successfully');
+        logger.info('Mistral model initialized');
     } catch (error) {
-        console.error('Failed to initialize Mistral model:', error);
+        logger.error('Failed to initialize Mistral model', error);
         process.exit(1); // Exit if we can't initialize the model
     }
 }
@@ -41,13 +42,13 @@ async function initializeMistral() {
 // Set up hot-reloading for channel configuration
 const configPath = path.join(__dirname, 'config', 'channels.js');
 chokidar.watch(configPath).on('change', async () => {
-    console.log('Channel configuration updated, reloading...');
+    logger.info('Channel configuration updated, reloading...');
     try {
         const { channels: newChannels } = await import('./config/channels.js');
         channels = newChannels;
-        console.log('Channel configuration reloaded successfully');
+        logger.info('Channel configuration reloaded successfully');
     } catch (error) {
-        console.error('Error reloading channel configuration:', error);
+        logger.error('Error reloading channel configuration', error);
     }
 });
 
@@ -56,7 +57,7 @@ chokidar.watch(configPath).on('change', async () => {
     try {
         const { channels: initialChannels } = await import('./config/channels.js');
         channels = initialChannels;
-        console.log('Initial channel configuration loaded successfully');
+        logger.info('Initial channel configuration loaded successfully');
 
         // Insert channels into the database if they do not exist
         const { PrismaClient } = await import('@prisma/client');
@@ -82,16 +83,16 @@ chokidar.watch(configPath).on('change', async () => {
             });
         }
         await prisma.$disconnect();
-        console.log('Channels inserted/verified in database');
+        logger.info('Channels inserted/verified in database');
     } catch (error) {
-        console.error('Error loading initial channel configuration:', error);
+        logger.error('Error loading initial channel configuration', error);
     }
 })();
 
 // Process messages from queues
 async function processMessage(message, isShortform = true) {
     if (!mistralInitialized) {
-        console.error('Mistral model not initialized');
+        logger.error('Mistral model not initialized');
         return;
     }
 
@@ -178,7 +179,7 @@ async function processMessage(message, isShortform = true) {
         });
 
     } catch (error) {
-        console.error('Error processing message:', error);
+        logger.error('Error processing message', error);
     }
 }
 
@@ -197,7 +198,7 @@ client.on('messageCreate', async (message) => {
         if (queue.length < MAX_QUEUE_SIZE) {
             queue.push(message);
         } else {
-            console.warn(`Queue full for ${channelConfig.type} messages`);
+            logger.warn(`Queue full for ${channelConfig.type} messages`);
         }
     }
 });
@@ -207,7 +208,7 @@ setInterval(() => {
     const message = shortformQueue.shift();
     if (message) {
         processMessage(message, true).catch(error => {
-            console.error('Error processing shortform message:', error);
+            logger.error('Error processing shortform message', error);
         });
     }
 }, 100); // Process shortform messages every 100ms
@@ -216,24 +217,24 @@ setInterval(() => {
     const message = longformQueue.shift();
     if (message) {
         processMessage(message, false).catch(error => {
-            console.error('Error processing longform message:', error);
+            logger.error('Error processing longform message', error);
         });
     }
 }, 1000); // Process longform messages every 1000ms
 
 // Handle client events
 client.on('ready', async () => {
-    console.log(`Logged in as ${client.user.tag}`);
+    logger.info(`Logged in as ${client.user.tag}`);
     // Initialize Mistral after Discord client is ready
     await initializeMistral();
 });
 
 client.on('error', (error) => {
-    console.error('Discord client error:', error);
+    logger.error('Discord client error', error);
 });
 
 // Start the bot
 client.login(process.env.DISCORD_TOKEN).catch(error => {
-    console.error('Error logging in:', error);
+    logger.error('Error logging in', error);
     process.exit(1);
 }); 

@@ -8,7 +8,7 @@ This document collects ideas and reminders for future contributors (including fu
   - The Prisma schema defines several models that lacked create/update logic. `TradeSignal` and `ChannelConfig` are now persisted, joining `MarketUpdate` and `ManualLabel`.
   - Ensure future tables also receive write paths so important events always result in a database record.
 - **Webhook Embeds**
-  - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful.
+  - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful. *The current embed now shows expiration and P&L when provided.*
 - **Real Price Feeds**
   - The current simulator generates entry/exit prices. Integrate a reliable market data API so simulated trades mirror real‑world moves and P&L calculations become accurate.
 - **UI Refinements**
@@ -32,6 +32,7 @@ This document collects ideas and reminders for future contributors (including fu
   - While the MVP removed test suites, a small collection of integration tests would help catch regressions as features expand. Focus on critical flows like trade creation and stats calculations.
 - **Deployment Pipeline**
   - Set up containerization or a lightweight CI/CD workflow. The repository currently contains many installed dependencies; a Dockerfile or setup script would streamline deployment.
+  - `setup.sh` (and `setup.bat`) now install dependencies and recreate the Python virtual environment, so `api/venv` no longer needs to be tracked.
 
 ## Long‑Term Vision
 

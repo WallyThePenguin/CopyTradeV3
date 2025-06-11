@@ -5,10 +5,10 @@ The following items outline areas where the project could be expanded or refined
 Progress: model logs are now persisted whenever a message is analysed. Manual labels
 and market updates can now be created through the Web UI API.
 
-- **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context.
+- **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context. *Initial fields for expiration and P&L were added.*
 - **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values.
 - **Persist Every Table** – add write logic for all schema models. `TradeSignal` and `ChannelConfig` now have create/update paths alongside `MarketUpdate` and `ManualLabel`.
-- **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs.
+- **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Node now writes to `data/logs` via `logger.js`.*
 - **Authentication** – secure the API and Web UI with token or session based auth before exposing it publicly.
 - **WebUI Enhancements** –
   - Fix P&L calculation issues in trader stats.
@@ -17,7 +17,7 @@ and market updates can now be created through the Web UI API.
   - Allow combined performance view across all simulated channels.
   - When "Production" mode is selected, show only enabled channels.
 - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and consider storing its output for later use.
-- **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight.
+- **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.*
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
 - **Market Calendar Table** – create a new `MarketCalendar` model and job to ingest schedules from the Federal Reserve or another free API. Events should be stored in SQL for reference and display.
 - **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically.
