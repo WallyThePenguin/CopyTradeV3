@@ -35,6 +35,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Live Price Checks**: `mistral.js` fetches current quotes from Robinhood to evaluate stoploss and take‑profit conditions.
 - **Service Initialization**: The trading service now initializes automatically when the web server starts and is verified before each order so Robinhood sessions remain valid.
 - **Account Positions Endpoint**: `/api/positions` exposes current holdings from the active trading service.
+- **Order History Endpoint**: `/api/order-history` lists recent orders from the trading service.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
 
 ## Setup
@@ -98,6 +99,8 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
   - List recent trades. Supports `mode` (`TEST`, `PROD` or `ALL`) and `channel` query parameters.
 - **GET /api/positions**
   - Retrieve current account positions from the active trading service.
+- **GET /api/order-history**
+  - Retrieve the most recent orders from the trading service.
 - **GET /api/channels?mode=TYPE**
   - Retrieve channels filtered by `mode`. `TYPE` can be `TEST` for disabled channels, `PROD` for enabled channels or omitted for all.
 
