@@ -210,6 +210,22 @@ app.get('/api/order-history', async (req, res) => {
     }
 });
 
+// Historical price lookup
+app.get('/api/historical-prices', async (req, res) => {
+    try {
+        const symbol = req.query.symbol;
+        if (!symbol) return res.status(400).json({ error: 'symbol required' });
+        const interval = req.query.interval || '5minute';
+        const span = req.query.span || 'day';
+        await tradingService.initialize();
+        const data = await tradingService.getHistoricalPrices(symbol, interval, span);
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching historical prices:', error);
+        res.status(500).json({ error: 'Failed to fetch historical prices' });
+    }
+});
+
 // Stored order records
 app.get('/api/order-records', async (req, res) => {
     try {

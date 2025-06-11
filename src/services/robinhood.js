@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -122,6 +123,26 @@ class RobinhoodService {
         }
         await this.ensureSession();
         return await this.client.getQuote({ symbol });
+    }
+
+    async getHistoricalPrices(symbol, interval = '5minute', span = 'day') {
+        if (this.testMode) {
+            const now = Date.now();
+            return Array.from({ length: 12 }, (_, i) => ({
+                begins_at: new Date(now - i * 5 * 60 * 1000),
+                close_price: (500 + Math.random() * 50).toFixed(2)
+            })).reverse();
+        }
+        await this.ensureSession();
+        const url = `https://api.robinhood.com/quotes/historicals/${symbol}/?interval=${interval}&span=${span}&bounds=regular`;
+        const res = await fetch(url, {
+            headers: this.client.session?.headers || {}
+        });
+        if (!res.ok) {
+            throw new Error(`Failed to fetch historical prices: ${res.status}`);
+        }
+        const data = await res.json();
+        return data.historicals || [];
     }
 
     async getOptionData(symbol, strikePrice, optionType, expirationDate) {

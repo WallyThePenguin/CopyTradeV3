@@ -31,10 +31,11 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Order History Endpoint** – `/api/order-history` exposes recent account orders retrieved from the trading service.
 - **Order Record Storage** – responses from `/api/order-history` are now persisted to an `OrderRecord` table and can be listed via `/api/order-records`.
 - **Open Positions Table** – the dashboard now includes a table that lists current holdings using data from the positions endpoint.
+- **Historical Price Endpoint** – `/api/historical-prices` retrieves recent market data from Robinhood for improved price accuracy.
 
 ## Areas for Improvement
 
-- **Price Retrieval** – real entry and exit prices were simulated. A basic integration now pulls quotes from Robinhood for stoploss checks, but full price history is still needed.
+- **Price Retrieval** – real entry and exit prices were simulated. Quotes are now pulled from Robinhood for stoploss checks and a `/api/historical-prices` endpoint provides recent candles, but comprehensive history is still needed.
 - **Webhook Details** – webhook embeds should show symbol, strike, expiration and trader so notifications are clearer. *Initial improvements added expiration and P&L fields.*
  - **Authentication & Security** – API POST routes now accept an `X-API-KEY` header when `API_KEY` is set. This provides a minimal layer of protection.
 - **UI Polishing** – the dashboard occasionally shows incorrect P&L and the period buttons still have quirks.  Trader statistics could also highlight which channel executed a trade.

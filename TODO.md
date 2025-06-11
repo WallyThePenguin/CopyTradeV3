@@ -9,7 +9,7 @@ The market calendar is refreshed automatically each night and both Node and Pyth
 write to the same log directory.
 
 - **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context. *Completed: embeds now include these details.*
-- **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values. *In progress: `getCurrentPrice` in `mistral.js` now retrieves real quotes from the trading service.*
+- **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values. *In progress: `getCurrentPrice` in `mistral.js` now retrieves real quotes and `/api/historical-prices` returns recent candles.*
 - **Persist Every Table** – add write logic for all schema models. `TradeSignal` and `ChannelConfig` now have create/update paths alongside `MarketUpdate` and `ManualLabel`.
 - **Order Record Persistence** – store retrieved orders in a dedicated table so historical executions can be reviewed. `/api/order-records` now exposes this data.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Done: Node and Python use file-based loggers under `data/logs`.*
@@ -23,6 +23,7 @@ write to the same log directory.
   - Add an endpoint to fetch open positions so the dashboard can display current holdings. *Implemented as `/api/positions`.*
   - Add an endpoint to view recent order history so trades can be audited easily. *Implemented as `/api/order-history`.*
   - Show open positions in the dashboard using the new endpoint. *Done: a table now lists active holdings.*
+  - Provide a way to fetch recent historical prices for charts. *New `/api/historical-prices` endpoint added.*
 - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and consider storing its output for later use. *Scheduled along with nightly market calendar updates.*
 - **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.* `.env` is now git‑ignored and a `.env.example` file lists the required variables.
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
