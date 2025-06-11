@@ -26,6 +26,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Channel Configuration API** – `/api/channel-config` allows saving per-channel settings to the `ChannelConfig` table.
 - **Market Calendar Endpoint** – `/api/market-calendar` lists upcoming economic events stored by `api/market_calendar.py`. The calendar is refreshed nightly.
 - **Scheduled Maintenance** – the Python service runs channel analysis and market calendar updates every day.
+- **Trading Service Initialization** – the Robinhood service exposes an `initialize()` method so simulators and live trading share the same startup flow.
 
 ## Areas for Improvement
 
@@ -42,4 +43,4 @@ All messages, trades and market events will be collected from roughly fifty trad
 
 ## Completion Status
 
-The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, but initial price retrieval via Robinhood has been added, though full history and some UI bugs remain unresolved. Overall progress feels around **82% complete** toward a production‑ready tool.
+The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, and initial price retrieval via Robinhood has been added. With the new trading service initialization the project feels around **83% complete** toward a production‑ready tool.

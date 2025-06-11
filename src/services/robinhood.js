@@ -34,6 +34,13 @@ class RobinhoodService {
         this.initialized = this._initializeClient();
     }
 
+    async initialize(force = false) {
+        if (!this.initialized || force) {
+            this.initialized = this._initializeClient();
+        }
+        return this.initialized;
+    }
+
     async _initializeClient() {
         this.client = new Robinhood();
 

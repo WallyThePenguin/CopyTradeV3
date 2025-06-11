@@ -15,6 +15,7 @@ Logged messages from Discord. Added in `TradeTracker.trackMessage` and used to d
 
 ## PriceSnapshot
 Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to record quotes. `mistral.js` pulls the latest quote when checking stoploss or take‑profit levels. Snapshots are exposed via `/api/price-snapshots`.
+The Robinhood service now initializes with an explicit `initialize()` call so snapshot collection starts only after a session is established.
 
 ## MarketUpdate
 Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`. A nightly task in `api/market_news.py` also inserts headlines from a JSON feed.

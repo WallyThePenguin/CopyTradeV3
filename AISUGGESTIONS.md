@@ -11,6 +11,8 @@ This document collects ideas and reminders for future contributors (including fu
   - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful. *Done – embeds now include these fields.*
 - **Real Price Feeds**
   - The current simulator generates entry/exit prices. A basic hook now fetches quotes from Robinhood for stoploss checks, but a full data feed is still recommended for accurate P&L.
+- **Service Reliability**
+  - Ensure the `initialize()` method on `robinhood.js` is called during startup so tokens are loaded before trades are executed.
 - **UI Refinements**
   - Ensure mode and period selectors always reflect the active view.
   - Display the trader/channel responsible for each trade in the "Recent Trades" table.
