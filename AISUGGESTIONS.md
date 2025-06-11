@@ -39,6 +39,7 @@ This document collects ideas and reminders for future contributors (including fu
 - **Deployment Pipeline**
   - Set up containerization or a lightweight CI/CD workflow. The repository currently contains many installed dependencies; a Dockerfile or setup script would streamline deployment.
   - `setup.sh` (and `setup.bat`) now install dependencies and recreate the Python virtual environment, so `api/venv` no longer needs to be tracked.
+  - Secrets should live outside the repo. Copy `.env.example` to `.env` and keep your credentials local.
 
 ## Long‑Term Vision
 

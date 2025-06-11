@@ -36,6 +36,7 @@ Run `npm run quality` to generate a report of trades or messages with missing va
 * A `MarketCalendar` table has been added along with a Python script (`api/market_calendar.py`) that fetches an ICS calendar and stores upcoming events. This script now runs nightly from the FastAPI server.
 * A simple file logger has been introduced for Node (`src/utils/logger.js`) and Python (`api/utils/logger.py`) so both components write structured logs under `data/logs`.
 * The Python virtual environment under `api/venv` is excluded from version control and recreated with `setup.sh` (or `setup.bat`).
+* Secrets are no longer committed. Use `.env.example` as a template for your own `.env` file which should remain untracked.
 * Channel lists can now be filtered by mode (`/api/channels?mode=TEST|PROD`), and a new `/api/trades` endpoint exposes recent trades with the same filters. The Web UI reloads channels when the mode changes so simulated and production views stay separate.
 
 These notes should help developers understand where features live and what areas still need attention.
