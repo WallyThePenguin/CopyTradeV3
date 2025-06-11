@@ -17,8 +17,8 @@ This document collects ideas and reminders for future contributors (including fu
   - Add combined statistics for all simulated channels so performance can be assessed before enabling them. *Implemented via new `mode` filter on `/api/channels` and `/api/trades`.*
 - **Market Calendar Table**
   - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` every night so upcoming catalysts appear automatically.*
-- **Automatic Market Updates**
-  - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud.
+ - **Automatic Market Updates**
+  - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud. *`api/market_news.py` now imports a JSON feed nightly as a proof of concept.*
 - **Data Quality Standards**
   - Poor data hurts model training and decision making. A simple script (`npm run quality`) now reports missing exit prices and other anomalies. Define rules based on this output and appoint a steward to check it regularly.
 

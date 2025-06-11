@@ -18,6 +18,7 @@ import requests
 from collections import defaultdict
 from datetime import datetime
 from market_calendar import update_market_calendar
+from market_news import update_market_news
 
 # Logger is configured in utils.logger
 
@@ -470,6 +471,7 @@ def schedule_analysis():
     """Schedule periodic maintenance tasks"""
     schedule.every().day.at("00:00").do(run_channel_analysis)
     schedule.every().day.at("01:00").do(update_market_calendar)
+    schedule.every().day.at("02:00").do(update_market_news)
 
     while True:
         schedule.run_pending()

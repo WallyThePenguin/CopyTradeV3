@@ -23,7 +23,7 @@ write to the same log directory.
 - **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.*
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
  - **Market Calendar Table** – a `MarketCalendar` model now exists and events can be queried via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` nightly.*
-- **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically.
+ - **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically. *In progress: `api/market_news.py` imports a JSON feed each night via the FastAPI scheduler.*
  - **Data Quality Plan** – run the new `npm run quality` script to flag missing fields or invalid trades and document the results. Assign a steward to review the report regularly.
 
 These improvements will help achieve the goal of collecting comprehensive trader data while keeping the system maintainable and secure.

@@ -12,9 +12,10 @@ This file provides a high level overview of how the main pieces of the system fi
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI.
 * **Authentication** – POST routes honor an `X-API-KEY` header when `API_KEY` is defined in the environment. This secures market updates, manual labels and channel configuration.
 * **market calendar pipeline** – nightly job that fetches scheduled events like FOMC meetings and stores them in a `MarketCalendar` table. Events can be queried via `/api/market-calendar` for display in the dashboard.
+* **market news importer** – a new script `api/market_news.py` runs nightly to ingest headlines from a JSON feed into the `MarketUpdate` table.
 
 ### Python FastAPI Service (`api/`)
-* **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It also schedules channel analysis and market calendar updates.
+* **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It also schedules channel analysis, market calendar updates and the nightly news importer.
 
 ## Data Flow
 1. Discord messages are queued and analysed by the Python server.
