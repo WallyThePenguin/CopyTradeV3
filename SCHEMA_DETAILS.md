@@ -13,7 +13,7 @@ Each record stores an optional `author` so the dashboard can attribute trades to
 Logged messages from Discord. Added in `TradeTracker.trackMessage` and used to derive trader statistics in `getMessageCountsOverTime` within `src/web/server.js`.
 
 ## PriceSnapshot
-Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to record quotes. Exposed via `/api/price-snapshots`.
+Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to record quotes. `mistral.js` pulls the latest quote when checking stoploss or take‑profit levels. Snapshots are exposed via `/api/price-snapshots`.
 
 ## MarketUpdate
 Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`.

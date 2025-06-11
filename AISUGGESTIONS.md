@@ -10,7 +10,7 @@ This document collects ideas and reminders for future contributors (including fu
 - **Webhook Embeds**
   - Revisit the notification format to include symbol, strike, expiration, author/channel, and profit/loss once available. This will make trade alerts on Discord far more useful. *Done – embeds now include these fields.*
 - **Real Price Feeds**
-  - The current simulator generates entry/exit prices. Integrate a reliable market data API so simulated trades mirror real‑world moves and P&L calculations become accurate.
+  - The current simulator generates entry/exit prices. A basic hook now fetches quotes from Robinhood for stoploss checks, but a full data feed is still recommended for accurate P&L.
 - **UI Refinements**
   - Ensure mode and period selectors always reflect the active view.
   - Display the trader/channel responsible for each trade in the "Recent Trades" table.
