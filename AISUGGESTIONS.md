@@ -25,7 +25,7 @@ This document collects ideas and reminders for future contributors (including fu
 ## Medium‑Term Goals
 
 - **Authentication & Security**
-  - Add token or session based auth for all API routes. Consider role‑based permissions if the system will be accessed by multiple users.
+  - Basic API key authentication now guards write routes. Future work should refine this with proper token or session handling and potentially role‑based permissions.
 - **Unified Logging**
   - Introduce a logging library (e.g., Winston for Node, `structlog` for Python) with consistent formatting and file rotation. Push important errors to a monitoring service.
 - **Automated Testing**
