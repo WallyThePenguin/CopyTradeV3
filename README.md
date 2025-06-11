@@ -50,12 +50,17 @@ CopyTradeV2 is an advanced trading message analysis backend that combines:
  ```bash
  npm start
  ```
-   On Windows you can start both services with `start.bat`, which opens two terminals for the Python and Node processes.
+  On Windows you can start both services with `start.bat`, which opens two terminals for the Python and Node processes.
 7. **Optional**: manually refresh the market calendar
 ```bash
 python api/market_calendar.py
 ```
 The FastAPI server updates the calendar nightly, but this command forces an immediate refresh.
+8. **Optional**: run a data quality check
+```bash
+npm run quality
+```
+This script scans the database for missing or invalid fields.
 
 The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/venv` and is ignored by git.
 
@@ -105,7 +110,13 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
 - **Tune model settings** for your GPU in `initialize_model()`
 
 ## Data Quality
-Bad data can cost organizations millions each year and leads to bad decisions. Identify quality issues, set standards everyone can follow and appoint someone to audit new records.
+Bad data can cost organizations millions each year and leads to poor decisions. Set quality standards and review incoming records regularly. A helper script is available:
+
+```bash
+npm run quality
+```
+
+The command checks the database for common issues like missing exit prices or invalid option types.
 
 
 ## License
