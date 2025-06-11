@@ -210,6 +210,21 @@ app.get('/api/order-history', async (req, res) => {
     }
 });
 
+// Stored order records
+app.get('/api/order-records', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const records = await prisma.orderRecord.findMany({
+            orderBy: { filledAt: 'desc' },
+            take: limit
+        });
+        res.json(records);
+    } catch (error) {
+        console.error('Error fetching order records:', error);
+        res.status(500).json({ error: 'Failed to fetch order records' });
+    }
+});
+
 // New endpoint: Trade signals history
 app.get('/api/signals', async (req, res) => {
     try {

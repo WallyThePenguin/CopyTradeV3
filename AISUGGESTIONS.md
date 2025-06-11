@@ -20,6 +20,7 @@ This document collects ideas and reminders for future contributors (including fu
   - Provide a way to inspect open positions via the API so the UI can show current holdings. *A new `/api/positions` endpoint now exposes this information.*
   - Display these positions in the dashboard so users can monitor holdings at a glance. *Implemented via a new table.*
   - Consider surfacing order history through an API endpoint so users can verify executions. *Implemented via `/api/order-history`.*
+  - Persist retrieved orders in the database so the system maintains a permanent audit trail. `/api/order-records` exposes these saved orders.
 - **Market Calendar Table**
   - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` every night so upcoming catalysts appear automatically.*
  - **Automatic Market Updates**
