@@ -16,6 +16,7 @@ write to the same log directory.
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Done: Node and Python use file-based loggers under `data/logs`.*
   - Add automatic cleanup so old log files are deleted after 30 days. *Implemented in `src/utils/logger.js`.*
 - **Environment Loading** – ensure the FastAPI service reads variables from `.env` automatically so manual exports aren't required. *Implemented via `load_dotenv` in `mistral_server.py`.*
+- **Validate Environment** – add a utility that exits on startup when essential variables are missing so misconfigurations are caught early. *Implemented via `validateEnv` used by Node entry points.*
 - **Authentication** – basic API key protection added to POST routes. Review session based auth for the Web UI in the future.
 - **WebUI Enhancements** –
   - Fix P&L calculation issues in trader stats. *Done: `updateTraderStats` now ignores trades without a profit/loss value.*

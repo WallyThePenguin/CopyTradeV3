@@ -2,6 +2,7 @@ import { Client, WebhookClient } from 'discord.js-selfbot-v13';
 import { mistralService } from './services/mistral.js';
 import { tradeTracker } from './services/tradeTracker.js';
 import { logger } from './utils/logger.js';
+import { validateEnv } from './utils/validateEnv.js';
 import chokidar from 'chokidar';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,6 +10,10 @@ import './web/server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+if (!validateEnv()) {
+    process.exit(1);
+}
 
 // Initialize Discord client
 const client = new Client({
