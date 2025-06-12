@@ -40,6 +40,7 @@ Holds human annotations for messages. Labels can be created with `POST /api/manu
 
 ## TradeSignal
 Represents detected trade signals. Entries are now created in `TradeTracker.logTradeSignal` whenever a message produces a valid trade. Signals can be listed via `/api/signals`.
+The stats endpoint filters by `trade.channel.enabled` when counting these records. This avoids the `Unknown argument` error seen when querying by `channel` directly.
 
 ## ExecutionStats
 Execution details for trades. Records are created and updated in `TradeTracker.trackTrade`, `TradeTracker.updateTrade` and the simulator.
@@ -55,6 +56,7 @@ Stores channel settings separately from the core `Channel` model. Configs can be
 Aggregated statistics for each trader within a channel. Updated in `TradeTracker.updateTraderStats` and fetched by the stats API.
 The update logic now ignores trades without a recorded `profitLoss` so averages reflect only closed positions.
 Filtering by channel status is performed via the `channel` relation (e.g. `{ channel: { enabled: true } }`) since the `TraderStats` table itself has no `enabled` field. Earlier code tried to filter directly by `enabled`, which caused Prisma validation errors.
+New rows must provide `bestSymbols` and `tradingHours` (both `Json` columns). The code now supplies empty arrays when creating stats records to satisfy these required fields.
 
 ## BotStats
 Overall bot performance metrics. Populated on-demand in `/api/bot-stats` when the endpoint is called.

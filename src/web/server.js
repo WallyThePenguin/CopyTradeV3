@@ -785,11 +785,15 @@ async function getRiskMetrics(timeFilter, channelId, modeFilter) {
 // Get signal quality metrics
 async function getSignalQuality(timeFilter, channelId, modeFilter) {
     // Get all signals in the time period
+    const relationFilter = modeFilter.channel
+        ? { trade: { channel: modeFilter.channel } }
+        : {};
+
     const signals = await prisma.tradeSignal.findMany({
         where: {
             createdAt: timeFilter,
             ...(channelId ? { trade: { channelId } } : {}),
-            ...modeFilter
+            ...relationFilter
         },
         include: {
             trade: true

@@ -378,6 +378,8 @@ class TradeTracker {
                 totalSignals: total,
                 successfulSignals: wins,
                 avgProfitLoss,
+                bestSymbols: [],
+                tradingHours: [],
                 lastActive: new Date()
             }
         });
