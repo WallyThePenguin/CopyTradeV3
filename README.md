@@ -46,6 +46,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Open Positions Dashboard**: A new table on the web UI shows current holdings retrieved from `/api/positions`.
 - **Environment Loader**: The Python backend loads variables from `.env` at startup so separate export steps aren't needed.
 - **Session Auto-Refresh**: `robinhood.js` re-logins automatically when its token expires.
+- **Trader Stats Fix**: queries filter by the related channel's status instead of a nonexistent `enabled` field. This prevents Prisma errors during stats retrieval.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. The `npm run quality` script now flags missing prices, invalid option types, bad statuses and zero quantities so issues can be resolved quickly.
 
 ## Setup

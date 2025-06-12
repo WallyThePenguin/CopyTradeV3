@@ -691,7 +691,8 @@ async function getTraderStats(timeFilter, channelId, modeFilter) {
         where: {
             updatedAt: timeFilter,
             ...(channelId ? { channelId } : {}),
-            ...(modeFilter.channel || {})
+            // TraderStats has no `enabled` field, filter via the related Channel
+            ...(modeFilter.channel ? { channel: modeFilter.channel } : {})
         },
         include: {
             channel: true

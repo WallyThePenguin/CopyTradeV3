@@ -38,6 +38,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Historical Price Endpoint** – `/api/historical-prices` retrieves recent market data from Robinhood for improved price accuracy.
 - **Environment Loader** – `mistral_server.py` automatically loads environment variables from `.env` so the Python service runs without manual exports.
 - **Extended `.env` Template** – `.env.example` now includes `API_KEY`, `NEWS_FEED_PATH` and `WEB_PORT` settings for easier configuration.
+- **Trader Stats Fix** – statistics queries now filter by channel status through the relation instead of an `enabled` field. This resolves the `Unknown argument` Prisma error when loading trader stats.
 - **Session Auto-Refresh** – `robinhood.js` now attempts to re-login when its session is invalid, reducing trade errors.
 - **Environment Validation** – Node services run a `validateEnv` check on startup and exit if required variables like `DISCORD_TOKEN` or `DATABASE_URL` are missing.
 
