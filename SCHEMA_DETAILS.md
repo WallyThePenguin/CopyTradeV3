@@ -45,7 +45,7 @@ Represents detected trade signals. Entries are now created in `TradeTracker.logT
 Execution details for trades. Records are created and updated in `TradeTracker.trackTrade`, `TradeTracker.updateTrade` and the simulator.
 
 ## PerformanceHistory
-Historical channel stats created in `updateChannelPerformance` and read by the stats API.
+Historical channel stats created by `channel_analyzer.py` whenever configs are updated and read by the stats API.
 
 ## ChannelConfig
 Stores channel settings separately from the core `Channel` model. Configs can be created or updated with `POST /api/channel-config` and fetched via `/api/channel-config/:id`.

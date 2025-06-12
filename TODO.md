@@ -26,7 +26,8 @@ write to the same log directory.
   - Add an endpoint to view recent order history so trades can be audited easily. *Implemented as `/api/order-history`.*
   - Show open positions in the dashboard using the new endpoint. *Done: a table now lists active holdings.*
   - Provide a way to fetch recent historical prices for charts. *New `/api/historical-prices` endpoint added.*
-- **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and consider storing its output for later use. *Scheduled along with nightly market calendar updates.*
+- **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and store its results. *Scheduled along with nightly market calendar updates and metrics now persist to `PerformanceHistory`.*
+
 - **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.* `.env` is now git‑ignored and a `.env.example` file lists the required variables.
 - **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
 - **Robinhood Initialization Fix** – expose an `initialize()` method on `robinhood.js` so the simulator and trading service can safely start. *Completed: `web/server.js` initializes the trading service on startup and `TradeTracker` ensures it before each order.*
