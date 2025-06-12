@@ -43,6 +43,9 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Order Records Table**: order history responses are now persisted to the `OrderRecord` table and can be queried via `/api/order-records`.
 - **Data Quality Endpoint**: `/api/data-quality` runs a series of checks and returns any problems found with stored trades or messages.
 - **Scheduled Quality Checks**: a cron job runs these checks daily and logs the results to `data/logs`.
+- **Trade Mode Field**: trades now record whether they were executed in `PRODUCTION` or `SIMULATED` mode so stats reflect the correct environment.
+- **CALL/PUT Parsing Fix**: messages like `SPY 591 CALL` are normalized before analysis to avoid split symbols.
+- **Simulator Initialization**: the Robinhood simulator only initializes once instead of spamming logs.
 - **Open Positions Dashboard**: A new table on the web UI shows current holdings retrieved from `/api/positions`.
 - **Environment Loader**: The Python backend loads variables from `.env` at startup so separate export steps aren't needed.
 - **Session Auto-Refresh**: `robinhood.js` re-logins automatically when its token expires.
