@@ -32,6 +32,9 @@ write to the same log directory.
   - Fix signal quality query so it filters through `trade.channel.enabled`. *Done – prevents PrismaClientValidationError on startup.*
   - Ensure `TraderStats` creation includes `bestSymbols` and `tradingHours` arrays. *Done – upsert now supplies empty arrays.*
   - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and store its results. *Scheduled along with nightly market calendar updates and metrics now persist to `PerformanceHistory`.*
+  - **Trade Mode Tracking** – store whether a trade was simulated or live based on environment and channel settings so stats separate correctly. *Implemented via new `mode` field on `Trade`.*
+  - **CALL/PUT Parsing Fix** – messages like "SPY 591 CALL" are normalized before analysis so they no longer split into two symbols.
+  - **Simulator Initialization** – the Robinhood simulator now only initializes once to prevent log spam.
 
 - **Automated Data Quality Logs** – the Node server now runs the quality script every day and writes the results to `data/logs`.
 

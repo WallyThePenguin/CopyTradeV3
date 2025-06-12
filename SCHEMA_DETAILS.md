@@ -8,7 +8,7 @@ Channels represent Discord channels being monitored. Records are created in `src
 ## Trade
 Core table storing every trade signal. Trades are created and updated in `src/services/tradeTracker.js` and the Robinhood services. The Web UI queries this table for statistics and recent trades.
 Each record stores an optional `author` so the dashboard can attribute trades to specific Discord users.
-Trades can also be fetched directly via the `/api/trades` endpoint with optional `mode` and `channel` filters.
+Trades include a `mode` field indicating whether they were executed in `PRODUCTION` or `SIMULATED` mode. They can be fetched via the `/api/trades` endpoint with optional `mode` and `channel` filters.
 
 ## Message
 Logged messages from Discord. Added in `TradeTracker.trackMessage` and used to derive trader statistics in `getMessageCountsOverTime` within `src/web/server.js`.

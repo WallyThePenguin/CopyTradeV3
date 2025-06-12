@@ -38,7 +38,9 @@ class TradeTracker {
             }
         });
 
-        const isSimulated = !channel.enabled;
+        const env = process.env.ENVIRONMENT?.toUpperCase() || 'PRODUCTION';
+        const isSimulated = env === 'TESTING' || channel.enabled === false;
+        const tradeMode = isSimulated ? 'SIMULATED' : 'PRODUCTION';
 
         // EXIT TRACKING MODE
         if (signalType === 'EXIT') {
@@ -125,6 +127,7 @@ class TradeTracker {
                 entryPrice: actualEntryPrice,
                 quantity,
                 author,
+                mode: tradeMode,
                 status: 'OPEN',
                 channel: {
                     connect: { id: channelId }

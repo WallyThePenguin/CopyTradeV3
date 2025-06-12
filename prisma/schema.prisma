@@ -43,6 +43,7 @@ model Trade {
   exitPrice   Float?
   quantity    Int
   author      String?
+  mode        String   @default("SIMULATED")
   status      String
   entryTime   DateTime  @default(now())
   exitTime    DateTime?
