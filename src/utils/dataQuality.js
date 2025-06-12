@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function run() {
+export async function checkDataQuality() {
     const issues = [];
 
     const badEntry = await prisma.trade.count({ where: { entryPrice: { lte: 0 } } });
@@ -39,19 +39,23 @@ async function run() {
     if (messagesNoAuthor) issues.push(`${messagesNoAuthor} messages missing author`);
 
     if (issues.length === 0) {
-        console.log('✅ No data quality issues found');
-    } else {
-        console.log('Data Quality Report:');
-        for (const issue of issues) {
-            console.log(` - ${issue}`);
-        }
+        issues.push('No data quality issues found');
     }
 
     await prisma.$disconnect();
+    return issues;
 }
 
-run().catch(error => {
-    console.error('Failed to run data quality check', error);
-    prisma.$disconnect();
-    process.exit(1);
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+    checkDataQuality()
+        .then((issues) => {
+            console.log('Data Quality Report:');
+            for (const issue of issues) {
+                console.log(` - ${issue}`);
+            }
+        })
+        .catch((error) => {
+            console.error('Failed to run data quality check', error);
+            process.exit(1);
+        });
+}
