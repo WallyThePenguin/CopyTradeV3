@@ -14,6 +14,8 @@ This document collects ideas and reminders for future contributors (including fu
   - A new `/api/historical-prices` endpoint retrieves recent candles from Robinhood to help chart performance.
 - **Service Reliability**
   - Ensure the `initialize()` method on `robinhood.js` is called during startup so tokens are loaded before trades are executed. *Now handled via a startup call in `web/server.js` and within `TradeTracker` before orders are placed.*
+  - Add automatic re-login when a Robinhood session expires so trades do not fail unexpectedly. *Implemented in `robinhood.js`.*
+  - Load environment variables from `.env` in the Python server to reduce setup steps. *Implemented via `load_dotenv`.*
 - **UI Refinements**
   - Ensure mode and period selectors always reflect the active view.
   - Display the trader/channel responsible for each trade in the "Recent Trades" table.

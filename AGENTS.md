@@ -32,6 +32,8 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Order Record Storage** – responses from `/api/order-history` are now persisted to an `OrderRecord` table and can be listed via `/api/order-records`.
 - **Open Positions Table** – the dashboard now includes a table that lists current holdings using data from the positions endpoint.
 - **Historical Price Endpoint** – `/api/historical-prices` retrieves recent market data from Robinhood for improved price accuracy.
+- **Environment Loader** – `mistral_server.py` automatically loads environment variables from `.env` so the Python service runs without manual exports.
+- **Session Auto-Refresh** – `robinhood.js` now attempts to re-login when its session is invalid, reducing trade errors.
 
 ## Areas for Improvement
 
@@ -49,4 +51,4 @@ All messages, trades and market events will be collected from roughly fifty trad
 
 ## Completion Status
 
-The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, initial price retrieval via Robinhood is available and positions can be queried via the new endpoint. With these additions the project feels around **84% complete** toward a production‑ready tool.
+The foundation for automated trade tracking is in place: Discord ingestion, LLM analysis, trading/simulation and a basic dashboard. Model logging, manual labels and market updates are persisted, and trade signals plus channel configs now write to the database. Basic API key auth protects write routes, initial price retrieval via Robinhood is available and positions can be queried via the new endpoint. With these additions the project feels around **85% complete** toward a production‑ready tool.

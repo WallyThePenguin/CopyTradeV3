@@ -7,7 +7,7 @@ This file provides a high level overview of how the main pieces of the system fi
 ### Node Worker (`src/`)
 * **index.js** – Discord self‑bot that ingests messages from configured channels, uses Mistral (via the Python service) to analyse them and forwards trade signals to `TradeTracker`.
 * **services/tradeTracker.js** – Handles all database writes for trades, messages and trader stats. It also calls the Robinhood service to execute or simulate orders.
-* **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution. Quotes are also used by `mistral.js` to check stoploss and take‑profit levels. The service now exposes an `initialize()` method so other modules can ensure a session is available and includes a `getHistoricalPrices` helper to retrieve recent candles.
+* **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution. Quotes are also used by `mistral.js` to check stoploss and take‑profit levels. The service now exposes an `initialize()` method so other modules can ensure a session is available, automatically re‑logs when sessions expire and includes a `getHistoricalPrices` helper to retrieve recent candles.
 * **services/robinhoodSimulator.js** – Simulation layer used when a channel is disabled. Generates price data and maintains virtual positions while still writing to the database. A helper `getPositions()` method exposes the current simulated holdings.
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI. The server now initializes the trading service on startup so Robinhood sessions are ready. A `/api/positions` route returns open positions from the active trading service, `/api/order-history` lists recent orders and `/api/historical-prices` fetches candle data. Order history responses are persisted in an `OrderRecord` table which is exposed via `/api/order-records`. The web UI shows these holdings in a new table.
 * **Authentication** – POST routes honor an `X-API-KEY` header when `API_KEY` is defined in the environment. This secures market updates, manual labels and channel configuration.
@@ -15,7 +15,7 @@ This file provides a high level overview of how the main pieces of the system fi
 * **market news importer** – a new script `api/market_news.py` runs nightly to ingest headlines from a JSON feed into the `MarketUpdate` table.
 
 ### Python FastAPI Service (`api/`)
-* **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It also schedules channel analysis, market calendar updates and the nightly news importer.
+* **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It now reads environment variables from `.env` automatically and schedules channel analysis, market calendar updates and the nightly news importer.
 
 ## Data Flow
 1. Discord messages are queued and analysed by the Python server.
