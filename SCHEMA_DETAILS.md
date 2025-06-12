@@ -54,6 +54,7 @@ Stores channel settings separately from the core `Channel` model. Configs can be
 ## TraderStats
 Aggregated statistics for each trader within a channel. Updated in `TradeTracker.updateTraderStats` and fetched by the stats API.
 The update logic now ignores trades without a recorded `profitLoss` so averages reflect only closed positions.
+Filtering by channel status is performed via the `channel` relation (e.g. `{ channel: { enabled: true } }`) since the `TraderStats` table itself has no `enabled` field. Earlier code tried to filter directly by `enabled`, which caused Prisma validation errors.
 
 ## BotStats
 Overall bot performance metrics. Populated on-demand in `/api/bot-stats` when the endpoint is called.
