@@ -11,12 +11,14 @@ class RobinhoodSimulator {
         this.prisma = prisma;
         this.activePositions = new Map(); // Track simulated positions
         this.priceHistory = new Map(); // Cache recent prices
+        this.initialized = false;
     }
 
     async initialize() {
+        if (this.initialized) return;
         console.log('Initializing Robinhood simulator...');
-        // Initialize Robinhood service
         await robinhoodService.initialize();
+        this.initialized = true;
     }
 
     async getQuote(symbol) {

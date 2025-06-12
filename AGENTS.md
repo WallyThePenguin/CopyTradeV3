@@ -33,6 +33,9 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Order Record Storage** – responses from `/api/order-history` are now persisted to an `OrderRecord` table and can be listed via `/api/order-records`.
 - **Open Positions Table** – the dashboard now includes a table that lists current holdings using data from the positions endpoint.
 - **Data Quality Endpoint** – `/api/data-quality` returns any issues found by the quality checker so admins can monitor database health.
+- **Trade Mode Tracking** – trades now include a `mode` field indicating whether they were executed in `PRODUCTION` or `SIMULATED` mode based on the environment and channel settings.
+- **CALL/PUT Normalization** – messages like `SPY 591 CALL` are standardized before analysis so the model parses them correctly.
+- **Simulator Initialization Fix** – the Robinhood simulator only initializes once, preventing repeated "Initializing" logs.
 - **Scheduled Quality Checks** – a cron task runs the data quality script daily and logs the results to `data/logs`.
 - **Automatic Log Cleanup** – the Node logger now deletes log files older than 30 days during startup.
 - **Historical Price Endpoint** – `/api/historical-prices` retrieves recent market data from Robinhood for improved price accuracy.

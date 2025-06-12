@@ -6,9 +6,11 @@ This file provides a high level overview of how the main pieces of the system fi
 
 ### Node Worker (`src/`)
 * **index.js** – Discord self‑bot that ingests messages from configured channels, uses Mistral (via the Python service) to analyse them and forwards trade signals to `TradeTracker`.
+* **services/mistral.js** – Wraps the Mistral API client. It now normalizes option callouts so phrases like `SPY 591 CALL` are interpreted correctly.
 * **services/tradeTracker.js** – Handles all database writes for trades, messages and trader stats. It also calls the Robinhood service to execute or simulate orders.
 * **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution. Quotes are also used by `mistral.js` to check stoploss and take‑profit levels. The service now exposes an `initialize()` method so other modules can ensure a session is available, automatically re‑logs when sessions expire and includes a `getHistoricalPrices` helper to retrieve recent candles.
 * **services/robinhoodSimulator.js** – Simulation layer used when a channel is disabled. Generates price data and maintains virtual positions while still writing to the database. A helper `getPositions()` method exposes the current simulated holdings.
+* **Trade mode field** – `TradeTracker` now stores a `mode` property on each trade so the dashboard can distinguish between production and simulated executions.
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI. The server now initializes the trading service on startup so Robinhood sessions are ready. A `/api/positions` route returns open positions from the active trading service, `/api/order-history` lists recent orders and `/api/historical-prices` fetches candle data. Order history responses are persisted in an `OrderRecord` table which is exposed via `/api/order-records`. The web UI shows these holdings in a new table.
 * **Trader stats filter** – `getTraderStats` filters using the related channel's status rather than a nonexistent `enabled` field on the table. This change eliminates the Prisma validation error seen in earlier versions.
 * **Signal query fix** – `getSignalQuality` now references `trade.channel.enabled` so filtering by mode works for the `TradeSignal` table.

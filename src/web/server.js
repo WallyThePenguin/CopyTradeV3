@@ -169,11 +169,11 @@ app.get('/api/trades', async (req, res) => {
         const limit = parseInt(req.query.limit) || 50;
         const mode = req.query.mode || 'ALL';
         const channelId = req.query.channel || undefined;
-        const modeFilter = mode === 'TEST'
-            ? { channel: { enabled: false } }
-            : mode === 'PROD'
-                ? { channel: { enabled: true } }
-                : {};
+        const tradeModeFilter = mode === 'TEST' ? { mode: 'SIMULATED' } :
+            mode === 'PROD' ? { mode: 'PRODUCTION' } : {};
+        const channelFilter = mode === 'TEST' ? { enabled: false } :
+            mode === 'PROD' ? { enabled: true } : {};
+        const modeFilter = { ...tradeModeFilter, channel: channelFilter };
 
         const trades = await prisma.trade.findMany({
             where: {
@@ -558,8 +558,12 @@ app.get('/api/test/channels', async (req, res) => {
 async function getStats(period, mode, channelId) {
     const timeFilter = getTimeFilter(period);
 
-    const modeFilter = mode === 'TEST' ? { channel: { enabled: false } } :
-        mode === 'PROD' ? { channel: { enabled: true } } : {};
+    const tradeModeFilter = mode === 'TEST' ? { mode: 'SIMULATED' } :
+        mode === 'PROD' ? { mode: 'PRODUCTION' } : {};
+    const channelFilter = mode === 'TEST' ? { enabled: false } :
+        mode === 'PROD' ? { enabled: true } : {};
+
+    const modeFilter = { ...tradeModeFilter, channel: channelFilter };
 
     // Get basic stats
     const [trades, channels, traders] = await Promise.all([
@@ -878,7 +882,7 @@ async function getMessageCountsOverTime(timeFilter, channelId, modeFilter) {
         where: {
             createdAt: timeFilter,
             ...(channelId ? { channelId } : {}),
-            ...modeFilter
+            ...(modeFilter.channel ? { channel: modeFilter.channel } : {})
         },
         orderBy: {
             createdAt: 'asc'

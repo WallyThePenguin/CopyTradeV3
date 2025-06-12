@@ -125,10 +125,12 @@ class MistralService {
         }
 
         try {
-            logger.info('Starting message analysis', { content });
+            const standardized = content.replace(/(\b[A-Z]{1,5})\s+(\d+)\s+(CALL|PUT)\b/gi,
+                (_, sym, strike, type) => `${sym} ${strike} ${type.charAt(0)}`);
+            logger.info('Starting message analysis', { content: standardized });
 
             const response = await axios.post('http://localhost:8000/analyze', {
-                content: content
+                content: standardized
             });
 
             const signal = Signal.fromJSON(response.data);
