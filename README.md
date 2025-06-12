@@ -39,7 +39,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Historical Price Endpoint**: `/api/historical-prices` fetches recent market data from Robinhood.
 - **Order Records Table**: order history responses are now persisted to the `OrderRecord` table and can be queried via `/api/order-records`.
 - **Open Positions Dashboard**: A new table on the web UI shows current holdings retrieved from `/api/positions`.
-- **Data Quality Focus**: Bad data is expensive and leads to poor decisions. Track quality issues, set collection standards and appoint a steward to review new records.
+- **Data Quality Focus**: Bad data is expensive and leads to poor decisions. The `npm run quality` script now flags missing prices, invalid option types, bad statuses and zero quantities so issues can be resolved quickly.
 
 ## Setup
 
@@ -138,7 +138,8 @@ Bad data can cost organizations millions each year and leads to poor decisions. 
 npm run quality
 ```
 
-The command checks the database for common issues like missing exit prices or invalid option types.
+The command checks the database for common issues like missing exit prices, invalid option types,
+unexpected trade status values or zero quantities.
 
 
 ## License

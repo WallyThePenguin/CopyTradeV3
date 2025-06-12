@@ -45,7 +45,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Market Calendar** – create a table to store scheduled economic events (e.g. FOMC meetings) by parsing a public calendar like the Federal Reserve's or an equivalent API.  Insert these dates into SQL so the UI can display upcoming market events.
 - **Market Update Sources** – find a reliable API or broker feed to automatically populate the `MarketUpdate` table with news headlines or summaries. *Initial implementation added `api/market_news.py` which imports a JSON feed nightly.*
 - **Data Quality** – document and monitor problems that lead to bad data. Bad data increases cost and hurts decision making. Establish collection standards and assign a data steward to perform regular checks.
-  A helper script (`npm run quality`) now checks the database for missing or invalid fields to aid this review.
+  A helper script (`npm run quality`) now checks for missing prices, invalid option types, bad statuses and zero quantities to aid this review.
 
 ## Completion Status
 
