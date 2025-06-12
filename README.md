@@ -33,6 +33,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Daily Calendar Updates**: The FastAPI server refreshes the market calendar every night so new events appear automatically.
 - **Performance History**: Channel analysis results are stored in the `PerformanceHistory` table whenever configs are updated.
 - **Unified Logging**: Both the Node and Python services write logs to `data/logs` for easier troubleshooting.
+- **Automatic Log Cleanup**: Old log files are removed after 30 days to prevent uncontrolled disk usage.
 - **Live Price Checks**: `mistral.js` fetches current quotes from Robinhood to evaluate stoploss and take‑profit conditions.
 - **Service Initialization**: The trading service now initializes automatically when the web server starts and is verified before each order so Robinhood sessions remain valid.
 - **Account Positions Endpoint**: `/api/positions` exposes current holdings from the active trading service.
@@ -50,7 +51,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 
 1. **Clone the repo**
 2. **Install dependencies** by running `bash setup.sh` on Linux/macOS or `setup.bat` on Windows. This script creates a fresh Python virtual environment under `api/venv` and installs both Python and Node packages.
-3. **Copy `.env.example` to `.env`** and update the values for your environment. At minimum set `WEBHOOK_URL`, `DISCORD_TOKEN` and database credentials. `API_KEY` is optional but recommended for securing POST routes.
+3. **Copy `.env.example` to `.env`** and update the values for your environment. At minimum set `WEBHOOK_URL`, `DISCORD_TOKEN` and database credentials. `API_KEY` secures write routes and `NEWS_FEED_PATH` can point to a file or URL for market headlines. `WEB_PORT` controls the dashboard port.
    The FastAPI service reads this file automatically on startup.
 4. **Configure your model path and GPU settings** in `mistral_server.py` (see `initialize_model`)
 5. **Run the Python backend**:

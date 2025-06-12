@@ -63,4 +63,5 @@ Every table should store accurate, complete information. Log data issues and def
 Use the `npm run quality` command to quickly identify records with missing prices, invalid option types, unexpected status values or zero trade quantities.
 These checks can also be executed via the `/api/data-quality` endpoint which returns any issues as JSON.
 The Node server schedules this script daily so problems are logged automatically.
+Log files are automatically removed after 30 days to keep the directory small.
 

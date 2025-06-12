@@ -33,6 +33,7 @@ This document collects ideas and reminders for future contributors (including fu
 - **Data Quality Standards**
   - Poor data hurts model training and decision making. The `npm run quality` script now reports missing prices, invalid option types, bad statuses and zero quantities. Define rules based on this output and appoint a steward to check the report regularly.
   - A cron job now runs the quality script every day and logs the results so issues are tracked automatically.
+  - Old log files are now purged after 30 days to keep storage usage low.
 
 ## Medium‑Term Goals
 
