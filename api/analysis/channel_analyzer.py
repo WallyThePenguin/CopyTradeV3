@@ -6,23 +6,14 @@ import numpy as np
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
-import logging
 from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 import schedule
 import time
 import pytz
+from utils.logger import logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('data/logs/channel_analysis.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Logger is configured in utils.logger
 
 # Load environment variables from project root
 project_root = Path(__file__).parent.parent.parent
@@ -231,6 +222,9 @@ class ChannelAnalyzer:
             self._save_channel_config(channel_id, config)
             logger.info(f"Updated channel {channel_id} configuration", config)
 
+            # Record performance history so results can be reviewed later
+            self._record_performance_history(channel_id, performance)
+
         except Exception as e:
             logger.error(f"Error updating channel config: {str(e)}")
 
@@ -255,6 +249,43 @@ class ChannelAnalyzer:
         except Exception as e:
             logger.error(f"Error saving channel config: {str(e)}")
             raise
+
+    def _record_performance_history(self, channel_id: str, performance: Dict) -> None:
+        """Persist summarized metrics to PerformanceHistory."""
+        try:
+            query = text(
+                """
+                INSERT INTO "PerformanceHistory" (
+                    "channelId", period, "startDate", "endDate",
+                    "totalTrades", "winRate", "avgProfit", performance
+                ) VALUES (
+                    :channel_id, :period, :start_date, :end_date,
+                    :total_trades, :win_rate, :avg_profit, :performance
+                )
+                """
+            )
+
+            start_date = datetime.utcnow() - timedelta(days=self.analysis_window)
+            end_date = datetime.utcnow()
+            perf_score = performance["win_rate"] * performance["avg_profit"]
+
+            with self.engine.connect() as conn:
+                conn.execute(
+                    query,
+                    {
+                        "channel_id": channel_id,
+                        "period": f"LAST_{self.analysis_window}_DAYS",
+                        "start_date": start_date,
+                        "end_date": end_date,
+                        "total_trades": performance["total_trades"],
+                        "win_rate": performance["win_rate"],
+                        "avg_profit": performance["avg_profit"],
+                        "performance": perf_score,
+                    },
+                )
+                conn.commit()
+        except Exception as e:
+            logger.error(f"Error recording performance history: {str(e)}")
 
     def analyze_all_channels(self) -> None:
         """Analyze all active channels."""

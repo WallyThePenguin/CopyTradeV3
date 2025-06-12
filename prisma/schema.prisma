@@ -42,6 +42,7 @@ model Trade {
   entryPrice  Float
   exitPrice   Float?
   quantity    Int
+  author      String?
   status      String
   entryTime   DateTime  @default(now())
   exitTime    DateTime?
@@ -92,6 +93,14 @@ model MarketUpdate {
   symbol    String?
   createdAt DateTime @default(now())
   channel   Channel  @relation(fields: [channelId], references: [id])
+}
+
+model MarketCalendar {
+  id        String   @id @default(uuid())
+  eventDate DateTime
+  title     String
+  source    String
+  createdAt DateTime @default(now())
 }
 
 model ModelLog {
@@ -153,6 +162,19 @@ model PerformanceHistory {
   performance Float
   createdAt   DateTime @default(now())
   channel     Channel  @relation(fields: [channelId], references: [id])
+}
+
+model OrderRecord {
+  id           String   @id @default(uuid())
+  brokerOrderId String  @unique
+  symbol       String
+  type         String?
+  side         String?
+  quantity     Int
+  price        Float?
+  status       String?
+  filledAt     DateTime?
+  createdAt    DateTime @default(now())
 }
 
 model ChannelConfig {

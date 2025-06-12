@@ -5,9 +5,10 @@ from llama_cpp import Llama
 import torch
 import gc
 import os
+from dotenv import load_dotenv
 from typing import Optional, Dict, Any
-import logging
 from utils.gpu import clear_gpu_memory, get_gpu_info, optimize_for_rtx2060
+from utils.logger import logger
 from analysis.channel_analyzer import ChannelAnalyzer
 import threading
 import schedule
@@ -17,10 +18,10 @@ import json
 import requests
 from collections import defaultdict
 from datetime import datetime
+from market_calendar import update_market_calendar
+from market_news import update_market_news
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Logger is configured in utils.logger
 
 app = FastAPI()
 
@@ -29,8 +30,11 @@ model = None
 channel_analyzer = None
 trade_context = None
 current_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(current_dir, "..", "model",
-                          "mistral-7b-instruct-v0.2.Q4_K_M.gguf")
+env_path = os.path.join(current_dir, '..', '.env')
+load_dotenv(env_path)
+model_path = os.path.join(
+    current_dir, "..", "model", "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
+)
 model_path = os.path.abspath(model_path)  # Normalize the path
 
 # Trade context tracking
@@ -48,7 +52,7 @@ class TradeContext:
         """Load trade history from file"""
         if os.path.exists(self.history_file):
             try:
-                with open(self.history_file, 'r') as f:
+                with open(self.history_file, "r") as f:
                     self.trade_history = json.load(f)
             except json.JSONDecodeError:
                 self.trade_history = []
@@ -58,19 +62,19 @@ class TradeContext:
     def save_history(self):
         """Save trade history to file"""
         os.makedirs(os.path.dirname(self.history_file), exist_ok=True)
-        with open(self.history_file, 'w') as f:
+        with open(self.history_file, "w") as f:
             json.dump(self.trade_history, f, indent=2)
 
     def add_trade(self, ticker, trade_info):
-        if 'strikePrice' in trade_info:
-            self.active_trades[ticker][trade_info['strikePrice']] = trade_info
+        if "strikePrice" in trade_info:
+            self.active_trades[ticker][trade_info["strikePrice"]] = trade_info
         self.last_trade = trade_info
 
         # Add to history with timestamp
         history_entry = {
             "timestamp": datetime.now().isoformat(),
             "action": "open",
-            "trade_info": trade_info
+            "trade_info": trade_info,
         }
         self.trade_history.append(history_entry)
         self.save_history()
@@ -88,7 +92,7 @@ class TradeContext:
                 history_entry = {
                     "timestamp": datetime.now().isoformat(),
                     "action": "close",
-                    "trade_info": trade
+                    "trade_info": trade,
                 }
                 self.trade_history.append(history_entry)
                 self.save_history()
@@ -102,41 +106,129 @@ class TradeContext:
 
 # --- Regex patterns for buy/sell detection, including abbreviations and Gen Z slang ---
 SELL_PATTERNS = [
-    r'\bim\s+out\b', r'\bout\b', r'\bexit\b', r'\bclose\b', r'\bdone\b',
-    r'\btaking\s+profit\b', r'\bcutting\s+loss\b', r'\bstopping\s+out\b',
-    r'\bclosing\s+position\b', r'\bselling\b', r'\bsold\b', r'\bsell\b',
-    r'\bsell\s+now\b', r'\bselling\s+now\b', r'\btake\s+profit\b', r'\btaking\s+profits\b',
-    r'\bexit\s+now\b', r'\bget\s+out\b', r'\bgetting\s+out\b', r'\bclose\s+now\b', r'\bclosing\s+now\b',
-    r'\bunload\b', r'\bunloading\b', r'\bdump\b', r'\bdumping\b', r'\bcash\s+out\b', r'\bcashing\s+out\b',
-    r'\bsecure\s+profit\b', r'\bsecuring\s+profit\b', r'\bsecure\s+gains\b', r'\bsecuring\s+gains\b',
-    r'\bgood\s+job\b.*\bsell\b', r'\bnice\s+work\b.*\bsell\b', r'\bperfect\b.*\bsell\b', r'\bexcellent\b.*\bsell\b',
-    r'\bnice\s+work\b', r'\bgood\s+job\b', r'\bperfect\b', r'\bexcellent\b',
-    r'\bselling\s*\.{3}\b', r'\bsell\s*\.{3}\b', r'\bgo\s+go\s+go\s+sell\b', r'\bgo\s+go\s+go\s+selling\b',
-    r'\bgo\s+go\s+go\b.*\bsell\b', r'\bgo\s+go\s+go\b.*\bselling\b',
+    r"\bim\s+out\b",
+    r"\bout\b",
+    r"\bexit\b",
+    r"\bclose\b",
+    r"\bdone\b",
+    r"\btaking\s+profit\b",
+    r"\bcutting\s+loss\b",
+    r"\bstopping\s+out\b",
+    r"\bclosing\s+position\b",
+    r"\bselling\b",
+    r"\bsold\b",
+    r"\bsell\b",
+    r"\bsell\s+now\b",
+    r"\bselling\s+now\b",
+    r"\btake\s+profit\b",
+    r"\btaking\s+profits\b",
+    r"\bexit\s+now\b",
+    r"\bget\s+out\b",
+    r"\bgetting\s+out\b",
+    r"\bclose\s+now\b",
+    r"\bclosing\s+now\b",
+    r"\bunload\b",
+    r"\bunloading\b",
+    r"\bdump\b",
+    r"\bdumping\b",
+    r"\bcash\s+out\b",
+    r"\bcashing\s+out\b",
+    r"\bsecure\s+profit\b",
+    r"\bsecuring\s+profit\b",
+    r"\bsecure\s+gains\b",
+    r"\bsecuring\s+gains\b",
+    r"\bgood\s+job\b.*\bsell\b",
+    r"\bnice\s+work\b.*\bsell\b",
+    r"\bperfect\b.*\bsell\b",
+    r"\bexcellent\b.*\bsell\b",
+    r"\bnice\s+work\b",
+    r"\bgood\s+job\b",
+    r"\bperfect\b",
+    r"\bexcellent\b",
+    r"\bselling\s*\.{3}\b",
+    r"\bsell\s*\.{3}\b",
+    r"\bgo\s+go\s+go\s+sell\b",
+    r"\bgo\s+go\s+go\s+selling\b",
+    r"\bgo\s+go\s+go\b.*\bsell\b",
+    r"\bgo\s+go\s+go\b.*\bselling\b",
     # Abbreviations and slang
-    r'\bpt\b', r'\bprofit\b', r'\bsecure\b', r'\bcashed\b', r'\bexited\b', r'\bexiting\b',
-    r'\bgg\b', r'\bbye\b', r'\bpeace\b', r'\bfin\b', r'\bdumped\b', r'\bflipped\b', r'\bflipping\b',
-    r'\bpaper\s+hands\b', r'\bclosing\s+trade\b', r'\bclosing\s+out\b', r'\bbagged\b', r'\bbagging\b',
-    r'\b🤑\b', r'\b💰\b', r'\b🚀\b', r'\b💸\b', r'\b🛑\b', r'\b🔴\b', r'\b🧑‍💻\b'
+    r"\bpt\b",
+    r"\bprofit\b",
+    r"\bsecure\b",
+    r"\bcashed\b",
+    r"\bexited\b",
+    r"\bexiting\b",
+    r"\bgg\b",
+    r"\bbye\b",
+    r"\bpeace\b",
+    r"\bfin\b",
+    r"\bdumped\b",
+    r"\bflipped\b",
+    r"\bflipping\b",
+    r"\bpaper\s+hands\b",
+    r"\bclosing\s+trade\b",
+    r"\bclosing\s+out\b",
+    r"\bbagged\b",
+    r"\bbagging\b",
+    r"\b🤑\b",
+    r"\b💰\b",
+    r"\b🚀\b",
+    r"\b💸\b",
+    r"\b🛑\b",
+    r"\b🔴\b",
+    r"\b🧑‍💻\b",
 ]
 BUY_PATTERNS = [
-    r'\bbuy\b', r'\bbuying\b', r'\badd\b', r'\badding\b', r'\bload\b', r'\bloading\b',
-    r'\bgo\s+long\b', r'\bopen\b', r'\bopening\b', r'\bstart\b', r'\bstarting\b',
-    r'\benter\b', r'\bentry\b', r'\bgetting\s+in\b', r'\bget\s+in\b', r'\binitiate\b', r'\binitiating\b',
-    r'\bscale\s+in\b', r'\bscaling\s+in\b', r'\badd\s+to\s+position\b', r'\baveraging\s+down\b',
-    r'\baveraging\s+in\b', r'\baccumulate\b', r'\baccumulating\b', r'\bbuild\b', r'\bbuilding\b',
+    r"\bbuy\b",
+    r"\bbuying\b",
+    r"\badd\b",
+    r"\badding\b",
+    r"\bload\b",
+    r"\bloading\b",
+    r"\bgo\s+long\b",
+    r"\bopen\b",
+    r"\bopening\b",
+    r"\bstart\b",
+    r"\bstarting\b",
+    r"\benter\b",
+    r"\bentry\b",
+    r"\bgetting\s+in\b",
+    r"\bget\s+in\b",
+    r"\binitiate\b",
+    r"\binitiating\b",
+    r"\bscale\s+in\b",
+    r"\bscaling\s+in\b",
+    r"\badd\s+to\s+position\b",
+    r"\baveraging\s+down\b",
+    r"\baveraging\s+in\b",
+    r"\baccumulate\b",
+    r"\baccumulating\b",
+    r"\bbuild\b",
+    r"\bbuilding\b",
     # Abbreviations and slang
-    r'\blong\b', r'\bmoon\b', r'\bmooning\b', r'\bape\b', r'\baping\b', r'\bdiamond\s+hands\b',
-    r'\b🚀\b', r'\b💎\b', r'\b🟢\b', r'\bgreen\b', r'\bcall\b', r'\bcalls\b', r'\b🟩\b', r'\b🟢\b'
+    r"\blong\b",
+    r"\bmoon\b",
+    r"\bmooning\b",
+    r"\bape\b",
+    r"\baping\b",
+    r"\bdiamond\s+hands\b",
+    r"\b🚀\b",
+    r"\b💎\b",
+    r"\b🟢\b",
+    r"\bgreen\b",
+    r"\bcall\b",
+    r"\bcalls\b",
+    r"\b🟩\b",
+    r"\b🟢\b",
 ]
 
 # Check for partial exit patterns
 PARTIAL_PATTERNS = [
-    r'\bhalf\b',
-    r'\bpartial\b',
-    r'\bsome\b',
-    r'\bportion\b',
-    r'\bamount\b'
+    r"\bhalf\b",
+    r"\bpartial\b",
+    r"\bsome\b",
+    r"\bportion\b",
+    r"\bamount\b",
 ]
 
 # Comprehensive examples from old code
@@ -150,8 +242,8 @@ EXAMPLES = [
             "bullish_levels": [583.75, 584.50, 585.00],
             "bearish_levels": [581.28, 580.55, 580.00],
             "confidence": 0.95,
-            "reasoning": "Price levels for potential breakouts/breakdowns"
-        }
+            "reasoning": "Price levels for potential breakouts/breakdowns",
+        },
     },
     {
         "input": "SPY 582 P",
@@ -162,8 +254,8 @@ EXAMPLES = [
             "option_type": "PUT",
             "strike_price": 582,
             "confidence": 0.95,
-            "reasoning": "Opening PUT position with market order"
-        }
+            "reasoning": "Opening PUT position with market order",
+        },
     },
     {
         "input": "SPY $582 C @1.00",
@@ -174,8 +266,8 @@ EXAMPLES = [
             "option_type": "CALL",
             "strike_price": 582,
             "confidence": 0.95,
-            "reasoning": "Opening CALL position with market order (reference price: 1.00)"
-        }
+            "reasoning": "Opening CALL position with market order (reference price: 1.00)",
+        },
     },
     {
         "input": "I'm out",
@@ -189,9 +281,9 @@ EXAMPLES = [
             "exit_price": 1.95,
             "profit_percent": 95,
             "confidence": 0.95,
-            "reasoning": "Full position close with profit"
-        }
-    }
+            "reasoning": "Full position close with profit",
+        },
+    },
 ]
 
 
@@ -205,14 +297,13 @@ def is_exit_signal(message_content):
         return None
 
     # Check if it's a partial exit
-    is_partial = any(re.search(pattern, message)
-                     for pattern in PARTIAL_PATTERNS)
+    is_partial = any(re.search(pattern, message) for pattern in PARTIAL_PATTERNS)
 
     return {
         "is_exit": True,
         "exit_type": "partial" if is_partial else "full",
         "confidence": 0.95,
-        "reasoning": "Exit signal detected" + (" (partial)" if is_partial else "")
+        "reasoning": "Exit signal detected" + (" (partial)" if is_partial else ""),
     }
 
 
@@ -223,17 +314,23 @@ def get_enhanced_prompt(message_content, trade_context):
     for ticker, trades in trade_context.active_trades.items():
         for strike, trade in trades.items():
             active_trades.append(
-                f"{ticker} {strike} {trade.get('optionType', '')} @{trade.get('entryPrice', '')}")
+                f"{ticker} {strike} {trade.get('optionType', '')} @{trade.get('entryPrice', '')}"
+            )
 
     # Get recent trade history
     recent_trades = trade_context.get_recent_trades(3)  # Last 3 trades
-    history_str = "\n".join([
-        f"{trade['action']}: {trade['trade_info'].get('symbol', '')} {trade['trade_info'].get('strikePrice', '')} {trade['trade_info'].get('optionType', '')} @{trade['trade_info'].get('entryPrice', '')}"
-        for trade in recent_trades
-    ]) if recent_trades else "No recent trades"
+    history_str = (
+        "\n".join(
+            [
+                f"{trade['action']}: {trade['trade_info'].get('symbol', '')} {trade['trade_info'].get('strikePrice', '')} {trade['trade_info'].get('optionType', '')} @{trade['trade_info'].get('entryPrice', '')}"
+                for trade in recent_trades
+            ]
+        )
+        if recent_trades
+        else "No recent trades"
+    )
 
-    context_str = "\n".join(
-        active_trades) if active_trades else "No active trades"
+    context_str = "\n".join(active_trades) if active_trades else "No active trades"
 
     return f"""[INST] You are a trading message analyzer. Extract trade information into JSON format.
 
@@ -344,7 +441,7 @@ def initialize_model():
             model_path=model_path,
             **settings,
             chat_format="mistral-instruct",
-            verbose=False
+            verbose=False,
         )
         logger.info("Model initialized successfully")
         logger.info(f"GPU Info: {get_gpu_info()}")
@@ -374,8 +471,10 @@ def run_channel_analysis():
 
 
 def schedule_analysis():
-    """Schedule periodic channel analysis"""
+    """Schedule periodic maintenance tasks"""
     schedule.every().day.at("00:00").do(run_channel_analysis)
+    schedule.every().day.at("01:00").do(update_market_calendar)
+    schedule.every().day.at("02:00").do(update_market_news)
 
     while True:
         schedule.run_pending()
@@ -412,17 +511,17 @@ def regex_maybe_action(message, patterns):
 
 def get_action_confirmation_prompt(message, action):
     # Use examples in the prompt for better LLM accuracy
-    example_str = "\n".join([
-        f"Input: {ex['input']}\nOutput: {json.dumps(ex['output'])}" for ex in EXAMPLES
-    ])
-    return f'''[INST] The following message was flagged as a potential {action} by a keyword filter. Does it actually indicate a {action} action? Only answer with a JSON object: {{"is_{action}": true/false, "reason": "..."}}
+    example_str = "\n".join(
+        [f"Input: {ex['input']}\nOutput: {json.dumps(ex['output'])}" for ex in EXAMPLES]
+    )
+    return f"""[INST] The following message was flagged as a potential {action} by a keyword filter. Does it actually indicate a {action} action? Only answer with a JSON object: {{"is_{action}": true/false, "reason": "..."}}
 
 EXAMPLES:
 {example_str}
 
 Message: "{message}"
 
-Return only the JSON object. If not a {action} signal, return false. [/INST]'''
+Return only the JSON object. If not a {action} signal, return false. [/INST]"""
 
 
 @app.post("/analyze", response_model=MessageResponse)
@@ -437,32 +536,32 @@ async def analyze_message(request: MessageRequest) -> dict:
         exit_result = is_exit_signal(msg)
 
         # If it's an exit signal, use the active trade details
-        if exit_result and exit_result.get('is_exit', False):
+        if exit_result and exit_result.get("is_exit", False):
             # Get the last active trade
             last_trade = trade_context.last_trade
             if last_trade:
                 # Close the trade
                 closed_trade = trade_context.close_trade(
-                    last_trade.get('symbol'),
-                    last_trade.get('strikePrice')
+                    last_trade.get("symbol"), last_trade.get("strikePrice")
                 )
 
                 processing_time = time.time() - start_time
                 logger.info(
-                    f"Confirmed {exit_result['exit_type']} exit in {round(processing_time, 3)}s")
+                    f"Confirmed {exit_result['exit_type']} exit in {round(processing_time, 3)}s"
+                )
 
                 response_dict = {
                     "isTradeSignal": True,
-                    "symbol": last_trade.get('symbol'),
+                    "symbol": last_trade.get("symbol"),
                     "action": "SELL",
-                    "optionType": last_trade.get('optionType'),
-                    "strikePrice": last_trade.get('strikePrice'),
-                    "entryPrice": last_trade.get('entryPrice'),
-                    "confidence": exit_result['confidence'],
+                    "optionType": last_trade.get("optionType"),
+                    "strikePrice": last_trade.get("strikePrice"),
+                    "entryPrice": last_trade.get("entryPrice"),
+                    "confidence": exit_result["confidence"],
                     "processing_time": round(processing_time, 3),
                     "signalType": "EXIT",
                     "error": None,
-                    "reason": f"{exit_result['reasoning']} - {exit_result['exit_type']} exit"
+                    "reason": f"{exit_result['reasoning']} - {exit_result['exit_type']} exit",
                 }
                 send_webhook(response_dict, webhook_url)
                 return response_dict
@@ -479,33 +578,31 @@ async def analyze_message(request: MessageRequest) -> dict:
                 top_k=40,
                 repeat_penalty=1.1,
                 stop=["</s>", "Human:", "Assistant:", "[INST]"],
-                echo=False
+                echo=False,
             )
             t_llm_done = time.time()
-            logger.info(
-                f"Sell LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
+            logger.info(f"Sell LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
 
             try:
-                result = json.loads(response['choices'][0]['text'].strip())
+                result = json.loads(response["choices"][0]["text"].strip())
                 if result.get("is_exit") is True:
                     processing_time = time.time() - start_time
-                    logger.info(
-                        f"Confirmed sell/exit in {round(processing_time, 3)}s")
+                    logger.info(f"Confirmed sell/exit in {round(processing_time, 3)}s")
 
                     # Use last trade info if available
                     last_trade = trade_context.last_trade or {}
                     response_dict = {
                         "isTradeSignal": True,
-                        "symbol": last_trade.get('symbol'),
+                        "symbol": last_trade.get("symbol"),
                         "action": "SELL",
-                        "optionType": last_trade.get('optionType'),
-                        "strikePrice": last_trade.get('strikePrice'),
-                        "entryPrice": last_trade.get('entryPrice'),
+                        "optionType": last_trade.get("optionType"),
+                        "strikePrice": last_trade.get("strikePrice"),
+                        "entryPrice": last_trade.get("entryPrice"),
                         "confidence": 0.95,
                         "processing_time": round(processing_time, 3),
                         "signalType": "EXIT",
                         "error": None,
-                        "reason": result.get("reason", "LLM confirmed exit signal")
+                        "reason": result.get("reason", "LLM confirmed exit signal"),
                     }
                     send_webhook(response_dict, webhook_url)
                     return response_dict
@@ -524,18 +621,16 @@ async def analyze_message(request: MessageRequest) -> dict:
                 top_k=40,
                 repeat_penalty=1.1,
                 stop=["</s>", "Human:", "Assistant:", "[INST]"],
-                echo=False
+                echo=False,
             )
             t_llm_done = time.time()
-            logger.info(
-                f"Buy LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
+            logger.info(f"Buy LLM confirmation time: {round(t_llm_done - t_llm, 3)}s")
 
             try:
-                result = json.loads(response['choices'][0]['text'].strip())
+                result = json.loads(response["choices"][0]["text"].strip())
                 if result.get("is_buy") is True:
                     processing_time = time.time() - start_time
-                    logger.info(
-                        f"Confirmed buy in {round(processing_time, 3)}s")
+                    logger.info(f"Confirmed buy in {round(processing_time, 3)}s")
                     response_dict = {
                         "isTradeSignal": True,
                         "action": "BUY",
@@ -543,7 +638,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                         "processing_time": round(processing_time, 3),
                         "signalType": "ENTRY",
                         "error": None,
-                        "reason": result.get("reason", "LLM confirmed buy signal")
+                        "reason": result.get("reason", "LLM confirmed buy signal"),
                     }
                     send_webhook(response_dict, webhook_url)
                     return response_dict
@@ -562,58 +657,56 @@ async def analyze_message(request: MessageRequest) -> dict:
             top_k=40,
             repeat_penalty=1.1,
             stop=["</s>", "Human:", "Assistant:", "[INST]"],
-            echo=False
+            echo=False,
         )
         t_full_done = time.time()
-        logger.info(
-            f"Full LLM analysis time: {round(t_full_done - t_full, 3)}s")
+        logger.info(f"Full LLM analysis time: {round(t_full_done - t_full, 3)}s")
 
         try:
-            result = json.loads(response['choices'][0]['text'].strip())
+            result = json.loads(response["choices"][0]["text"].strip())
             processing_time = time.time() - start_time
 
             # Map the internal format to the API response format
-            if result.get('action') == 'open' and result.get('type') == 'option':
+            if result.get("action") == "open" and result.get("type") == "option":
                 # Add to trade context
                 trade_info = {
-                    'symbol': result.get('ticker'),
-                    'optionType': result.get('option_type'),
-                    'strikePrice': result.get('strike_price'),
-                    'entryPrice': result.get('price'),
-                    'confidence': result.get('confidence', 0.95)
+                    "symbol": result.get("ticker"),
+                    "optionType": result.get("option_type"),
+                    "strikePrice": result.get("strike_price"),
+                    "entryPrice": result.get("price"),
+                    "confidence": result.get("confidence", 0.95),
                 }
-                trade_context.add_trade(result.get('ticker'), trade_info)
+                trade_context.add_trade(result.get("ticker"), trade_info)
 
                 response_dict = {
                     "isTradeSignal": True,
-                    "symbol": result.get('ticker'),
+                    "symbol": result.get("ticker"),
                     "action": "BUY",
-                    "optionType": result.get('option_type'),
-                    "strikePrice": result.get('strike_price'),
-                    "entryPrice": result.get('price'),
-                    "confidence": result.get('confidence', 0.95),
+                    "optionType": result.get("option_type"),
+                    "strikePrice": result.get("strike_price"),
+                    "entryPrice": result.get("price"),
+                    "confidence": result.get("confidence", 0.95),
                     "processing_time": round(processing_time, 3),
                     "signalType": "ENTRY",
-                    "error": None
+                    "error": None,
                 }
-            elif result.get('action') == 'close':
+            elif result.get("action") == "close":
                 # Close trade in context
                 closed_trade = trade_context.close_trade(
-                    result.get('ticker'),
-                    result.get('strike_price')
+                    result.get("ticker"), result.get("strike_price")
                 )
 
                 response_dict = {
                     "isTradeSignal": True,
-                    "symbol": result.get('ticker'),
+                    "symbol": result.get("ticker"),
                     "action": "SELL",
-                    "optionType": result.get('option_type'),
-                    "strikePrice": result.get('strike_price'),
-                    "entryPrice": result.get('entry_price'),
-                    "confidence": result.get('confidence', 0.95),
+                    "optionType": result.get("option_type"),
+                    "strikePrice": result.get("strike_price"),
+                    "entryPrice": result.get("entry_price"),
+                    "confidence": result.get("confidence", 0.95),
                     "processing_time": round(processing_time, 3),
                     "signalType": "EXIT",
-                    "error": None
+                    "error": None,
                 }
             else:
                 # Not a trade signal
@@ -627,17 +720,19 @@ async def analyze_message(request: MessageRequest) -> dict:
                     "confidence": 0.0,
                     "signalType": None,
                     "processing_time": round(processing_time, 3),
-                    "error": None
+                    "error": None,
                 }
 
             logger.info(
-                f"Analysis completed in {response_dict['processing_time']} seconds")
+                f"Analysis completed in {response_dict['processing_time']} seconds"
+            )
             send_webhook(response_dict, webhook_url)
             return response_dict
 
         except json.JSONDecodeError as e:
             logger.error(
-                f"Failed to parse LLM response: {response['choices'][0]['text'].strip()}")
+                f"Failed to parse LLM response: {response['choices'][0]['text'].strip()}"
+            )
             error_response = {
                 "isTradeSignal": False,
                 "symbol": None,
@@ -648,10 +743,11 @@ async def analyze_message(request: MessageRequest) -> dict:
                 "confidence": 0.0,
                 "signalType": None,
                 "error": f"JSON parsing error: {str(e)}",
-                "processing_time": round(time.time() - start_time, 3)
+                "processing_time": round(time.time() - start_time, 3),
             }
             logger.info(
-                f"Error response sent in {error_response['processing_time']} seconds")
+                f"Error response sent in {error_response['processing_time']} seconds"
+            )
             send_webhook(error_response, webhook_url)
             return error_response
 
@@ -667,10 +763,11 @@ async def analyze_message(request: MessageRequest) -> dict:
             "confidence": 0.0,
             "signalType": None,
             "error": str(e),
-            "processing_time": round(time.time() - start_time, 3)
+            "processing_time": round(time.time() - start_time, 3),
         }
         logger.info(
-            f"Error response sent in {error_response['processing_time']} seconds")
+            f"Error response sent in {error_response['processing_time']} seconds"
+        )
         send_webhook(error_response, webhook_url)
         return error_response
 
@@ -690,7 +787,7 @@ async def health_check():
     return {
         "status": "healthy",
         "gpu_info": get_gpu_info(),
-        "channel_analyzer": "initialized" if channel_analyzer else "not_initialized"
+        "channel_analyzer": "initialized" if channel_analyzer else "not_initialized",
     }
 
 
@@ -698,8 +795,7 @@ async def health_check():
 async def get_trade_history():
     """Get trade history and active trades"""
     if not trade_context:
-        raise HTTPException(
-            status_code=503, detail="Trade context not initialized")
+        raise HTTPException(status_code=503, detail="Trade context not initialized")
 
     active_trades = {}
     for ticker, trades in trade_context.active_trades.items():
@@ -709,17 +805,18 @@ async def get_trade_history():
         "active_trades": active_trades,
         "last_trade": trade_context.last_trade,
         "recent_history": trade_context.get_recent_trades(10),
-        "total_trades": len(trade_context.trade_history)
+        "total_trades": len(trade_context.trade_history),
     }
+
 
 if __name__ == "__main__":
     # Create necessary directories
-    os.makedirs('data/logs', exist_ok=True)
+    os.makedirs("data/logs", exist_ok=True)
 
     # Run the FastAPI server
     uvicorn.run(
         "mistral_server:app",
         host="127.0.0.1",
         port=8000,
-        reload=False  # Disable reload to prevent multiple model instances
+        reload=False,  # Disable reload to prevent multiple model instances
     )

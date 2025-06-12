@@ -19,9 +19,13 @@ class TradeTracker {
             optionType,
             strikePrice,
             quantity = 1,
+            author = null,
             signalType = 'ENTRY', // ← new
             entryPrice = null      // ← new (can override simulator price if known)
         } = tradeData;
+
+        // Ensure the underlying trading service is ready before placing orders
+        await tradingService.initialize();
 
         // 🔄 Ensure the channel exists and check if it's disabled
         const channel = await this.prisma.channel.upsert({
@@ -120,10 +124,21 @@ class TradeTracker {
                 strikePrice,
                 entryPrice: actualEntryPrice,
                 quantity,
+                author,
                 status: 'OPEN',
                 channel: {
                     connect: { id: channelId }
                 }
+            }
+        });
+
+        // record execution stats so we always use the table
+        await this.prisma.executionStats.create({
+            data: {
+                tradeId: trade.id,
+                executedAt: new Date(),
+                executedPrice: actualEntryPrice,
+                result: 'OPEN'
             }
         });
 
@@ -145,6 +160,15 @@ class TradeTracker {
             });
 
             if (updateData.status === 'CLOSED') {
+                await this.prisma.executionStats.updateMany({
+                    where: { tradeId },
+                    data: {
+                        exitPrice: updateData.exitPrice,
+                        pnl: updateData.profitLoss,
+                        durationSec: trade.exitTime && trade.entryTime ? Math.floor((trade.exitTime - trade.entryTime) / 1000) : null,
+                        result: updateData.profitLoss > 0 ? 'WIN' : 'LOSS'
+                    }
+                });
                 await this.updateChannelPerformance(trade.channelId);
                 await this.updateTraderStats(trade);
             }
@@ -237,7 +261,10 @@ class TradeTracker {
                 authorId,
                 messageId,
                 content,
-                timestamp = new Date()
+                timestamp = new Date(),
+                parsedData = null,
+                modelUsed = null,
+                parsedAt = null
             } = messageData;
 
             await this.prisma.channel.upsert({
@@ -256,6 +283,9 @@ class TradeTracker {
                     discordId: messageId,
                     author: authorId,
                     content,
+                    parsedData,
+                    modelUsed,
+                    parsedAt,
                     type: 'DISCORD',
                     createdAt: timestamp
                 }
@@ -267,12 +297,55 @@ class TradeTracker {
             throw error;
         }
     }
+
+    async logModelResult(log) {
+        const { messageId, prompt, response, inputTokens = 0, outputTokens = 0, latencyMs = 0, modelName = 'mistral' } = log;
+        try {
+            return await this.prisma.modelLog.create({
+                data: {
+                    messageId,
+                    prompt,
+                    response: JSON.stringify(response),
+                    inputTokens,
+                    outputTokens,
+                    latencyMs,
+                    modelName
+                }
+            });
+        } catch (error) {
+            console.error('Error logging model result:', error);
+            throw error;
+        }
+    }
+
+    async logTradeSignal(signal) {
+        const {
+            tradeId,
+            confidence,
+            triggeredAt = new Date(),
+            source = 'DISCORD',
+            autoExecuted = false
+        } = signal;
+        try {
+            return await this.prisma.tradeSignal.create({
+                data: { tradeId, confidence, triggeredAt, source, autoExecuted }
+            });
+        } catch (error) {
+            console.error('Error logging trade signal:', error);
+            throw error;
+        }
+    }
     async updateTraderStats(trade) {
-        if (!trade.author || !trade.channelId) return;
+        let traderName = trade.author;
+        if (!traderName) {
+            const channel = trade.channel || await this.prisma.channel.findUnique({ where: { id: trade.channelId } });
+            traderName = channel ? channel.name : `channel:${trade.channelId}`;
+        }
+        if (!traderName || !trade.channelId) return;
 
         const trades = await this.prisma.trade.findMany({
             where: {
-                author: trade.author,
+                author: traderName,
                 channelId: trade.channelId,
                 status: 'CLOSED'
             }
@@ -280,15 +353,16 @@ class TradeTracker {
 
         if (!trades.length) return;
 
-        const total = trades.length;
-        const wins = trades.filter(t => t.profitLoss > 0).length;
-        const avgProfitLoss = trades.reduce((sum, t) => sum + (t.profitLoss || 0), 0) / total;
+        const closed = trades.filter(t => t.profitLoss !== null && t.profitLoss !== undefined);
+        const total = closed.length;
+        const wins = closed.filter(t => t.profitLoss > 0).length;
+        const avgProfitLoss = total > 0 ? closed.reduce((sum, t) => sum + t.profitLoss, 0) / total : 0;
 
         // You can expand this to avgConfidence once you start storing it
         await this.prisma.traderStats.upsert({
             where: {
                 author_channelId: {
-                    author: trade.author,
+                    author: traderName,
                     channelId: trade.channelId
                 }
             },
@@ -299,7 +373,7 @@ class TradeTracker {
                 lastActive: new Date()
             },
             create: {
-                author: trade.author,
+                author: traderName,
                 channelId: trade.channelId,
                 totalSignals: total,
                 successfulSignals: wins,

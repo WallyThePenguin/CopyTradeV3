@@ -56,18 +56,16 @@
                 </div>
                 
                 <div class="flex flex-wrap gap-2">
-                    <button class="mode-btn active" data-mode="ALL" 
-                        onclick="updateStats(currentPeriod, 'ALL')">
-                        <i class="fas fa-globe"></i> All
+                    <button class="mode-btn active" data-mode="TEST" onclick="updateStats(currentPeriod, 'TEST')">
+                        <i class="fas fa-flask"></i> Simulated
                     </button>
-                    <button class="mode-btn" data-mode="TEST" 
-                        onclick="updateStats(currentPeriod, 'TEST')">
-                        <i class="fas fa-flask"></i> Test Mode
-                    </button>
-                    <button class="mode-btn" data-mode="PROD"
-                        onclick="updateStats(currentPeriod, 'PROD')">
+                    <button class="mode-btn" data-mode="PROD" onclick="updateStats(currentPeriod, 'PROD')">
                         <i class="fas fa-rocket"></i> Production
                     </button>
+
+                    <select id="channelSelector" class="bg-gray-700 text-white rounded px-2 py-1" onchange="onChannelChange(this.value)">
+                        <option value="">All Channels</option>
+                    </select>
                 </div>
             </div>
         </header>
@@ -189,6 +187,8 @@
                             <tr>
                                 <th class="px-4 py-3">Symbol</th>
                                 <th class="px-4 py-3">Action</th>
+                                <th class="px-4 py-3">Channel</th>
+                                <th class="px-4 py-3">Trader</th>
                                 <th class="px-4 py-3">Entry</th>
                                 <th class="px-4 py-3">Exit</th>
                                 <th class="px-4 py-3">P/L</th>
@@ -285,6 +285,29 @@
                         <span class="text-gray-400">False Positives:</span>
                         <span id="falsePositiveRate" class="font-bold">-</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            <!-- Open Positions -->
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-clipboard-list mr-2 text-indigo-400"></i>
+                    Open Positions
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full table-dark" id="positionsTable">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3">Symbol</th>
+                                <th class="px-4 py-3">Qty</th>
+                                <th class="px-4 py-3">Avg Price</th>
+                                <th class="px-4 py-3">Market Value</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>

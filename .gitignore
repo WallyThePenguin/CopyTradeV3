@@ -1,4 +1,7 @@
 node_modules
 venv
+
+api/venv
 .env
-.env
+__pycache__
+**/__pycache__/

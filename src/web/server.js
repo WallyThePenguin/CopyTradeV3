@@ -2,16 +2,32 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
-import robinhoodService from '../services/robinhood.js';
+import tradingService from '../services/tradingService.js';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+import cron from 'node-cron';
+import { checkDataQuality } from '../utils/dataQuality.js';
+import { logger } from '../utils/logger.js';
+import { validateEnv } from '../utils/validateEnv.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+if (!validateEnv()) {
+    process.exit(1);
+}
+
 const app = express();
 const prisma = new PrismaClient();
 const port = process.env.WEB_PORT || 3000;
+
+// Initialize trading service once on startup so broker sessions are ready
+try {
+    await tradingService.initialize();
+    console.log('Trading service initialized');
+} catch (err) {
+    console.error('Failed to initialize trading service:', err);
+}
 
 // Create HTTP server
 const server = createServer(app);
@@ -51,8 +67,31 @@ export function broadcastSignal(signal) {
     });
 }
 
+// Daily data quality check
+const cronSpec = process.env.DATA_QUALITY_SCHEDULE || '0 4 * * *'; // 04:00 UTC
+cron.schedule(cronSpec, async () => {
+    try {
+        const issues = await checkDataQuality();
+        await logger.info('Daily data quality check', { issues });
+    } catch (err) {
+        await logger.error('Failed daily data quality check', err);
+    }
+});
+
 // Middleware
 app.use(express.json());
+
+// Simple API key authentication for write operations
+const API_KEY = process.env.API_KEY;
+function authenticateWrite(req, res, next) {
+    if (!API_KEY || !['POST', 'PUT', 'DELETE'].includes(req.method)) return next();
+    const key = req.headers['x-api-key'];
+    if (key && key === API_KEY) {
+        return next();
+    }
+    res.status(401).json({ error: 'Unauthorized' });
+}
+app.use(authenticateWrite);
 
 // Add CORS for development
 app.use((req, res, next) => {
@@ -70,7 +109,8 @@ app.get('/api/stats', async (req, res) => {
     try {
         const period = req.query.period || 'DAILY';
         const mode = req.query.mode || 'ALL';
-        const stats = await getStats(period, mode);
+        const channelId = req.query.channel || null;
+        const stats = await getStats(period, mode, channelId);
         res.json(stats);
     } catch (error) {
         console.error('Error fetching stats:', error);
@@ -103,6 +143,57 @@ app.get('/api/channels/:channelId/performance', async (req, res) => {
     }
 });
 
+// List available channels
+app.get('/api/channels', async (req, res) => {
+    try {
+        const mode = req.query.mode || 'ALL';
+        const where = mode === 'TEST'
+            ? { enabled: false }
+            : mode === 'PROD'
+                ? { enabled: true }
+                : {};
+        const channels = await prisma.channel.findMany({
+            where,
+            orderBy: { name: 'asc' }
+        });
+        res.json(channels);
+    } catch (error) {
+        console.error('Error fetching channels:', error);
+        res.status(500).json({ error: 'Failed to fetch channels' });
+    }
+});
+
+// List recent trades with optional mode/channel filter
+app.get('/api/trades', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const mode = req.query.mode || 'ALL';
+        const channelId = req.query.channel || undefined;
+        const modeFilter = mode === 'TEST'
+            ? { channel: { enabled: false } }
+            : mode === 'PROD'
+                ? { channel: { enabled: true } }
+                : {};
+
+        const trades = await prisma.trade.findMany({
+            where: {
+                ...(channelId ? { channelId } : {}),
+                ...modeFilter
+            },
+            include: {
+                channel: true
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit
+        });
+
+        res.json(trades);
+    } catch (error) {
+        console.error('Error fetching trades:', error);
+        res.status(500).json({ error: 'Failed to fetch trades' });
+    }
+});
+
 // New endpoint: System health
 app.get('/api/health', async (req, res) => {
     try {
@@ -111,6 +202,73 @@ app.get('/api/health', async (req, res) => {
     } catch (error) {
         console.error('Error fetching system health:', error);
         res.status(500).json({ error: 'Failed to fetch system health' });
+    }
+});
+
+// New endpoint: Get current account positions
+app.get('/api/positions', async (req, res) => {
+    try {
+        await tradingService.initialize();
+        const positions = await tradingService.getPositions();
+        res.json(positions);
+    } catch (error) {
+        console.error('Error fetching positions:', error);
+        res.status(500).json({ error: 'Failed to fetch positions' });
+    }
+});
+
+// New endpoint: Order history
+app.get('/api/order-history', async (req, res) => {
+    try {
+        await tradingService.initialize();
+        const orders = await tradingService.getOrderHistory();
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching order history:', error);
+        res.status(500).json({ error: 'Failed to fetch order history' });
+    }
+});
+
+// Historical price lookup
+app.get('/api/historical-prices', async (req, res) => {
+    try {
+        const symbol = req.query.symbol;
+        if (!symbol) return res.status(400).json({ error: 'symbol required' });
+        const interval = req.query.interval || '5minute';
+        const span = req.query.span || 'day';
+        await tradingService.initialize();
+        const data = await tradingService.getHistoricalPrices(symbol, interval, span);
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching historical prices:', error);
+        res.status(500).json({ error: 'Failed to fetch historical prices' });
+    }
+});
+
+// Stored order records
+app.get('/api/order-records', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const records = await prisma.orderRecord.findMany({
+            orderBy: { filledAt: 'desc' },
+            take: limit
+        });
+        res.json(records);
+    } catch (error) {
+        console.error('Error fetching order records:', error);
+        res.status(500).json({ error: 'Failed to fetch order records' });
+    }
+});
+
+// Run data quality checks
+app.get('/api/data-quality', async (req, res) => {
+    try {
+        const { checkDataQuality } = await import('../utils/dataQuality.js');
+        const issues = await checkDataQuality();
+        res.json({ issues });
+    } catch (error) {
+        console.error('Error running data quality check:', error);
+        res.status(500).json({ error: 'Failed to run data quality check' });
     }
 });
 
@@ -123,6 +281,184 @@ app.get('/api/signals', async (req, res) => {
     } catch (error) {
         console.error('Error fetching signals:', error);
         res.status(500).json({ error: 'Failed to fetch signals' });
+    }
+});
+
+// Expose additional data for remaining tables
+app.get('/api/market-updates', async (req, res) => {
+    try {
+        const updates = await prisma.marketUpdate.findMany({
+            take: 20,
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(updates);
+    } catch (error) {
+        console.error('Error fetching market updates:', error);
+        res.status(500).json({ error: 'Failed to fetch updates' });
+    }
+});
+
+// Create a new market update
+app.post('/api/market-updates', async (req, res) => {
+    try {
+        const { channelId, messageId, summary, sentiment, symbol = null } = req.body;
+        const update = await prisma.marketUpdate.create({
+            data: { channelId, messageId, summary, sentiment, symbol }
+        });
+        res.json(update);
+    } catch (error) {
+        console.error('Error creating market update:', error);
+        res.status(500).json({ error: 'Failed to create update' });
+    }
+});
+
+// Refresh market news using the Python importer
+app.post('/api/refresh-market-news', async (req, res) => {
+    try {
+        const { spawn } = await import('child_process');
+        await new Promise((resolve, reject) => {
+            const child = spawn('python', ['api/market_news.py']);
+            child.on('error', reject);
+            child.on('close', code => {
+                code === 0 ? resolve() : reject(new Error(`exit code ${code}`));
+            });
+        });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error refreshing market news:', error);
+        res.status(500).json({ error: 'Failed to refresh market news' });
+    }
+});
+
+app.get('/api/manual-labels', async (req, res) => {
+    try {
+        const labels = await prisma.manualLabel.findMany({
+            take: 20,
+            orderBy: { labeledAt: 'desc' }
+        });
+        res.json(labels);
+    } catch (error) {
+        console.error('Error fetching manual labels:', error);
+        res.status(500).json({ error: 'Failed to fetch labels' });
+    }
+});
+
+// Manually label a message
+app.post('/api/manual-labels', async (req, res) => {
+    try {
+        const { messageId, label, source = 'manual', confidence = 1 } = req.body;
+        const manualLabel = await prisma.manualLabel.create({
+            data: { messageId, label, source, confidence }
+        });
+        res.json(manualLabel);
+    } catch (error) {
+        console.error('Error creating manual label:', error);
+        res.status(500).json({ error: 'Failed to create label' });
+    }
+});
+
+app.get('/api/model-logs', async (req, res) => {
+    try {
+        const logs = await prisma.modelLog.findMany({
+            take: 20,
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(logs);
+    } catch (error) {
+        console.error('Error fetching model logs:', error);
+        res.status(500).json({ error: 'Failed to fetch logs' });
+    }
+});
+
+app.get('/api/price-snapshots', async (req, res) => {
+    try {
+        const symbol = req.query.symbol;
+        const where = symbol ? { symbol } : {};
+        const snapshots = await prisma.priceSnapshot.findMany({
+            where,
+            take: 50,
+            orderBy: { recordedAt: 'desc' }
+        });
+        res.json(snapshots);
+    } catch (error) {
+        console.error('Error fetching price snapshots:', error);
+        res.status(500).json({ error: 'Failed to fetch snapshots' });
+    }
+});
+
+app.get('/api/market-calendar', async (req, res) => {
+    try {
+        const events = await prisma.marketCalendar.findMany({
+            where: { eventDate: { gte: new Date() } },
+            orderBy: { eventDate: 'asc' },
+            take: 20
+        });
+        res.json(events);
+    } catch (error) {
+        console.error('Error fetching market calendar:', error);
+        res.status(500).json({ error: 'Failed to fetch calendar events' });
+    }
+});
+
+app.get('/api/channel-config/:id', async (req, res) => {
+    try {
+        const config = await prisma.channelConfig.findUnique({
+            where: { channelId: req.params.id }
+        });
+        res.json(config);
+    } catch (error) {
+        console.error('Error fetching channel config:', error);
+        res.status(500).json({ error: 'Failed to fetch config' });
+    }
+});
+
+app.post('/api/channel-config', async (req, res) => {
+    try {
+        const { channelId, isEnabled = true, minConfidence = 0.7, maxTrades = 5, riskLevel = 'MEDIUM' } = req.body;
+        const config = await prisma.channelConfig.upsert({
+            where: { channelId },
+            update: { isEnabled, minConfidence, maxTrades, riskLevel },
+            create: { channelId, isEnabled, minConfidence, maxTrades, riskLevel }
+        });
+        res.json(config);
+    } catch (error) {
+        console.error('Error saving channel config:', error);
+        res.status(500).json({ error: 'Failed to save config' });
+    }
+});
+
+app.get('/api/bot-stats', async (req, res) => {
+    try {
+        const period = req.query.period || 'DAILY';
+        const timeFilter = getTimeFilter(period);
+        const trades = await prisma.trade.findMany({ where: { createdAt: timeFilter, status: 'CLOSED' } });
+        const total = trades.length;
+        const wins = trades.filter(t => t.profitLoss > 0).length;
+        const totalPL = trades.reduce((s, t) => s + (t.profitLoss || 0), 0);
+        const stats = await prisma.botStats.upsert({
+            where: { period },
+            update: {
+                startDate: timeFilter.gte || new Date(0),
+                endDate: new Date(),
+                totalTrades: total,
+                successfulTrades: wins,
+                totalProfitLoss: totalPL,
+                winRate: total > 0 ? wins / total : 0
+            },
+            create: {
+                period,
+                startDate: timeFilter.gte || new Date(0),
+                endDate: new Date(),
+                totalTrades: total,
+                successfulTrades: wins,
+                totalProfitLoss: totalPL,
+                winRate: total > 0 ? wins / total : 0
+            }
+        });
+        res.json(stats);
+    } catch (error) {
+        console.error('Error fetching bot stats:', error);
+        res.status(500).json({ error: 'Failed to fetch bot stats' });
     }
 });
 
@@ -219,33 +555,36 @@ app.get('/api/test/channels', async (req, res) => {
 });
 
 // Get statistics based on time period and mode
-async function getStats(period, mode) {
+async function getStats(period, mode, channelId) {
     const timeFilter = getTimeFilter(period);
+
+    const modeFilter = mode === 'TEST' ? { channel: { enabled: false } } :
+        mode === 'PROD' ? { channel: { enabled: true } } : {};
 
     // Get basic stats
     const [trades, channels, traders] = await Promise.all([
-        getTradeStats(timeFilter),
-        getChannelStats(timeFilter),
-        getTraderStats(timeFilter)
+        getTradeStats(timeFilter, channelId, modeFilter),
+        getChannelStats(timeFilter, channelId, modeFilter),
+        getTraderStats(timeFilter, channelId, modeFilter)
     ]);
 
     // Get performance history
-    const performanceHistory = await getPerformanceHistory(timeFilter);
+    const performanceHistory = await getPerformanceHistory(timeFilter, channelId, modeFilter);
 
     // Get asset class distribution
-    const assetClassDistribution = await getAssetClassDistribution(timeFilter);
+    const assetClassDistribution = await getAssetClassDistribution(timeFilter, channelId, modeFilter);
 
     // Get risk metrics
-    const riskMetrics = await getRiskMetrics(timeFilter);
+    const riskMetrics = await getRiskMetrics(timeFilter, channelId, modeFilter);
 
     // Get signal quality metrics
-    const signalQuality = await getSignalQuality(timeFilter);
+    const signalQuality = await getSignalQuality(timeFilter, channelId, modeFilter);
 
     // Get message counts over time
-    const messageCountsOverTime = await getMessageCountsOverTime(timeFilter);
+    const messageCountsOverTime = await getMessageCountsOverTime(timeFilter, channelId, modeFilter);
 
     // Get trades counts over time
-    const tradesCountsOverTime = await getTradesCountsOverTime(timeFilter);
+    const tradesCountsOverTime = await getTradesCountsOverTime(timeFilter, channelId, modeFilter);
 
     return {
         ...trades,
@@ -277,10 +616,12 @@ function getTimeFilter(period) {
 }
 
 // Get trade statistics
-async function getTradeStats(timeFilter) {
+async function getTradeStats(timeFilter, channelId, modeFilter) {
     const trades = await prisma.trade.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { channelId } : {}),
+            ...modeFilter
         }
     });
 
@@ -306,15 +647,17 @@ async function getTradeStats(timeFilter) {
         winRate: closedTrades.length > 0 ? winningTrades / closedTrades.length : 0,
         totalPL,
         avgTradeDuration: avgDuration || 0,
-        recentTrades: await getRecentTrades(10)
+        recentTrades: await getRecentTrades(10, channelId, modeFilter)
     };
 }
 
 // Get channel statistics
-async function getChannelStats(timeFilter) {
+async function getChannelStats(timeFilter, channelId, modeFilter) {
     const channels = await prisma.channel.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { id: channelId } : {}),
+            ...(modeFilter.channel || {})
         },
         include: {
             trades: true
@@ -343,10 +686,12 @@ async function getChannelStats(timeFilter) {
 }
 
 // Get trader statistics
-async function getTraderStats(timeFilter) {
+async function getTraderStats(timeFilter, channelId, modeFilter) {
     const traders = await prisma.traderStats.findMany({
         where: {
-            updatedAt: timeFilter
+            updatedAt: timeFilter,
+            ...(channelId ? { channelId } : {}),
+            ...(modeFilter.channel || {})
         },
         include: {
             channel: true
@@ -368,10 +713,12 @@ async function getTraderStats(timeFilter) {
 }
 
 // Get performance history
-async function getPerformanceHistory(timeFilter) {
+async function getPerformanceHistory(timeFilter, channelId, modeFilter) {
     const trades = await prisma.trade.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { channelId } : {}),
+            ...modeFilter
         },
         orderBy: {
             createdAt: 'asc'
@@ -389,10 +736,12 @@ async function getPerformanceHistory(timeFilter) {
 }
 
 // Get asset class distribution
-async function getAssetClassDistribution(timeFilter) {
+async function getAssetClassDistribution(timeFilter, channelId, modeFilter) {
     const trades = await prisma.trade.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { channelId } : {}),
+            ...modeFilter
         }
     });
 
@@ -406,10 +755,12 @@ async function getAssetClassDistribution(timeFilter) {
 }
 
 // Get risk metrics
-async function getRiskMetrics(timeFilter) {
+async function getRiskMetrics(timeFilter, channelId, modeFilter) {
     const trades = await prisma.trade.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { channelId } : {}),
+            ...modeFilter
         }
     });
 
@@ -431,11 +782,13 @@ async function getRiskMetrics(timeFilter) {
 }
 
 // Get signal quality metrics
-async function getSignalQuality(timeFilter) {
+async function getSignalQuality(timeFilter, channelId, modeFilter) {
     // Get all signals in the time period
     const signals = await prisma.tradeSignal.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { trade: { channelId } } : {}),
+            ...modeFilter
         },
         include: {
             trade: true
@@ -464,12 +817,16 @@ async function getSignalQuality(timeFilter) {
 }
 
 // Get recent trades
-async function getRecentTrades(limit) {
+async function getRecentTrades(limit, channelId, modeFilter) {
     return prisma.trade.findMany({
         orderBy: {
             createdAt: 'desc'
         },
         take: limit,
+        where: {
+            ...(channelId ? { channelId } : {}),
+            ...modeFilter
+        },
         include: {
             channel: true
         }
@@ -510,11 +867,13 @@ function calculateSortinoRatio(returns) {
 }
 
 // Add a new function to get calls/messages over time
-async function getMessageCountsOverTime(timeFilter) {
+async function getMessageCountsOverTime(timeFilter, channelId, modeFilter) {
     // Assuming you have a Message model/table with createdAt
     const messages = await prisma.message.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { channelId } : {}),
+            ...modeFilter
         },
         orderBy: {
             createdAt: 'asc'
@@ -530,10 +889,12 @@ async function getMessageCountsOverTime(timeFilter) {
 }
 
 // Add a new function to get trades over time
-async function getTradesCountsOverTime(timeFilter) {
+async function getTradesCountsOverTime(timeFilter, channelId, modeFilter) {
     const trades = await prisma.trade.findMany({
         where: {
-            createdAt: timeFilter
+            createdAt: timeFilter,
+            ...(channelId ? { channelId } : {}),
+            ...modeFilter
         },
         orderBy: {
             createdAt: 'asc'

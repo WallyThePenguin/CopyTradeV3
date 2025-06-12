@@ -6,7 +6,8 @@ let tradesChart = null;
 
 // Current time period and mode
 let currentPeriod = 'DAILY';
-let currentMode = 'ALL';
+let currentMode = 'TEST';
+let currentChannel = '';
 
 // WebSocket for live signals
 let signalsWebSocket = null;
@@ -18,8 +19,11 @@ Chart.defaults.borderColor = '#374151';
 // Initialize the dashboard
 document.addEventListener('DOMContentLoaded', () => {
     initializeLiveSignals();
+    loadChannels(currentMode);
     updateStats(currentPeriod, currentMode);
+    loadPositions();
     setInterval(() => updateStats(currentPeriod, currentMode), 30000); // Update every 30 seconds
+    setInterval(loadPositions, 60000); // Refresh positions every minute
 });
 
 // Initialize live signals WebSocket
@@ -46,6 +50,32 @@ function initializeLiveSignals() {
     } catch (error) {
         console.error('Failed to initialize WebSocket:', error);
     }
+}
+
+let loadedMode = null;
+async function loadChannels(mode = 'ALL') {
+    if (loadedMode === mode) return;
+    loadedMode = mode;
+    try {
+        const res = await fetch(`/api/channels?mode=${mode}`);
+        const channels = await res.json();
+        const selector = document.getElementById('channelSelector');
+        selector.innerHTML = '<option value="">All Channels</option>';
+        channels.forEach(ch => {
+            const opt = document.createElement('option');
+            opt.value = ch.id;
+            opt.textContent = ch.name;
+            selector.appendChild(opt);
+        });
+        currentChannel = '';
+    } catch (err) {
+        console.error('Failed to load channels', err);
+    }
+}
+
+function onChannelChange(channelId) {
+    currentChannel = channelId;
+    updateStats(currentPeriod, currentMode);
 }
 
 // Display live signal
@@ -105,9 +135,11 @@ async function updateStats(period, mode) {
     setPeriodAndModeLabels();
     updatePeriodButtons();
     updateModeButtons();
+    loadChannels(mode);
 
     try {
-        const response = await fetch(`/api/stats?period=${period}&mode=${mode}`);
+        const channelParam = currentChannel ? `&channel=${currentChannel}` : '';
+        const response = await fetch(`/api/stats?period=${period}&mode=${mode}${channelParam}`);
         const data = await response.json();
 
         updatePerformanceCards(data);
@@ -309,7 +341,7 @@ function updateRecentTradesTable(trades) {
         const row = document.createElement('tr');
         const plClass = trade.profitLoss >= 0 ? 'text-profit' : 'text-loss';
         const actionIcon = trade.action === 'BUY' ? '📈' : '📉';
-        
+
         row.innerHTML = `
             <td class="px-4 py-3">
                 <span class="font-medium">${trade.symbol}</span>
@@ -318,6 +350,8 @@ function updateRecentTradesTable(trades) {
             <td class="px-4 py-3">
                 <span>${actionIcon} ${trade.action}</span>
             </td>
+            <td class="px-4 py-3">${trade.channel?.name || '-'}</td>
+            <td class="px-4 py-3">${trade.author || '-'}</td>
             <td class="px-4 py-3">${formatCurrency(trade.entryPrice)}</td>
             <td class="px-4 py-3">${trade.exitPrice ? formatCurrency(trade.exitPrice) : '-'}</td>
             <td class="px-4 py-3 ${plClass} font-medium">${trade.profitLoss ? formatCurrency(trade.profitLoss) : '-'}</td>
@@ -400,8 +434,7 @@ function setPeriodAndModeLabels() {
         'ALL_TIME': 'All Time'
     };
     const modeMap = {
-        'ALL': 'All',
-        'TEST': 'Test Mode',
+        'TEST': 'Simulated',
         'PROD': 'Production'
     };
     document.getElementById('currentPeriodLabel').textContent = `Time Period: ${periodMap[currentPeriod] || currentPeriod}`;
@@ -463,6 +496,35 @@ function updateMessagesChart(messageCounts) {
             }
         }
     });
+}
+
+// Fetch and display open positions
+async function loadPositions() {
+    try {
+        const res = await fetch('/api/positions');
+        const data = await res.json();
+        const positions = Array.isArray(data)
+            ? data
+            : Array.isArray(data.results)
+                ? data.results
+                : [];
+
+        const tbody = document.querySelector('#positionsTable tbody');
+        tbody.innerHTML = '';
+
+        positions.forEach(pos => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-4 py-3">${pos.symbol || pos.instrument}</td>
+                <td class="px-4 py-3">${pos.quantity}</td>
+                <td class="px-4 py-3">${parseFloat(pos.average_buy_price || pos.averagePrice).toFixed(2)}</td>
+                <td class="px-4 py-3">${parseFloat(pos.market_value || pos.equity || 0).toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Failed to load positions', err);
+    }
 }
 
 // Update trades chart with dark theme
