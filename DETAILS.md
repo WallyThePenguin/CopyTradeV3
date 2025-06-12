@@ -22,6 +22,8 @@ This file provides a high level overview of how the main pieces of the system fi
 
 ### Python FastAPI Service (`api/`)
 * **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It now reads environment variables from `.env` automatically and schedules channel analysis, market calendar updates and the nightly news importer.
+  It also calculates confidence scores for regex-based exit detection and respects a `CONFIDENCE_THRESHOLD` setting so tolerance can be tweaked without code edits.
+  A separate reference `mistral_backend.md` documents this service in depth.
 
 ## Data Flow
 1. Discord messages are queued and analysed by the Python server.

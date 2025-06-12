@@ -10,6 +10,7 @@ pytz==2024.1
 fastapi==0.104.1
 uvicorn==0.24.0
 llama-cpp-python==0.2.11
-torch==2.1.0
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1+cu121
 pydantic==2.4.2
-python-dotenv==1.0.0 
+

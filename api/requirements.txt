@@ -5,8 +5,8 @@ anyio==3.7.1
 uvicorn==0.24.0
 #llama-cpp-python==0.2.11
 diskcache>=5.6.1
---find-links https://download.pytorch.org/whl/torch_stable.html
-# torch==2.5.1+cu121  # Installed manually via PyTorch CUDA index
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1+cu121
 pydantic==1.10.13
 python-dotenv==1.0.0
 

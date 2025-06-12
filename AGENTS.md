@@ -40,6 +40,8 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Automatic Log Cleanup** – the Node logger now deletes log files older than 30 days during startup.
 - **Historical Price Endpoint** – `/api/historical-prices` retrieves recent market data from Robinhood for improved price accuracy.
 - **Environment Loader** – `mistral_server.py` automatically loads environment variables from `.env` so the Python service runs without manual exports.
+- **Configurable Confidence Threshold** – regex exit detection uses `CONFIDENCE_THRESHOLD` from `.env` so tolerances can be tuned without code changes.
+- **Mistral Backend Guide** – detailed documentation for the Python server now lives in `mistral_backend.md`.
 - **Extended `.env` Template** – `.env.example` now includes `API_KEY`, `NEWS_FEED_PATH` and `WEB_PORT` settings for easier configuration.
 - **Trader Stats Fix** – statistics queries now filter by channel status through the relation instead of an `enabled` field. This resolves the `Unknown argument` Prisma error when loading trader stats.
 - **Signal Query Fix** – `getSignalQuality` now filters through the `trade.channel` relation so Prisma accepts the query when counting signals by mode.
