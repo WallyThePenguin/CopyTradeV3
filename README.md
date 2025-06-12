@@ -38,6 +38,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Order History Endpoint**: `/api/order-history` lists recent orders from the trading service.
 - **Historical Price Endpoint**: `/api/historical-prices` fetches recent market data from Robinhood.
 - **Order Records Table**: order history responses are now persisted to the `OrderRecord` table and can be queried via `/api/order-records`.
+- **Data Quality Endpoint**: `/api/data-quality` runs a series of checks and returns any problems found with stored trades or messages.
 - **Open Positions Dashboard**: A new table on the web UI shows current holdings retrieved from `/api/positions`.
 - **Environment Loader**: The Python backend loads variables from `.env` at startup so separate export steps aren't needed.
 - **Session Auto-Refresh**: `robinhood.js` re-logins automatically when its token expires.
@@ -73,7 +74,7 @@ This populates the `MarketUpdate` table using `data/news/sample_news.json`.
 ```bash
 npm run quality
 ```
-This script scans the database for missing or invalid fields.
+This script scans the database for missing or invalid fields. The same checks are available from the web API at `/api/data-quality`.
 
 The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/venv` and is ignored by git.
 
@@ -109,6 +110,8 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
   - Retrieve recent price data for a symbol. Optional `interval` and `span` query parameters mirror Robinhood's historical endpoint.
 - **GET /api/order-records**
   - List stored broker orders from the `OrderRecord` table. Optional `limit` query param controls how many results are returned.
+- **GET /api/data-quality**
+  - Run the internal data quality checker and return any issues found.
 - **GET /api/channels?mode=TYPE**
   - Retrieve channels filtered by `mode`. `TYPE` can be `TEST` for disabled channels, `PROD` for enabled channels or omitted for all.
 

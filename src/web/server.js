@@ -241,6 +241,18 @@ app.get('/api/order-records', async (req, res) => {
     }
 });
 
+// Run data quality checks
+app.get('/api/data-quality', async (req, res) => {
+    try {
+        const { checkDataQuality } = await import('../utils/dataQuality.js');
+        const issues = await checkDataQuality();
+        res.json({ issues });
+    } catch (error) {
+        console.error('Error running data quality check:', error);
+        res.status(500).json({ error: 'Failed to run data quality check' });
+    }
+});
+
 // New endpoint: Trade signals history
 app.get('/api/signals', async (req, res) => {
     try {

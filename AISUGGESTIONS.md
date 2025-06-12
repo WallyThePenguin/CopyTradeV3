@@ -24,6 +24,7 @@ This document collects ideas and reminders for future contributors (including fu
   - Display these positions in the dashboard so users can monitor holdings at a glance. *Implemented via a new table.*
   - Consider surfacing order history through an API endpoint so users can verify executions. *Implemented via `/api/order-history`.*
   - Persist retrieved orders in the database so the system maintains a permanent audit trail. `/api/order-records` exposes these saved orders.
+  - Provide a simple API to run the data quality script so issues can be viewed without shell access. *Implemented via `/api/data-quality`.*
 - **Market Calendar Table**
   - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` every night so upcoming catalysts appear automatically.*
  - **Automatic Market Updates**

@@ -12,6 +12,7 @@ write to the same log directory.
 - **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values. *In progress: `getCurrentPrice` in `mistral.js` now retrieves real quotes and `/api/historical-prices` returns recent candles.*
 - **Persist Every Table** – add write logic for all schema models. `TradeSignal` and `ChannelConfig` now have create/update paths alongside `MarketUpdate` and `ManualLabel`.
 - **Order Record Persistence** – store retrieved orders in a dedicated table so historical executions can be reviewed. `/api/order-records` now exposes this data.
+- **Expose Data Quality Results** – add an endpoint that runs `npm run quality` logic and returns the issues so admins can monitor database health from the dashboard. *New `/api/data-quality` endpoint implemented.*
 - **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Done: Node and Python use file-based loggers under `data/logs`.*
 - **Environment Loading** – ensure the FastAPI service reads variables from `.env` automatically so manual exports aren't required. *Implemented via `load_dotenv` in `mistral_server.py`.*
 - **Authentication** – basic API key protection added to POST routes. Review session based auth for the Web UI in the future.
