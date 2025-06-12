@@ -33,6 +33,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Order Record Storage** – responses from `/api/order-history` are now persisted to an `OrderRecord` table and can be listed via `/api/order-records`.
 - **Open Positions Table** – the dashboard now includes a table that lists current holdings using data from the positions endpoint.
 - **Data Quality Endpoint** – `/api/data-quality` returns any issues found by the quality checker so admins can monitor database health.
+- **Scheduled Quality Checks** – a cron task runs the data quality script daily and logs the results to `data/logs`.
 - **Historical Price Endpoint** – `/api/historical-prices` retrieves recent market data from Robinhood for improved price accuracy.
 - **Environment Loader** – `mistral_server.py` automatically loads environment variables from `.env` so the Python service runs without manual exports.
 - **Session Auto-Refresh** – `robinhood.js` now attempts to re-login when its session is invalid, reducing trade errors.
@@ -50,6 +51,7 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Market Update Sources** – find a reliable API or broker feed to automatically populate the `MarketUpdate` table with news headlines or summaries. *Initial implementation added `api/market_news.py` which imports a JSON feed nightly.*
 - **Data Quality** – document and monitor problems that lead to bad data. Bad data increases cost and hurts decision making. Establish collection standards and assign a data steward to perform regular checks.
   A helper script (`npm run quality`) now checks for missing prices, invalid option types, bad statuses and zero quantities to aid this review.
+  Results are logged automatically each day via the new cron job.
 
 ## Completion Status
 
