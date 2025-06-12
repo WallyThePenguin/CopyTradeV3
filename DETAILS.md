@@ -38,8 +38,9 @@ A cron task in `web/server.js` now runs this check daily and logs the output.
 * Live price data was simulated for many operations, reducing accuracy of P&L metrics. A historical price endpoint now retrieves recent candles from Robinhood but deeper history is still missing.
 * A `MarketCalendar` table has been added along with a Python script (`api/market_calendar.py`) that fetches an ICS calendar and stores upcoming events. This script now runs nightly from the FastAPI server.
 * A simple file logger has been introduced for Node (`src/utils/logger.js`) and Python (`api/utils/logger.py`) so both components write structured logs under `data/logs`.
+* Old log files are now removed automatically after 30 days when the Node server starts.
 * The Python virtual environment under `api/venv` is excluded from version control and recreated with `setup.sh` (or `setup.bat`).
-* Secrets are no longer committed. Use `.env.example` as a template for your own `.env` file which should remain untracked.
+* Secrets are no longer committed. Use `.env.example` as a template for your own `.env` file which should remain untracked. The template now lists `API_KEY`, `WEB_PORT` and `NEWS_FEED_PATH` variables.
 * Channel lists can now be filtered by mode (`/api/channels?mode=TEST|PROD`), and a new `/api/trades` endpoint exposes recent trades with the same filters. The Web UI reloads channels when the mode changes so simulated and production views stay separate.
 
 These notes should help developers understand where features live and what areas still need attention.

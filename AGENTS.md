@@ -34,8 +34,10 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Open Positions Table** – the dashboard now includes a table that lists current holdings using data from the positions endpoint.
 - **Data Quality Endpoint** – `/api/data-quality` returns any issues found by the quality checker so admins can monitor database health.
 - **Scheduled Quality Checks** – a cron task runs the data quality script daily and logs the results to `data/logs`.
+- **Automatic Log Cleanup** – the Node logger now deletes log files older than 30 days during startup.
 - **Historical Price Endpoint** – `/api/historical-prices` retrieves recent market data from Robinhood for improved price accuracy.
 - **Environment Loader** – `mistral_server.py` automatically loads environment variables from `.env` so the Python service runs without manual exports.
+- **Extended `.env` Template** – `.env.example` now includes `API_KEY`, `NEWS_FEED_PATH` and `WEB_PORT` settings for easier configuration.
 - **Session Auto-Refresh** – `robinhood.js` now attempts to re-login when its session is invalid, reducing trade errors.
 
 ## Areas for Improvement

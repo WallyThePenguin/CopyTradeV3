@@ -14,8 +14,29 @@ class Logger {
     async initialize() {
         try {
             await fs.mkdir(this.logDir, { recursive: true });
+            await this.cleanupOldLogs();
         } catch (error) {
             console.error('Error creating log directory:', error);
+        }
+    }
+
+    async cleanupOldLogs(days = 30) {
+        try {
+            const files = await fs.readdir(this.logDir);
+            const now = Date.now();
+            const maxAge = days * 24 * 60 * 60 * 1000;
+            await Promise.all(
+                files.map(async (file) => {
+                    if (!file.endsWith('.log')) return;
+                    const filePath = path.join(this.logDir, file);
+                    const stats = await fs.stat(filePath);
+                    if (now - stats.mtimeMs > maxAge) {
+                        await fs.unlink(filePath);
+                    }
+                })
+            );
+        } catch (error) {
+            console.error('Error cleaning up old logs:', error);
         }
     }
 
