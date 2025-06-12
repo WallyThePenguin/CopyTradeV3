@@ -18,7 +18,7 @@ Used by `src/services/robinhood.js` and `src/services/robinhoodSimulator.js` to 
 The trading service initializes on server startup and before each order so snapshot collection only begins once a valid broker session is available. Historical candles can be fetched via `/api/historical-prices` for ad-hoc analysis but are not stored in a dedicated table.
 
 ## MarketUpdate
-Table for summarised market posts. Entries can now be created via `POST /api/market-updates` in `src/web/server.js` and are returned by `/api/market-updates`. A nightly task in `api/market_news.py` also inserts headlines from a JSON feed. The feed path can be a local file or a remote URL via the `NEWS_FEED_PATH` environment variable.
+Table for summarised market posts. Entries can be created via `POST /api/market-updates` and retrieved with `/api/market-updates`. A nightly task in `api/market_news.py` inserts headlines from a JSON feed. A helper endpoint `/api/refresh-market-news` can trigger this importer manually. The feed path can be a local file or a remote URL via the `NEWS_FEED_PATH` environment variable.
 
 ## MarketCalendar
 Stores scheduled economic events such as FOMC meetings. Events are inserted by `api/market_calendar.update_market_calendar`, which runs nightly from the FastAPI service. Upcoming events can be retrieved with `GET /api/market-calendar`.
