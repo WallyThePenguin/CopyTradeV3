@@ -24,6 +24,7 @@ This file provides a high level overview of how the main pieces of the system fi
 4. Model prompts and responses are stored in the `ModelLog` table for later review.
 5. The Web UI pulls aggregated statistics from the database and receives live trade updates via WebSocket.
 6. Manual labels provide supervised data by allowing humans to categorise messages. Market updates summarise major news events so the dataset includes market context.
+7. The channel analyzer updates per-channel settings nightly and now saves a summary row to `PerformanceHistory` for later review.
 
 ## Data Quality
 Good data is vital for training models and making decisions. We should track issues that reduce quality, set clear standards for new contributions and consider appointing a data steward to review incoming records.
