@@ -68,4 +68,6 @@ These checks can also be executed via the `/api/data-quality` endpoint which ret
 The Node server schedules this script daily so problems are logged automatically.
 Log files are automatically removed after 30 days to keep the directory small.
 Both Node entry points perform an environment check using `validateEnv` so missing variables cannot silently corrupt data.
+The Python service now exposes a `CONFIDENCE_THRESHOLD` environment variable that controls how strict exit signal detection is. This does not affect the schema directly but helps ensure only high-confidence trades are logged.
+See `mistral_backend.md` for a full explanation of the service and its environment variables.
 

@@ -34,7 +34,10 @@ write to the same log directory.
   - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and store its results. *Scheduled along with nightly market calendar updates and metrics now persist to `PerformanceHistory`.*
   - **Trade Mode Tracking** – store whether a trade was simulated or live based on environment and channel settings so stats separate correctly. *Implemented via new `mode` field on `Trade`.*
   - **CALL/PUT Parsing Fix** – messages like "SPY 591 CALL" are normalized before analysis so they no longer split into two symbols.
-  - **Simulator Initialization** – the Robinhood simulator now only initializes once to prevent log spam.
+- **Simulator Initialization** – the Robinhood simulator now only initializes once to prevent log spam.
+- **Torch Upgrade** – update Python requirements to `torch==2.5.1+cu121` so CUDA 12.1 builds install cleanly.
+- **Confidence Threshold** – expose a `CONFIDENCE_THRESHOLD` env variable so exit signal detection can be tuned without code changes.
+- **Mistral Backend Docs** – create `mistral_backend.md` to explain the FastAPI server and its environment settings.
 
 - **Automated Data Quality Logs** – the Node server now runs the quality script every day and writes the results to `data/logs`.
 

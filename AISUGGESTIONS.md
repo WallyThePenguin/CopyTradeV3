@@ -16,6 +16,8 @@ This document collects ideas and reminders for future contributors (including fu
   - Ensure the `initialize()` method on `robinhood.js` is called during startup so tokens are loaded before trades are executed. *Now handled via a startup call in `web/server.js` and within `TradeTracker` before orders are placed.*
   - Add automatic re-login when a Robinhood session expires so trades do not fail unexpectedly. *Implemented in `robinhood.js`.*
   - Load environment variables from `.env` in the Python server to reduce setup steps. *Implemented via `load_dotenv`.*
+  - Tune regex exit detection using a `CONFIDENCE_THRESHOLD` environment variable so the model only acts on high-confidence signals.
+  - Document the FastAPI backend in `mistral_backend.md` so future contributors understand its endpoints and settings.
   - Validate required environment variables at Node startup so missing credentials cause an immediate failure.
   - Persist results from `channel_analyzer.py` so historical performance can be reviewed. *Now stored in `PerformanceHistory` each night.*
   - Fix Prisma errors by filtering signal queries through `trade.channel.enabled` and ensuring `TraderStats` creation includes required JSON fields.

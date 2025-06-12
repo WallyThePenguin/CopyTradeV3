@@ -1,3 +1,13 @@
+"""FastAPI server powering LLM trade analysis.
+
+This module loads a local Mistral model using `llama-cpp-python`, exposes
+REST endpoints for message analysis and schedules nightly maintenance tasks.
+Regex based exit detection now calculates a dynamic confidence score.
+Tolerance is controlled via ``CONFIDENCE_THRESHOLD`` while ``CONFIDENCE_BASE``
+and ``CONFIDENCE_STEP`` adjust how scores are computed. Environment variables
+are automatically loaded from ``.env`` at startup.
+"""
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
@@ -36,6 +46,11 @@ model_path = os.path.join(
     current_dir, "..", "model", "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
 )
 model_path = os.path.abspath(model_path)  # Normalize the path
+
+# confidence configuration
+CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.8"))
+CONFIDENCE_BASE = float(os.getenv("CONFIDENCE_BASE", "0.7"))
+CONFIDENCE_STEP = float(os.getenv("CONFIDENCE_STEP", "0.05"))
 
 # Trade context tracking
 
@@ -231,6 +246,13 @@ PARTIAL_PATTERNS = [
     r"\bamount\b",
 ]
 
+
+def calc_confidence(matches: int) -> float:
+    """Compute confidence score based on number of regex matches."""
+    if matches <= 0:
+        return 0.0
+    return min(1.0, CONFIDENCE_BASE + CONFIDENCE_STEP * matches)
+
 # Comprehensive examples from old code
 EXAMPLES = [
     {
@@ -291,18 +313,17 @@ def is_exit_signal(message_content):
     """Enhanced exit signal detector with partial exit detection"""
     message = message_content.lower()
 
-    # Check if it's an exit signal
-    is_exit = any(re.search(pattern, message) for pattern in SELL_PATTERNS)
-    if not is_exit:
+    matches = [pattern for pattern in SELL_PATTERNS if re.search(pattern, message)]
+    if not matches:
         return None
 
-    # Check if it's a partial exit
     is_partial = any(re.search(pattern, message) for pattern in PARTIAL_PATTERNS)
+    confidence = calc_confidence(len(matches))
 
     return {
         "is_exit": True,
         "exit_type": "partial" if is_partial else "full",
-        "confidence": 0.95,
+        "confidence": confidence,
         "reasoning": "Exit signal detected" + (" (partial)" if is_partial else ""),
     }
 
@@ -536,7 +557,7 @@ async def analyze_message(request: MessageRequest) -> dict:
         exit_result = is_exit_signal(msg)
 
         # If it's an exit signal, use the active trade details
-        if exit_result and exit_result.get("is_exit", False):
+        if exit_result and exit_result.get("is_exit", False) and exit_result["confidence"] >= CONFIDENCE_THRESHOLD:
             # Get the last active trade
             last_trade = trade_context.last_trade
             if last_trade:
@@ -598,7 +619,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                         "optionType": last_trade.get("optionType"),
                         "strikePrice": last_trade.get("strikePrice"),
                         "entryPrice": last_trade.get("entryPrice"),
-                        "confidence": 0.95,
+                        "confidence": max(0.9, CONFIDENCE_THRESHOLD),
                         "processing_time": round(processing_time, 3),
                         "signalType": "EXIT",
                         "error": None,
@@ -634,7 +655,7 @@ async def analyze_message(request: MessageRequest) -> dict:
                     response_dict = {
                         "isTradeSignal": True,
                         "action": "BUY",
-                        "confidence": 0.95,
+                        "confidence": max(0.9, CONFIDENCE_THRESHOLD),
                         "processing_time": round(processing_time, 3),
                         "signalType": "ENTRY",
                         "error": None,
