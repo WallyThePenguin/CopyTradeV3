@@ -64,4 +64,5 @@ Use the `npm run quality` command to quickly identify records with missing price
 These checks can also be executed via the `/api/data-quality` endpoint which returns any issues as JSON.
 The Node server schedules this script daily so problems are logged automatically.
 Log files are automatically removed after 30 days to keep the directory small.
+Both Node entry points perform an environment check using `validateEnv` so missing variables cannot silently corrupt data.
 

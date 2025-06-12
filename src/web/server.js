@@ -8,9 +8,14 @@ import { createServer } from 'http';
 import cron from 'node-cron';
 import { checkDataQuality } from '../utils/dataQuality.js';
 import { logger } from '../utils/logger.js';
+import { validateEnv } from '../utils/validateEnv.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+if (!validateEnv()) {
+    process.exit(1);
+}
 
 const app = express();
 const prisma = new PrismaClient();
