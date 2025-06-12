@@ -40,6 +40,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Historical Price Endpoint**: `/api/historical-prices` fetches recent market data from Robinhood.
 - **Order Records Table**: order history responses are now persisted to the `OrderRecord` table and can be queried via `/api/order-records`.
 - **Data Quality Endpoint**: `/api/data-quality` runs a series of checks and returns any problems found with stored trades or messages.
+- **Scheduled Quality Checks**: a cron job runs these checks daily and logs the results to `data/logs`.
 - **Open Positions Dashboard**: A new table on the web UI shows current holdings retrieved from `/api/positions`.
 - **Environment Loader**: The Python backend loads variables from `.env` at startup so separate export steps aren't needed.
 - **Session Auto-Refresh**: `robinhood.js` re-logins automatically when its token expires.
@@ -147,6 +148,7 @@ npm run quality
 
 The command checks the database for common issues like missing exit prices, invalid option types,
 unexpected trade status values or zero quantities.
+Daily results are appended to log files using the cron job configured via `DATA_QUALITY_SCHEDULE`.
 
 
 ## License

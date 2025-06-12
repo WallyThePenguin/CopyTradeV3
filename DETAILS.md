@@ -30,6 +30,7 @@ This file provides a high level overview of how the main pieces of the system fi
 Good data is vital for training models and making decisions. We should track issues that reduce quality, set clear standards for new contributions and consider appointing a data steward to review incoming records.
 Run `npm run quality` to generate a report of trades or messages with missing values. The script now flags invalid statuses and zero quantities in addition to missing prices and option types so issues can be fixed quickly.
 The same checks are available via the `/api/data-quality` endpoint so results can be viewed from the dashboard.
+A cron task in `web/server.js` now runs this check daily and logs the output.
 
 ## Missing Pieces
 * Several Prisma tables lacked write paths. `marketUpdate` and `manualLabel` records can be created through the Web UI API and recent work added persistence for `tradeSignal` and `channelConfig`.

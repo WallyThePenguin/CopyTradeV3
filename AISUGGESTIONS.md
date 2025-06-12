@@ -32,6 +32,7 @@ This document collects ideas and reminders for future contributors (including fu
   - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud. *`api/market_news.py` now imports a JSON feed nightly as a proof of concept.*
 - **Data Quality Standards**
   - Poor data hurts model training and decision making. The `npm run quality` script now reports missing prices, invalid option types, bad statuses and zero quantities. Define rules based on this output and appoint a steward to check the report regularly.
+  - A cron job now runs the quality script every day and logs the results so issues are tracked automatically.
 
 ## Medium‑Term Goals
 

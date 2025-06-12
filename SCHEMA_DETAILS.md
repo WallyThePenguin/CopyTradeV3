@@ -62,4 +62,5 @@ Overall bot performance metrics. Populated on-demand in `/api/bot-stats` when th
 Every table should store accurate, complete information. Log data issues and define validation rules so future analytics are reliable. A dedicated steward can help enforce these standards.
 Use the `npm run quality` command to quickly identify records with missing prices, invalid option types, unexpected status values or zero trade quantities.
 These checks can also be executed via the `/api/data-quality` endpoint which returns any issues as JSON.
+The Node server schedules this script daily so problems are logged automatically.
 

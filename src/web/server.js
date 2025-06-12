@@ -5,6 +5,9 @@ import { PrismaClient } from '@prisma/client';
 import tradingService from '../services/tradingService.js';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+import cron from 'node-cron';
+import { checkDataQuality } from '../utils/dataQuality.js';
+import { logger } from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,6 +61,17 @@ export function broadcastSignal(signal) {
         }
     });
 }
+
+// Daily data quality check
+const cronSpec = process.env.DATA_QUALITY_SCHEDULE || '0 4 * * *'; // 04:00 UTC
+cron.schedule(cronSpec, async () => {
+    try {
+        const issues = await checkDataQuality();
+        await logger.info('Daily data quality check', { issues });
+    } catch (err) {
+        await logger.error('Failed daily data quality check', err);
+    }
+});
 
 // Middleware
 app.use(express.json());
