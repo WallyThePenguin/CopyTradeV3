@@ -29,7 +29,9 @@ write to the same log directory.
   - Show open positions in the dashboard using the new endpoint. *Done: a table now lists active holdings.*
   - Provide a way to fetch recent historical prices for charts. *New `/api/historical-prices` endpoint added.*
   - Fix trader stats filtering bug so the query references the channel relation instead of a non-existent `enabled` field. *Done – resolved by filtering via `channel.enabled` which stops the PrismaClientValidationError.*
-- **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and store its results. *Scheduled along with nightly market calendar updates and metrics now persist to `PerformanceHistory`.*
+  - Fix signal quality query so it filters through `trade.channel.enabled`. *Done – prevents PrismaClientValidationError on startup.*
+  - Ensure `TraderStats` creation includes `bestSymbols` and `tradingHours` arrays. *Done – upsert now supplies empty arrays.*
+  - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and store its results. *Scheduled along with nightly market calendar updates and metrics now persist to `PerformanceHistory`.*
 
 - **Automated Data Quality Logs** – the Node server now runs the quality script every day and writes the results to `data/logs`.
 

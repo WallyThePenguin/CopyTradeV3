@@ -18,6 +18,7 @@ This document collects ideas and reminders for future contributors (including fu
   - Load environment variables from `.env` in the Python server to reduce setup steps. *Implemented via `load_dotenv`.*
   - Validate required environment variables at Node startup so missing credentials cause an immediate failure.
   - Persist results from `channel_analyzer.py` so historical performance can be reviewed. *Now stored in `PerformanceHistory` each night.*
+  - Fix Prisma errors by filtering signal queries through `trade.channel.enabled` and ensuring `TraderStats` creation includes required JSON fields.
   - Fix trader stats queries to use `{ channel: { enabled: true } }` filters instead of an `enabled` field on `TraderStats`. This ensures Prisma validation succeeds when retrieving stats.
 - **UI Refinements**
   - Ensure mode and period selectors always reflect the active view.
