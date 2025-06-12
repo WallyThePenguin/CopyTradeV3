@@ -85,6 +85,17 @@
             </div>
         </div>
 
+        <!-- Real-time Debug Panel -->
+        <div class="mb-8">
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-bug mr-2 text-red-400"></i>
+                    Recent LLM Decisions
+                </h2>
+                <div id="debugPanel" class="space-y-2 max-h-64 overflow-y-auto text-sm"></div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- Performance Cards -->
             <div class="stat-card bg-gradient-to-br from-green-600 to-green-800">
@@ -196,6 +207,9 @@
                         </thead>
                         <tbody></tbody>
                     </table>
+                </div>
+                <div class="mt-4">
+                    <canvas id="pnlSparkline" height="80"></canvas>
                 </div>
             </div>
 

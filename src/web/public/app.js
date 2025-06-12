@@ -3,6 +3,7 @@ let performanceChart = null;
 let assetClassChart = null;
 let messagesChart = null;
 let tradesChart = null;
+let pnlSparkline = null;
 
 // Current time period and mode
 let currentPeriod = 'DAILY';
@@ -121,11 +122,22 @@ function displayLiveSignal(signal) {
     
     // Add to container (keep only last 10 signals)
     signalsContainer.insertBefore(signalElement, signalsContainer.firstChild);
-    
+
     const signals = signalsContainer.querySelectorAll('.signal-entry');
     if (signals.length > 10) {
         signals[signals.length - 1].remove();
     }
+
+    addDebugEntry(signal);
+}
+
+function addDebugEntry(signal) {
+    const panel = document.getElementById('debugPanel');
+    const entry = document.createElement('div');
+    entry.textContent = `[${new Date().toLocaleTimeString()}] ${signal.action} ${signal.symbol} ${signal.optionType || ''} conf:${(signal.confidence*100).toFixed(1)}%`;
+    panel.prepend(entry);
+    const entries = panel.querySelectorAll('div');
+    if (entries.length > 20) entries[entries.length-1].remove();
 }
 
 // Update statistics based on selected time period and mode
@@ -197,6 +209,7 @@ function animateValue(elementId, newValue, isPositive = null) {
 // Update charts
 function updateCharts(data) {
     updatePerformanceChart(data.performanceHistory);
+    updatePnlSparkline(data.performanceHistory);
     updateAssetClassChart(data.assetClassDistribution);
     updateMessagesChart(data.messageCountsOverTime);
     updateTradesChart(data.tradesCountsOverTime);
@@ -274,6 +287,30 @@ function updatePerformanceChart(history) {
                 axis: 'x',
                 intersect: false
             }
+        }
+    });
+}
+
+function updatePnlSparkline(history) {
+    const ctx = document.getElementById('pnlSparkline').getContext('2d');
+    if (pnlSparkline) pnlSparkline.destroy();
+    pnlSparkline = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: history.map(h => new Date(h.timestamp).toLocaleDateString()),
+            datasets: [{
+                data: history.map(h => h.cumulativePL),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16,185,129,0.2)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
         }
     });
 }

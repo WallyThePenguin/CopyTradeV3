@@ -43,7 +43,8 @@ Represents detected trade signals. Entries are now created in `TradeTracker.logT
 The stats endpoint filters by `trade.channel.enabled` when counting these records. This avoids the `Unknown argument` error seen when querying by `channel` directly.
 
 ## ExecutionStats
-Execution details for trades. Records are created and updated in `TradeTracker.trackTrade`, `TradeTracker.updateTrade` and the simulator.
+Execution details for trades. Records are created and updated in `TradeTracker.trackTrade`, `TradeTracker.updateTrade` and the simulator. An `exitConfidence` field now stores the model's confidence when an auto-exit closes a trade.
+The `/api/signals` route includes this value for each related trade.
 
 ## PerformanceHistory
 Historical channel stats created by `channel_analyzer.py` whenever configs are updated and read by the stats API.
@@ -60,6 +61,17 @@ New rows must provide `bestSymbols` and `tradingHours` (both `Json` columns). Th
 
 ## BotStats
 Overall bot performance metrics. Populated on-demand in `/api/bot-stats` when the endpoint is called.
+
+## ExecutionAuditLog
+Stores broker interaction records for each trade. Logged via `auditLogger.logExecution` when orders are placed or closed.
+
+## JobLog
+Tracks scheduled maintenance tasks. `web/server.js` records job start and completion so admins can review failures.
+Entries can be listed via `/api/job-logs` with optional filters.
+
+## ModelEvalResult
+Results from model accuracy calculations. Created in `computeAnalysisMetrics()` and exposed via `/api/analysis-metrics`.
+The admin dashboard charts these rows to monitor model drift.
 
 ## Data Quality Considerations
 Every table should store accurate, complete information. Log data issues and define validation rules so future analytics are reliable. A dedicated steward can help enforce these standards.

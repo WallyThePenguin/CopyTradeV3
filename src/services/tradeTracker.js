@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 import tradingService from './tradingService.js';
 import robinhoodSimulator from './robinhoodSimulator.js';
+import { logExecution } from './auditLogger.js';
 
 class TradeTracker {
     constructor() {
@@ -20,8 +21,9 @@ class TradeTracker {
             strikePrice,
             quantity = 1,
             author = null,
-            signalType = 'ENTRY', // ← new
-            entryPrice = null      // ← new (can override simulator price if known)
+            signalType = 'ENTRY',
+            entryPrice = null,
+            confidence = 1
         } = tradeData;
 
         // Ensure the underlying trading service is ready before placing orders
@@ -56,7 +58,7 @@ class TradeTracker {
             });
 
             if (!openTrade) {
-                console.warn('No open trade to close for:', { symbol, optionType, strikePrice });
+                logger.warn('No open trade to close for:', { symbol, optionType, strikePrice });
                 return null;
             }
 
@@ -86,10 +88,30 @@ class TradeTracker {
             await this.updateChannelPerformance(channelId);
             await this.updateTraderStats(updated);
 
+            await logExecution({
+                tradeId: updated.id,
+                channelId,
+                type: 'order_closed',
+                rawResponse: { exitPrice },
+                durationMs: 0
+            });
+
+            await this.prisma.executionStats.updateMany({
+                where: { tradeId: updated.id },
+                data: {
+                    exitPrice,
+                    exitConfidence: confidence,
+                    pnl: parseFloat(pnl.toFixed(2)),
+                    durationSec: updated.exitTime && updated.entryTime ? Math.floor((updated.exitTime - updated.entryTime) / 1000) : null,
+                    result: pnl > 0 ? 'WIN' : 'LOSS'
+                }
+            });
+
             return updated;
         }
 
         // ENTRY MODE (default)
+        const orderStart = Date.now();
         const orderResult = await (isSimulated
             ? robinhoodSimulator.placeOptionOrder({
                 symbol,
@@ -112,6 +134,7 @@ class TradeTracker {
                 channelId
             })
         );
+        const orderDuration = Date.now() - orderStart;
 
         const actualEntryPrice = entryPrice ?? orderResult?.price;
         if (!actualEntryPrice || isNaN(actualEntryPrice)) {
@@ -135,6 +158,15 @@ class TradeTracker {
             }
         });
 
+        await logExecution({
+            tradeId: trade.id,
+            channelId,
+            type: 'order_placed',
+            statusCode: 201,
+            rawResponse: orderResult,
+            durationMs: orderDuration
+        });
+
         // record execution stats so we always use the table
         await this.prisma.executionStats.create({
             data: {
@@ -147,7 +179,7 @@ class TradeTracker {
 
         return trade;
     } catch (error) {
-        console.error('Error tracking trade:', error);
+        logger.error('Error tracking trade:', error);
         throw error;
     }
 }
@@ -167,6 +199,7 @@ class TradeTracker {
                     where: { tradeId },
                     data: {
                         exitPrice: updateData.exitPrice,
+                        exitConfidence: updateData.confidence,
                         pnl: updateData.profitLoss,
                         durationSec: trade.exitTime && trade.entryTime ? Math.floor((trade.exitTime - trade.entryTime) / 1000) : null,
                         result: updateData.profitLoss > 0 ? 'WIN' : 'LOSS'
@@ -178,7 +211,7 @@ class TradeTracker {
 
             return trade;
         } catch (error) {
-            console.error('Error updating trade:', error);
+            logger.error('Error updating trade:', error);
             throw error;
         }
     }
@@ -227,7 +260,7 @@ class TradeTracker {
                 }
             });
         } catch (error) {
-            console.error('Error updating channel performance:', error);
+            logger.error('Error updating channel performance:', error);
             throw error;
         }
     }
@@ -251,7 +284,7 @@ class TradeTracker {
 
             return channel;
         } catch (error) {
-            console.error('Error getting channel stats:', error);
+            logger.error('Error getting channel stats:', error);
             throw error;
         }
     }
@@ -296,7 +329,7 @@ class TradeTracker {
 
             return message;
         } catch (error) {
-            console.error('Error tracking message:', error);
+            logger.error('Error tracking message:', error);
             throw error;
         }
     }
@@ -316,7 +349,7 @@ class TradeTracker {
                 }
             });
         } catch (error) {
-            console.error('Error logging model result:', error);
+            logger.error('Error logging model result:', error);
             throw error;
         }
     }
@@ -334,7 +367,7 @@ class TradeTracker {
                 data: { tradeId, confidence, triggeredAt, source, autoExecuted }
             });
         } catch (error) {
-            console.error('Error logging trade signal:', error);
+            logger.error('Error logging trade signal:', error);
             throw error;
         }
     }

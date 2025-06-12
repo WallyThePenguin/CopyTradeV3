@@ -57,7 +57,7 @@ export async function sendTradeSignalWebhook(webhookUrl, data) {
         });
 
     } catch (error) {
-        console.error('Error sending webhook:', error);
+        logger.error('Error sending webhook:', error);
         throw error;
     }
 }
@@ -119,7 +119,7 @@ export async function sendExitSignalWebhook(webhookUrl, data) {
         });
 
     } catch (error) {
-        console.error('Error sending exit webhook:', error);
+        logger.error('Error sending exit webhook:', error);
         throw error;
     }
 }
@@ -161,7 +161,7 @@ export async function sendPerformanceWebhook(webhookUrl, stats) {
         });
 
     } catch (error) {
-        console.error('Error sending performance webhook:', error);
+        logger.error('Error sending performance webhook:', error);
         throw error;
     }
 }

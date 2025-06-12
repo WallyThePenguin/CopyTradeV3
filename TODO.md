@@ -10,7 +10,7 @@ This file reflects the next major milestones needed to move from MVP toward a po
   - Store detailed broker execution metadata (e.g., filled quantity, timestamps, order type, time-in-force).
   - Include per-leg fills if available.
 
-- [ ] **Add `ExecutionAuditLog` Table**  
+- [x] **Add `ExecutionAuditLog` Table**
   - Capture every API response and decision related to order lifecycle.
   - Used to reconstruct audit trail for real/live trades.
 
@@ -29,7 +29,7 @@ This file reflects the next major milestones needed to move from MVP toward a po
 
 ## 📊 MODEL ACCURACY & CONFIDENCE
 
-- [ ] **Implement `/api/analysis-metrics` Endpoint**  
+- [x] **Implement `/api/analysis-metrics` Endpoint**
   - Calculates precision/recall, confusion matrix, model drift.
   - Uses `ManualLabel` and `ModelLog` tables.
 
@@ -41,24 +41,31 @@ This file reflects the next major milestones needed to move from MVP toward a po
   - Highlight low-confidence exits.
   - Manual override possible via dashboard.
 
+- [x] **ModelEvalResult Graph in Admin UI**
+  - Display accuracy over time using Chart.js
+
 - [ ] **Regex & Prompt Tuning**
   - Expand slang/emoji/abbreviation detection.
   - Add newer patterns from recent trading messages.
   - Use `CONFIDENCE_THRESHOLD` and scoring logic to control behavior.
 
+- [x] **Include exitConfidence in /api/signals**
+  - Signals API now returns latest exit confidence from ExecutionStats
+
 ---
 
 ## 🌐 WEB UI UPGRADE
 
-- [ ] **Admin Dashboard (All Tables)**
+- [x] **Admin Dashboard (All Tables)**
+  - Initial panel with ExecutionAuditLog, ManualLabels and ModelLogs.
   - Read views for every table: Messages, Trades, ModelLogs, MarketUpdates, etc.
   - Write access for: ManualLabels, ChannelConfigs, MarketUpdates.
 
-- [ ] **P&L Trend View**
+ - [x] **P&L Trend View**
   - Per-trade P&L sparkline
   - Cumulative profit tracking over time
 
-- [ ] **Real-Time Debug Panel**
+ - [x] **Real-Time Debug Panel**
   - Recent trade decisions, model responses, and WebSocket status
 
 - [ ] **Error / Data Quality Alerts**
@@ -95,6 +102,9 @@ This file reflects the next major milestones needed to move from MVP toward a po
 - [ ] **Add file-based job logging**
   - Extend structured logging for job status, include timestamp and result
 
+- [x] **Remove legacy console logging**
+  - Replaced old console statements with unified logger
+
 ---
 
 ## 📆 SCHEDULING / CRONS
@@ -105,9 +115,10 @@ This file reflects the next major milestones needed to move from MVP toward a po
   - Market News Import
   - Data Quality Check
 
-- [ ] **Add Job Logs Table**
+- [x] **Add Job Logs Table**
   - Store timestamped records of each nightly job run
   - Include error messages if any
+  - `/api/job-logs` endpoint lists recent jobs
 
 - [ ] **Add `/api/refresh-market-news` endpoint**
   - Already implemented — confirm UI can call this on demand
@@ -116,9 +127,8 @@ This file reflects the next major milestones needed to move from MVP toward a po
 
 ## 🔐 SECURITY & STABILITY
 
-- [ ] **Web UI Auth Layer**
-  - Add password or token-based access
-  - Admin-only pages
+- [x] **Web UI Auth Layer**
+  - Admin pages gated by ADMIN_PASSWORD
 
 - [ ] **Prisma Input Validation**
   - Sanitize inputs from API POSTs

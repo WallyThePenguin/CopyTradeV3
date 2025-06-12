@@ -49,13 +49,13 @@ export async function checkDataQuality() {
 if (import.meta.url === `file://${process.argv[1]}`) {
     checkDataQuality()
         .then((issues) => {
-            console.log('Data Quality Report:');
+            logger.info('Data Quality Report:');
             for (const issue of issues) {
-                console.log(` - ${issue}`);
+                logger.info(` - ${issue}`);
             }
         })
         .catch((error) => {
-            console.error('Failed to run data quality check', error);
+            logger.error('Failed to run data quality check', error);
             process.exit(1);
         });
 }
