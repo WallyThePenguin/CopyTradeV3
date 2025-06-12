@@ -107,8 +107,12 @@ class RobinhoodService {
     async ensureSession() {
         await this.initialized;
         if (!this.isLoggedIn || !(await this._validateSession())) {
-            console.error('Session invalid');
-            return false;
+            console.warn('Robinhood session invalid, attempting re-login...');
+            await this._initializeClient();
+            if (!this.isLoggedIn || !(await this._validateSession())) {
+                console.error('Unable to establish Robinhood session');
+                return false;
+            }
         }
         return true;
     }

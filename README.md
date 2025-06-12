@@ -39,6 +39,8 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Historical Price Endpoint**: `/api/historical-prices` fetches recent market data from Robinhood.
 - **Order Records Table**: order history responses are now persisted to the `OrderRecord` table and can be queried via `/api/order-records`.
 - **Open Positions Dashboard**: A new table on the web UI shows current holdings retrieved from `/api/positions`.
+- **Environment Loader**: The Python backend loads variables from `.env` at startup so separate export steps aren't needed.
+- **Session Auto-Refresh**: `robinhood.js` re-logins automatically when its token expires.
 - **Data Quality Focus**: Bad data is expensive and leads to poor decisions. The `npm run quality` script now flags missing prices, invalid option types, bad statuses and zero quantities so issues can be resolved quickly.
 
 ## Setup
@@ -46,6 +48,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 1. **Clone the repo**
 2. **Install dependencies** by running `bash setup.sh` on Linux/macOS or `setup.bat` on Windows. This script creates a fresh Python virtual environment under `api/venv` and installs both Python and Node packages.
 3. **Copy `.env.example` to `.env`** and update the values for your environment. At minimum set `WEBHOOK_URL`, `DISCORD_TOKEN` and database credentials. `API_KEY` is optional but recommended for securing POST routes.
+   The FastAPI service reads this file automatically on startup.
 4. **Configure your model path and GPU settings** in `mistral_server.py` (see `initialize_model`)
 5. **Run the Python backend**:
 ```bash

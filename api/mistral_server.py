@@ -5,6 +5,7 @@ from llama_cpp import Llama
 import torch
 import gc
 import os
+from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 from utils.gpu import clear_gpu_memory, get_gpu_info, optimize_for_rtx2060
 from utils.logger import logger
@@ -29,6 +30,8 @@ model = None
 channel_analyzer = None
 trade_context = None
 current_dir = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(current_dir, '..', '.env')
+load_dotenv(env_path)
 model_path = os.path.join(
     current_dir, "..", "model", "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
 )
