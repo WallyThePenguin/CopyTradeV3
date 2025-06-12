@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 // Load environment variables from project root
 const envPath = path.join(__dirname, '../../.env');
-console.log('Loading .env from:', envPath);
+logger.info('Loading .env from:', envPath);
 dotenv.config({ path: envPath });
 
 class RobinhoodService {
@@ -29,8 +29,8 @@ class RobinhoodService {
         this.client = null;
         this.testMode = process.env.ENVIRONMENT?.toUpperCase() === 'TESTING';
 
-        console.log('RobinhoodService initialized with:');
-        console.log('Mode:', this.testMode ? 'TESTING' : 'PRODUCTION');
+        logger.info('RobinhoodService initialized with:');
+        logger.info('Mode:', this.testMode ? 'TESTING' : 'PRODUCTION');
 
         this.initialized = this._initializeClient();
     }
@@ -46,7 +46,7 @@ class RobinhoodService {
         this.client = new Robinhood();
 
         if (this.token) {
-            console.log('Using provided token...');
+            logger.info('Using provided token...');
             this.client.session = { headers: { Authorization: `Bearer ${this.token}` } };
             this.isLoggedIn = true;
             return;
@@ -54,7 +54,7 @@ class RobinhoodService {
 
         const savedToken = await this._loadSavedToken();
         if (savedToken) {
-            console.log('Using saved token...');
+            logger.info('Using saved token...');
             this.client.session = { headers: { Authorization: `Bearer ${savedToken}` } };
             this.isLoggedIn = true;
             return;
@@ -70,7 +70,7 @@ class RobinhoodService {
                     await this._saveToken(token);
                 }
             } catch (error) {
-                console.error('Login failed:', error);
+                logger.error('Login failed:', error);
             }
         }
     }
@@ -107,10 +107,10 @@ class RobinhoodService {
     async ensureSession() {
         await this.initialized;
         if (!this.isLoggedIn || !(await this._validateSession())) {
-            console.warn('Robinhood session invalid, attempting re-login...');
+            logger.warn('Robinhood session invalid, attempting re-login...');
             await this._initializeClient();
             if (!this.isLoggedIn || !(await this._validateSession())) {
-                console.error('Unable to establish Robinhood session');
+                logger.error('Unable to establish Robinhood session');
                 return false;
             }
         }
@@ -207,7 +207,7 @@ class RobinhoodService {
     async simulateExitPrice(entryPrice) {
         const movement = (Math.random() - 0.5) * 0.4;
         const exitPrice = parseFloat((entryPrice * (1 + movement)).toFixed(2));
-        console.log(`[SIMULATED EXIT] $${entryPrice.toFixed(2)} → $${exitPrice}`);
+        logger.info(`[SIMULATED EXIT] $${entryPrice.toFixed(2)} → $${exitPrice}`);
         return exitPrice;
     }
 
@@ -233,10 +233,10 @@ class RobinhoodService {
                 }
             });
 
-            console.log(`[REAL EXIT] ${symbol} ${strikePrice}${optionType} → $${price.toFixed(2)}`);
+            logger.info(`[REAL EXIT] ${symbol} ${strikePrice}${optionType} → $${price.toFixed(2)}`);
             return parseFloat(price.toFixed(2));
         } catch (error) {
-            console.error('[ERROR] getExitPrice:', error);
+            logger.error('[ERROR] getExitPrice:', error);
             throw error;
         }
     }

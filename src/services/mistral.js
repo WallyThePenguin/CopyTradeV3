@@ -16,7 +16,7 @@ const debugLog = (message, data = null) => {
     const logMessage = data
         ? `${timestamp} - ${message}: ${JSON.stringify(data, null, 2)}`
         : `${timestamp} - ${message}`;
-    console.log(logMessage);
+    logger.info(logMessage);
 };
 
 class MistralService {
@@ -202,7 +202,7 @@ class MistralService {
                 // Check stoploss
                 if (trade.stopLoss) {
                     if (trade.action === 'BUY' && currentPrice <= trade.stopLoss) {
-                        console.log(`Stoploss triggered for ${trade.symbol} at ${currentPrice}`);
+                        logger.info(`Stoploss triggered for ${trade.symbol} at ${currentPrice}`);
                         await this.closeTrade({
                             ...trade,
                             action: 'close',
@@ -210,7 +210,7 @@ class MistralService {
                             exitPrice: currentPrice
                         });
                     } else if (trade.action === 'SELL' && currentPrice >= trade.stopLoss) {
-                        console.log(`Stoploss triggered for ${trade.symbol} at ${currentPrice}`);
+                        logger.info(`Stoploss triggered for ${trade.symbol} at ${currentPrice}`);
                         await this.closeTrade({
                             ...trade,
                             action: 'close',
@@ -223,7 +223,7 @@ class MistralService {
                 // Check take profit
                 if (trade.takeProfit) {
                     if (trade.action === 'BUY' && currentPrice >= trade.takeProfit) {
-                        console.log(`Take profit triggered for ${trade.symbol} at ${currentPrice}`);
+                        logger.info(`Take profit triggered for ${trade.symbol} at ${currentPrice}`);
                         await this.closeTrade({
                             ...trade,
                             action: 'close',
@@ -231,7 +231,7 @@ class MistralService {
                             exitPrice: currentPrice
                         });
                     } else if (trade.action === 'SELL' && currentPrice <= trade.takeProfit) {
-                        console.log(`Take profit triggered for ${trade.symbol} at ${currentPrice}`);
+                        logger.info(`Take profit triggered for ${trade.symbol} at ${currentPrice}`);
                         await this.closeTrade({
                             ...trade,
                             action: 'close',
@@ -241,7 +241,7 @@ class MistralService {
                     }
                 }
             } catch (error) {
-                console.error(`Error checking stoploss for ${trade.symbol}:`, error);
+                logger.error(`Error checking stoploss for ${trade.symbol}:`, error);
             }
         }
     }

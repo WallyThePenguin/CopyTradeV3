@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function initializeDatabase() {
     try {
-        console.log('Initializing database...');
+        logger.info('Initializing database...');
 
         // Ensure all channels from config exist in the database
         const allChannels = [...channelConfig.shortform, ...channelConfig.longform];
@@ -35,13 +35,13 @@ export async function initializeDatabase() {
             });
         }
 
-        console.log('Channels inserted/verified in database');
+        logger.info('Channels inserted/verified in database');
 
         // Initialize trader stats for known traders if needed
         // This is optional but can help with initial setup
 
     } catch (error) {
-        console.error('Error initializing database:', error);
+        logger.error('Error initializing database:', error);
         throw error;
     }
 }
@@ -68,10 +68,10 @@ export async function cleanupOldData(daysToKeep = 30) {
             }
         });
 
-        console.log(`Cleaned up ${deletedMessages.count} old messages and ${deletedTrades.count} old trades`);
+        logger.info(`Cleaned up ${deletedMessages.count} old messages and ${deletedTrades.count} old trades`);
 
     } catch (error) {
-        console.error('Error cleaning up old data:', error);
+        logger.error('Error cleaning up old data:', error);
     }
 }
 

@@ -8,6 +8,7 @@ import { createServer } from 'http';
 import cron from 'node-cron';
 import { checkDataQuality } from '../utils/dataQuality.js';
 import { logger } from '../utils/logger.js';
+import { startJob, finishJob } from '../services/auditLogger.js';
 import { validateEnv } from '../utils/validateEnv.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,9 +25,9 @@ const port = process.env.WEB_PORT || 3000;
 // Initialize trading service once on startup so broker sessions are ready
 try {
     await tradingService.initialize();
-    console.log('Trading service initialized');
+    logger.info('Trading service initialized');
 } catch (err) {
-    console.error('Failed to initialize trading service:', err);
+    logger.error('Failed to initialize trading service', err);
 }
 
 // Create HTTP server
@@ -43,16 +44,16 @@ const wsClients = new Set();
 
 // WebSocket connection handler
 wss.on('connection', (ws) => {
-    console.log('New WebSocket client connected');
+    logger.info('New WebSocket client connected');
     wsClients.add(ws);
 
     ws.on('close', () => {
         wsClients.delete(ws);
-        console.log('WebSocket client disconnected');
+        logger.info('WebSocket client disconnected');
     });
 
     ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
+        logger.error('WebSocket error', error);
         wsClients.delete(ws);
     });
 });
@@ -70,10 +71,13 @@ export function broadcastSignal(signal) {
 // Daily data quality check
 const cronSpec = process.env.DATA_QUALITY_SCHEDULE || '0 4 * * *'; // 04:00 UTC
 cron.schedule(cronSpec, async () => {
+    const job = await startJob('data_quality');
     try {
         const issues = await checkDataQuality();
+        await finishJob(job.id, 'SUCCESS');
         await logger.info('Daily data quality check', { issues });
     } catch (err) {
+        await finishJob(job.id, 'FAILED', err.message);
         await logger.error('Failed daily data quality check', err);
     }
 });
@@ -92,6 +96,15 @@ function authenticateWrite(req, res, next) {
     res.status(401).json({ error: 'Unauthorized' });
 }
 app.use(authenticateWrite);
+
+// Admin authentication
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+function authenticateAdmin(req, res, next) {
+    if (!ADMIN_PASSWORD) return next();
+    const pass = req.headers['x-admin-password'];
+    if (pass && pass === ADMIN_PASSWORD) return next();
+    res.status(401).json({ error: 'Admin Unauthorized' });
+}
 
 // Add CORS for development
 app.use((req, res, next) => {
@@ -113,8 +126,25 @@ app.get('/api/stats', async (req, res) => {
         const stats = await getStats(period, mode, channelId);
         res.json(stats);
     } catch (error) {
-        console.error('Error fetching stats:', error);
+        logger.error('Error fetching stats:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/api/pnl-trend', async (req, res) => {
+    try {
+        const period = req.query.period || 'DAILY';
+        const mode = req.query.mode || 'ALL';
+        const channelId = req.query.channel || null;
+        const timeFilter = getTimeFilter(period);
+        const tradeModeFilter = mode === 'TEST' ? { mode: 'SIMULATED' } : mode === 'PROD' ? { mode: 'PRODUCTION' } : {};
+        const channelFilter = mode === 'TEST' ? { enabled: false } : mode === 'PROD' ? { enabled: true } : {};
+        const modeFilter = { ...tradeModeFilter, channel: channelFilter };
+        const history = await getPerformanceHistory(timeFilter, channelId, modeFilter);
+        res.json(history);
+    } catch (error) {
+        logger.error('Error fetching pnl trend:', error);
+        res.status(500).json({ error: 'Failed to fetch pnl trend' });
     }
 });
 
@@ -126,7 +156,7 @@ app.post('/api/parse-only', async (req, res) => {
         const analysis = await mistralService.analyzeMessage(message);
         res.json({ analysis, processed: false });
     } catch (error) {
-        console.error('Error in parse-only:', error);
+        logger.error('Error in parse-only:', error);
         res.status(500).json({ error: 'Failed to parse message' });
     }
 });
@@ -138,7 +168,7 @@ app.get('/api/channels/:channelId/performance', async (req, res) => {
         const performance = await getChannelPerformance(channelId);
         res.json(performance);
     } catch (error) {
-        console.error('Error fetching channel performance:', error);
+        logger.error('Error fetching channel performance:', error);
         res.status(500).json({ error: 'Failed to fetch channel performance' });
     }
 });
@@ -158,7 +188,7 @@ app.get('/api/channels', async (req, res) => {
         });
         res.json(channels);
     } catch (error) {
-        console.error('Error fetching channels:', error);
+        logger.error('Error fetching channels:', error);
         res.status(500).json({ error: 'Failed to fetch channels' });
     }
 });
@@ -189,7 +219,7 @@ app.get('/api/trades', async (req, res) => {
 
         res.json(trades);
     } catch (error) {
-        console.error('Error fetching trades:', error);
+        logger.error('Error fetching trades:', error);
         res.status(500).json({ error: 'Failed to fetch trades' });
     }
 });
@@ -200,7 +230,7 @@ app.get('/api/health', async (req, res) => {
         const health = await getSystemHealth();
         res.json(health);
     } catch (error) {
-        console.error('Error fetching system health:', error);
+        logger.error('Error fetching system health:', error);
         res.status(500).json({ error: 'Failed to fetch system health' });
     }
 });
@@ -212,7 +242,7 @@ app.get('/api/positions', async (req, res) => {
         const positions = await tradingService.getPositions();
         res.json(positions);
     } catch (error) {
-        console.error('Error fetching positions:', error);
+        logger.error('Error fetching positions:', error);
         res.status(500).json({ error: 'Failed to fetch positions' });
     }
 });
@@ -224,7 +254,7 @@ app.get('/api/order-history', async (req, res) => {
         const orders = await tradingService.getOrderHistory();
         res.json(orders);
     } catch (error) {
-        console.error('Error fetching order history:', error);
+        logger.error('Error fetching order history:', error);
         res.status(500).json({ error: 'Failed to fetch order history' });
     }
 });
@@ -240,7 +270,7 @@ app.get('/api/historical-prices', async (req, res) => {
         const data = await tradingService.getHistoricalPrices(symbol, interval, span);
         res.json(data);
     } catch (error) {
-        console.error('Error fetching historical prices:', error);
+        logger.error('Error fetching historical prices:', error);
         res.status(500).json({ error: 'Failed to fetch historical prices' });
     }
 });
@@ -255,8 +285,77 @@ app.get('/api/order-records', async (req, res) => {
         });
         res.json(records);
     } catch (error) {
-        console.error('Error fetching order records:', error);
+        logger.error('Error fetching order records:', error);
         res.status(500).json({ error: 'Failed to fetch order records' });
+    }
+});
+
+app.get('/api/job-logs', authenticateAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 20;
+        const { jobName, status, startDate, endDate } = req.query;
+        const where = {
+            ...(jobName ? { jobName } : {}),
+            ...(status ? { status } : {}),
+            ...(startDate || endDate
+                ? {
+                    startedAt: {
+                        ...(startDate ? { gte: new Date(startDate) } : {}),
+                        ...(endDate ? { lte: new Date(endDate) } : {})
+                    }
+                }
+                : {})
+        };
+
+        const logs = await prisma.jobLog.findMany({
+            where,
+            orderBy: { startedAt: 'desc' },
+            take: limit
+        });
+        res.json(logs);
+    } catch (error) {
+        logger.error('Error fetching job logs', error);
+        res.status(500).json({ error: 'Failed to fetch job logs' });
+    }
+});
+
+app.get('/api/execution-audit-logs', authenticateAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        const tradeId = req.query.tradeId || undefined;
+        const logs = await prisma.executionAuditLog.findMany({
+            where: tradeId ? { tradeId } : {},
+            orderBy: { timestamp: 'desc' },
+            take: limit
+        });
+        res.json(logs);
+    } catch (error) {
+        logger.error('Error fetching execution logs:', error);
+        res.status(500).json({ error: 'Failed to fetch execution logs' });
+    }
+});
+
+app.get('/api/analysis-metrics', authenticateAdmin, async (req, res) => {
+    try {
+        const metrics = await computeAnalysisMetrics();
+        res.json(metrics);
+    } catch (error) {
+        logger.error('Error computing metrics', error);
+        res.status(500).json({ error: 'Failed to compute metrics' });
+    }
+});
+
+app.get('/api/model-eval-results', authenticateAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 30;
+        const results = await prisma.modelEvalResult.findMany({
+            orderBy: { date: 'desc' },
+            take: limit
+        });
+        res.json(results);
+    } catch (error) {
+        logger.error('Error fetching eval results', error);
+        res.status(500).json({ error: 'Failed to fetch results' });
     }
 });
 
@@ -267,7 +366,7 @@ app.get('/api/data-quality', async (req, res) => {
         const issues = await checkDataQuality();
         res.json({ issues });
     } catch (error) {
-        console.error('Error running data quality check:', error);
+        logger.error('Error running data quality check:', error);
         res.status(500).json({ error: 'Failed to run data quality check' });
     }
 });
@@ -279,7 +378,7 @@ app.get('/api/signals', async (req, res) => {
         const signals = await getRecentSignals(limit);
         res.json(signals);
     } catch (error) {
-        console.error('Error fetching signals:', error);
+        logger.error('Error fetching signals:', error);
         res.status(500).json({ error: 'Failed to fetch signals' });
     }
 });
@@ -293,7 +392,7 @@ app.get('/api/market-updates', async (req, res) => {
         });
         res.json(updates);
     } catch (error) {
-        console.error('Error fetching market updates:', error);
+        logger.error('Error fetching market updates:', error);
         res.status(500).json({ error: 'Failed to fetch updates' });
     }
 });
@@ -307,13 +406,14 @@ app.post('/api/market-updates', async (req, res) => {
         });
         res.json(update);
     } catch (error) {
-        console.error('Error creating market update:', error);
+        logger.error('Error creating market update:', error);
         res.status(500).json({ error: 'Failed to create update' });
     }
 });
 
 // Refresh market news using the Python importer
 app.post('/api/refresh-market-news', async (req, res) => {
+    const job = await startJob('market_news_import');
     try {
         const { spawn } = await import('child_process');
         await new Promise((resolve, reject) => {
@@ -323,14 +423,16 @@ app.post('/api/refresh-market-news', async (req, res) => {
                 code === 0 ? resolve() : reject(new Error(`exit code ${code}`));
             });
         });
+        await finishJob(job.id, 'SUCCESS');
         res.json({ success: true });
     } catch (error) {
-        console.error('Error refreshing market news:', error);
+        await finishJob(job.id, 'FAILED', error.message);
+        logger.error('Error refreshing market news', error);
         res.status(500).json({ error: 'Failed to refresh market news' });
     }
 });
 
-app.get('/api/manual-labels', async (req, res) => {
+app.get('/api/manual-labels', authenticateAdmin, async (req, res) => {
     try {
         const labels = await prisma.manualLabel.findMany({
             take: 20,
@@ -338,13 +440,13 @@ app.get('/api/manual-labels', async (req, res) => {
         });
         res.json(labels);
     } catch (error) {
-        console.error('Error fetching manual labels:', error);
+        logger.error('Error fetching manual labels:', error);
         res.status(500).json({ error: 'Failed to fetch labels' });
     }
 });
 
 // Manually label a message
-app.post('/api/manual-labels', async (req, res) => {
+app.post('/api/manual-labels', authenticateAdmin, async (req, res) => {
     try {
         const { messageId, label, source = 'manual', confidence = 1 } = req.body;
         const manualLabel = await prisma.manualLabel.create({
@@ -352,20 +454,35 @@ app.post('/api/manual-labels', async (req, res) => {
         });
         res.json(manualLabel);
     } catch (error) {
-        console.error('Error creating manual label:', error);
+        logger.error('Error creating manual label:', error);
         res.status(500).json({ error: 'Failed to create label' });
     }
 });
 
-app.get('/api/model-logs', async (req, res) => {
+app.put('/api/manual-labels/:id', authenticateAdmin, async (req, res) => {
     try {
+        const { label, confidence } = req.body;
+        const updated = await prisma.manualLabel.update({
+            where: { id: req.params.id },
+            data: { label, confidence }
+        });
+        res.json(updated);
+    } catch (error) {
+        logger.error('Error updating manual label:', error);
+        res.status(500).json({ error: 'Failed to update label' });
+    }
+});
+
+app.get('/api/model-logs', authenticateAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 20;
         const logs = await prisma.modelLog.findMany({
-            take: 20,
+            take: limit,
             orderBy: { createdAt: 'desc' }
         });
         res.json(logs);
     } catch (error) {
-        console.error('Error fetching model logs:', error);
+        logger.error('Error fetching model logs:', error);
         res.status(500).json({ error: 'Failed to fetch logs' });
     }
 });
@@ -381,7 +498,7 @@ app.get('/api/price-snapshots', async (req, res) => {
         });
         res.json(snapshots);
     } catch (error) {
-        console.error('Error fetching price snapshots:', error);
+        logger.error('Error fetching price snapshots:', error);
         res.status(500).json({ error: 'Failed to fetch snapshots' });
     }
 });
@@ -395,7 +512,7 @@ app.get('/api/market-calendar', async (req, res) => {
         });
         res.json(events);
     } catch (error) {
-        console.error('Error fetching market calendar:', error);
+        logger.error('Error fetching market calendar:', error);
         res.status(500).json({ error: 'Failed to fetch calendar events' });
     }
 });
@@ -407,7 +524,7 @@ app.get('/api/channel-config/:id', async (req, res) => {
         });
         res.json(config);
     } catch (error) {
-        console.error('Error fetching channel config:', error);
+        logger.error('Error fetching channel config:', error);
         res.status(500).json({ error: 'Failed to fetch config' });
     }
 });
@@ -422,7 +539,7 @@ app.post('/api/channel-config', async (req, res) => {
         });
         res.json(config);
     } catch (error) {
-        console.error('Error saving channel config:', error);
+        logger.error('Error saving channel config:', error);
         res.status(500).json({ error: 'Failed to save config' });
     }
 });
@@ -457,7 +574,7 @@ app.get('/api/bot-stats', async (req, res) => {
         });
         res.json(stats);
     } catch (error) {
-        console.error('Error fetching bot stats:', error);
+        logger.error('Error fetching bot stats:', error);
         res.status(500).json({ error: 'Failed to fetch bot stats' });
     }
 });
@@ -506,7 +623,7 @@ app.post('/api/test/trade', async (req, res) => {
 
         res.json({ success: true, trade });
     } catch (error) {
-        console.error('Error creating test trade:', error);
+        logger.error('Error creating test trade:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -529,7 +646,7 @@ app.put('/api/test/trade/:id/close', async (req, res) => {
 
         res.json({ success: true, trade });
     } catch (error) {
-        console.error('Error closing test trade:', error);
+        logger.error('Error closing test trade:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -549,7 +666,7 @@ app.get('/api/test/channels', async (req, res) => {
         });
         res.json(channels);
     } catch (error) {
-        console.error('Error fetching channels:', error);
+        logger.error('Error fetching channels:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1008,7 +1125,12 @@ async function getRecentSignals(limit) {
         include: {
             trade: {
                 include: {
-                    channel: true
+                    channel: true,
+                    executionStats: {
+                        orderBy: { executedAt: 'desc' },
+                        take: 1,
+                        select: { exitConfidence: true }
+                    }
                 }
             }
         }
@@ -1022,13 +1144,64 @@ async function getRecentSignals(limit) {
         triggeredAt: signal.triggeredAt,
         channel: signal.trade.channel.name,
         executed: signal.autoExecuted,
-        profitLoss: signal.trade.profitLoss
+        profitLoss: signal.trade.profitLoss,
+        exitConfidence: signal.trade.executionStats[0]?.exitConfidence || null
     }));
+}
+
+async function computeAnalysisMetrics() {
+    const job = await startJob('analysis_metrics');
+    try {
+        const messages = await prisma.message.findMany({
+            where: {
+                manualLabels: { some: {} },
+                modelLogs: { some: {} }
+            },
+            include: { manualLabels: true, modelLogs: true }
+        });
+        let tp = 0, tn = 0, fp = 0, fn = 0;
+        for (const msg of messages) {
+            const label = msg.manualLabels[0]?.label?.toUpperCase();
+            let pred;
+            try {
+                pred = JSON.parse(msg.modelLogs[0]?.response || '{}');
+            } catch {
+                continue;
+            }
+            const isTrade = pred.isTradeSignal === true;
+            const humanTrade = ['BUY','SELL','EXIT','TRADE'].includes(label);
+            if (isTrade && humanTrade) tp++; else if (!isTrade && !humanTrade) tn++; else if (isTrade && !humanTrade) fp++; else if (!isTrade && humanTrade) fn++;
+        }
+        const total = tp + tn + fp + fn;
+        const avgExitConfObj = await prisma.executionStats.aggregate({ _avg: { exitConfidence: true } });
+
+        const result = await prisma.modelEvalResult.create({
+            data: {
+                totalTested: total,
+                truePositive: tp,
+                trueNegative: tn,
+                falsePositive: fp,
+                falseNegative: fn,
+                modelVersion: 'unknown'
+            }
+        });
+        await finishJob(job.id, 'SUCCESS');
+        return {
+            ...result,
+            accuracy: total ? (tp + tn) / total : 0,
+            precision: tp + fp ? tp / (tp + fp) : 0,
+            recall: tp + fn ? tp / (tp + fn) : 0,
+            avgExitConfidence: avgExitConfObj._avg.exitConfidence || 0
+        };
+    } catch (err) {
+        await finishJob(job.id, 'FAILED', err.message);
+        throw err;
+    }
 }
 
 // Start server with WebSocket support
 server.listen(port, () => {
-    console.log(`Web UI server running at http://localhost:${port}`);
+    logger.info(`Web UI server running at http://localhost:${port}`);
 });
 
 // Export the broadcast function for use in other modules

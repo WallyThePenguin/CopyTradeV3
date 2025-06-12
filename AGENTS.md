@@ -32,6 +32,12 @@ All messages, trades and market events will be collected from roughly fifty trad
 - **Order History Endpoint** – `/api/order-history` exposes recent account orders retrieved from the trading service.
 - **Order Record Storage** – responses from `/api/order-history` are now persisted to an `OrderRecord` table and can be listed via `/api/order-records`.
 - **Open Positions Table** – the dashboard now includes a table that lists current holdings using data from the positions endpoint.
+- **Execution Audit Logs** – broker interactions are stored in an `ExecutionAuditLog` table for full traceability.
+- **Job Logging** – scheduled tasks write to a `JobLog` table instead of log files.
+- **Admin Dashboard** – `/admin.html` requires `ADMIN_PASSWORD` and shows ExecutionAuditLog, ManualLabels, ModelLogs and JobLogs tables. The dashboard also includes a P&L trend chart and a real-time debug panel.
+- **Model Evaluation Chart** – admin panel plots `ModelEvalResult` accuracy over time using Chart.js.
+- **Job Logs Endpoint** – `/api/job-logs` supports filtering by name, status and date range.
+- **Signals Endpoint** – `/api/signals` now returns `exitConfidence` from `ExecutionStats`.
 - **Data Quality Endpoint** – `/api/data-quality` returns any issues found by the quality checker so admins can monitor database health.
 - **Trade Mode Tracking** – trades now include a `mode` field indicating whether they were executed in `PRODUCTION` or `SIMULATED` mode based on the environment and channel settings.
 - **CALL/PUT Normalization** – messages like `SPY 591 CALL` are standardized before analysis so the model parses them correctly.

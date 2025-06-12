@@ -124,6 +124,7 @@ async function processMessage(message, isShortform = true) {
             channelType: channelConfig?.type || (isShortform ? 'shortform' : 'longform'),
             signalType: analysis.signalType || 'ENTRY', // make sure this is passed
             author: message.author.id,
+            confidence: analysis.confidence,
         });
 
             await tradeTracker.logTradeSignal({

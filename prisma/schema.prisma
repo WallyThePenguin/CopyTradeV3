@@ -144,6 +144,7 @@ model ExecutionStats {
   executedAt    DateTime
   executedPrice Float
   exitPrice     Float?
+  exitConfidence Float?
   result        String
   pnl           Float?
   durationSec   Int?
@@ -291,4 +292,36 @@ model BotStats {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+model ExecutionAuditLog {
+  id          String   @id @default(uuid())
+  tradeId     String   @map("trade_id")
+  channelId   String   @map("channel_id")
+  type        String
+  statusCode  Int?
+  rawResponse Json
+  durationMs  Int?
+  timestamp   DateTime @default(now())
+  Trade       Trade    @relation(fields: [tradeId], references: [id])
+}
+
+model JobLog {
+  id        String   @id @default(uuid())
+  jobName   String
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+  status    String
+  errorText String?
+}
+
+model ModelEvalResult {
+  id            String   @id @default(uuid())
+  date          DateTime @default(now())
+  totalTested   Int
+  truePositive  Int
+  trueNegative  Int
+  falsePositive Int
+  falseNegative Int
+  modelVersion  String
+  notes         String?
 }

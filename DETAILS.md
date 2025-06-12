@@ -11,6 +11,9 @@ This file provides a high level overview of how the main pieces of the system fi
 * **services/robinhood.js** – Wrapper around the Robinhood API. Records price snapshots and provides quotes for trade execution. Quotes are also used by `mistral.js` to check stoploss and take‑profit levels. The service now exposes an `initialize()` method so other modules can ensure a session is available, automatically re‑logs when sessions expire and includes a `getHistoricalPrices` helper to retrieve recent candles.
 * **services/robinhoodSimulator.js** – Simulation layer used when a channel is disabled. Generates price data and maintains virtual positions while still writing to the database. A helper `getPositions()` method exposes the current simulated holdings.
 * **Trade mode field** – `TradeTracker` now stores a `mode` property on each trade so the dashboard can distinguish between production and simulated executions.
+* **Execution audit logging** – a new `ExecutionAuditLog` table records broker responses whenever orders are placed or closed using `auditLogger.logExecution`.
+* **Job logging** – scheduled tasks like the daily data quality check create entries in the `JobLog` table so failures are visible in the admin panel. The `/api/job-logs` route supports filters for easier review.
+* **Admin panel** – `/admin.html` prompts for `ADMIN_PASSWORD` and lists ExecutionAuditLog, ManualLabels, ModelLogs and JobLogs for review and editing. A new chart visualizes `ModelEvalResult` accuracy trends.
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI. The server now initializes the trading service on startup so Robinhood sessions are ready. A `/api/positions` route returns open positions from the active trading service, `/api/order-history` lists recent orders and `/api/historical-prices` fetches candle data. Order history responses are persisted in an `OrderRecord` table which is exposed via `/api/order-records`. The web UI shows these holdings in a new table.
 * **Trader stats filter** – `getTraderStats` filters using the related channel's status rather than a nonexistent `enabled` field on the table. This change eliminates the Prisma validation error seen in earlier versions.
 * **Signal query fix** – `getSignalQuality` now references `trade.channel.enabled` so filtering by mode works for the `TradeSignal` table.
@@ -39,6 +42,7 @@ Good data is vital for training models and making decisions. We should track iss
 Run `npm run quality` to generate a report of trades or messages with missing values. The script now flags invalid statuses and zero quantities in addition to missing prices and option types so issues can be fixed quickly.
 The same checks are available via the `/api/data-quality` endpoint so results can be viewed from the dashboard.
 A cron task in `web/server.js` now runs this check daily and logs the output.
+The dashboard also visualizes cumulative profit with a sparkline and includes a debug panel that streams recent LLM decisions over WebSocket.
 
 ## Missing Pieces
 * Several Prisma tables lacked write paths. `marketUpdate` and `manualLabel` records can be created through the Web UI API and recent work added persistence for `tradeSignal` and `channelConfig`.

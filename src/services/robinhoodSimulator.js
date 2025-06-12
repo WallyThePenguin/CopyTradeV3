@@ -16,7 +16,7 @@ class RobinhoodSimulator {
 
     async initialize() {
         if (this.initialized) return;
-        console.log('Initializing Robinhood simulator...');
+        logger.info('Initializing Robinhood simulator...');
         await robinhoodService.initialize();
         this.initialized = true;
     }
@@ -41,7 +41,7 @@ class RobinhoodSimulator {
 
             return quote;
         } catch (error) {
-            console.error(`Error getting quote for ${symbol}:`, error);
+            logger.error(`Error getting quote for ${symbol}:`, error);
             throw error;
         }
     }
@@ -96,7 +96,7 @@ class RobinhoodSimulator {
                 averagePrice: newAveragePrice
             });
 
-            console.log(`Simulated ${side.toUpperCase()} order executed:`, {
+            logger.info(`Simulated ${side.toUpperCase()} order executed:`, {
                 symbol,
                 quantity,
                 price: executionPrice,
@@ -118,7 +118,7 @@ class RobinhoodSimulator {
                 position: this.activePositions.get(positionKey)
             };
         } catch (error) {
-            console.error('Error placing simulated order:', error);
+            logger.error('Error placing simulated order:', error);
             throw error;
         }
     }
@@ -201,7 +201,7 @@ const executionStats = await prisma.executionStats.create({
                 averagePrice: newAveragePrice
             });
 
-            console.log(`Simulated ${optionType} ${side.toUpperCase()} option order executed:`, {
+            logger.info(`Simulated ${optionType} ${side.toUpperCase()} option order executed:`, {
                 symbol,
                 strikePrice,
                 expirationDate,
@@ -228,7 +228,7 @@ const executionStats = await prisma.executionStats.create({
                 position: this.activePositions.get(positionKey)
             };
         } catch (error) {
-            console.error('Error placing simulated option order:', error);
+            logger.error('Error placing simulated option order:', error);
             throw error;
         }
     }
@@ -290,7 +290,7 @@ async getExitPrice(symbol, strikePrice, optionType, expirationDate, entryPrice) 
     const simulatedExit = entryPrice * (1 + movement);
     const exitPrice = parseFloat(simulatedExit.toFixed(2));
 
-    console.log(`[SIMULATOR EXIT] ${symbol} ${strikePrice}${optionType} → $${exitPrice}`);
+    logger.info(`[SIMULATOR EXIT] ${symbol} ${strikePrice}${optionType} → $${exitPrice}`);
 
     await this.prisma.priceSnapshot.create({
         data: {
