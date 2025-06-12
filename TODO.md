@@ -1,52 +1,158 @@
-# TODO / Suggestions
+# TODO / Roadmap for Production-Ready CopyTradeV3
 
-The following items outline areas where the project could be expanded or refined. They are based on the current code base and the goal of capturing detailed trade data for algorithmic training.
+This file reflects the next major milestones needed to move from MVP toward a polished, long-term product. It merges unfinished tasks from the original TODO.md with new production-level goals.
 
-Progress: model logs are now persisted whenever a message is analysed. Manual labels
-and market updates can be created through the Web UI API. A `/api/market-calendar`
-endpoint now exposes upcoming economic events from the new `MarketCalendar` table.
-The market calendar is refreshed automatically each night and both Node and Python
-write to the same log directory.
+---
 
-- **Improve Webhook Embeds** – include all trade fields (symbol, strike, expiry, P/L and author) so Discord notifications show meaningful context. *Completed: embeds now include these details.*
-- **Integrate Live Pricing** – fetch actual entry and exit prices from a broker or market data API to replace simulated values. *In progress: `getCurrentPrice` in `mistral.js` now retrieves real quotes and `/api/historical-prices` returns recent candles.*
-- **Persist Every Table** – add write logic for all schema models. `TradeSignal` and `ChannelConfig` now have create/update paths alongside `MarketUpdate` and `ManualLabel`.
-- **Order Record Persistence** – store retrieved orders in a dedicated table so historical executions can be reviewed. `/api/order-records` now exposes this data.
-- **Expose Data Quality Results** – add an endpoint that runs `npm run quality` logic and returns the issues so admins can monitor database health from the dashboard. *New `/api/data-quality` endpoint implemented.*
-- **Unified Logging** – add a central logging service or library so both Node.js and Python components record structured logs. *Done: Node and Python use file-based loggers under `data/logs`.*
-  - Add automatic cleanup so old log files are deleted after 30 days. *Implemented in `src/utils/logger.js`.*
-- **Environment Loading** – ensure the FastAPI service reads variables from `.env` automatically so manual exports aren't required. *Implemented via `load_dotenv` in `mistral_server.py`.*
-- **Validate Environment** – add a utility that exits on startup when essential variables are missing so misconfigurations are caught early. *Implemented via `validateEnv` used by Node entry points.*
-- **Authentication** – basic API key protection added to POST routes. Review session based auth for the Web UI in the future.
-- **WebUI Enhancements** –
-  - Fix P&L calculation issues in trader stats. *Done: `updateTraderStats` now ignores trades without a profit/loss value.*
-  - Display which channel or trader executed each trade in the recent trades table. *Done*
-  - Ensure period-selection buttons update the timeframe correctly. *Done: buttons now remain highlighted when modes change.*
-  - Allow combined performance view across all simulated channels. *Done: channel selector reloads by mode and "Simulated" now aggregates disabled channels.*
-  - When "Production" mode is selected, show only enabled channels. *Done via `mode` query on `/api/channels`.*
-  - Add an endpoint to fetch open positions so the dashboard can display current holdings. *Implemented as `/api/positions`.*
-  - Add an endpoint to view recent order history so trades can be audited easily. *Implemented as `/api/order-history`.*
-  - Show open positions in the dashboard using the new endpoint. *Done: a table now lists active holdings.*
-  - Provide a way to fetch recent historical prices for charts. *New `/api/historical-prices` endpoint added.*
-  - Fix trader stats filtering bug so the query references the channel relation instead of a non-existent `enabled` field. *Done – resolved by filtering via `channel.enabled` which stops the PrismaClientValidationError.*
-  - Fix signal quality query so it filters through `trade.channel.enabled`. *Done – prevents PrismaClientValidationError on startup.*
-  - Ensure `TraderStats` creation includes `bestSymbols` and `tradingHours` arrays. *Done – upsert now supplies empty arrays.*
-  - **Data Analysis Scheduling** – verify that `channel_analyzer.py` runs daily and store its results. *Scheduled along with nightly market calendar updates and metrics now persist to `PerformanceHistory`.*
-  - **Trade Mode Tracking** – store whether a trade was simulated or live based on environment and channel settings so stats separate correctly. *Implemented via new `mode` field on `Trade`.*
-  - **CALL/PUT Parsing Fix** – messages like "SPY 591 CALL" are normalized before analysis so they no longer split into two symbols.
-- **Simulator Initialization** – the Robinhood simulator now only initializes once to prevent log spam.
-- **Torch Upgrade** – update Python requirements to `torch==2.5.1+cu121` so CUDA 12.1 builds install cleanly.
-- **Confidence Threshold** – expose a `CONFIDENCE_THRESHOLD` env variable so exit signal detection can be tuned without code changes.
-- **Mistral Backend Docs** – create `mistral_backend.md` to explain the FastAPI server and its environment settings.
+## 🔁 DATA ENRICHMENT
 
-- **Automated Data Quality Logs** – the Node server now runs the quality script every day and writes the results to `data/logs`.
+- [ ] **Enrich `ExecutionStats` Table**  
+  - Store detailed broker execution metadata (e.g., filled quantity, timestamps, order type, time-in-force).
+  - Include per-leg fills if available.
 
-- **Repository Cleanup** – remove committed virtual environments and document setup commands to keep the repository lightweight. *`api/venv` is now git‑ignored and recreated with `setup.sh` or `setup.bat`.* `.env` is now git‑ignored and a `.env.example` file lists the required variables.
-- **Documentation** – expand `SCHEMA_DETAILS.md` and `DETAILS.md` with up to date explanations of features and database usage.
-- **Robinhood Initialization Fix** – expose an `initialize()` method on `robinhood.js` so the simulator and trading service can safely start. *Completed: `web/server.js` initializes the trading service on startup and `TradeTracker` ensures it before each order.*
-- **Robinhood Session Refresh** – automatically re-login when the stored token becomes invalid so trades can continue without manual intervention. *Implemented in `robinhood.js`.*
- - **Market Calendar Table** – a `MarketCalendar` model now exists and events can be queried via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` nightly.*
- - **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically. *In progress: `api/market_news.py` imports a JSON feed each night via the FastAPI scheduler and can now be triggered on demand via `/api/refresh-market-news`.*
- - **Data Quality Plan** – run the new `npm run quality` script to flag missing fields or invalid trades. The script now also checks for invalid trade statuses and zero quantities. Assign a steward to review the report regularly.
+- [ ] **Add `ExecutionAuditLog` Table**  
+  - Capture every API response and decision related to order lifecycle.
+  - Used to reconstruct audit trail for real/live trades.
 
-These improvements will help achieve the goal of collecting comprehensive trader data while keeping the system maintainable and secure.
+- [ ] **Expand Robinhood Data Capture**
+  - Pull full instrument metadata (sector, market cap, etc.)
+  - Option chain greeks (IV, delta, theta) where available.
+  - Persist all of this into new or existing tables.
+
+- [ ] **Track Message → Trade Lifecycle**
+  - Log message metadata, LLM decision confidence, and resulting trade into a single unified view.
+
+- [ ] **Ensure every Prisma model has a write path**
+  - Confirm all schema models (existing and future) are persisted. Originally missing models like `TradeSignal`, `ChannelConfig` now supported — ensure all others are covered.
+
+---
+
+## 📊 MODEL ACCURACY & CONFIDENCE
+
+- [ ] **Implement `/api/analysis-metrics` Endpoint**  
+  - Calculates precision/recall, confusion matrix, model drift.
+  - Uses `ManualLabel` and `ModelLog` tables.
+
+- [ ] **UI View for Model Logs**  
+  - View prompts, responses, confidence score, and result.
+  - Filter by trader, keyword, or confidence range.
+
+- [ ] **Exit Detection Evaluation Dashboard**
+  - Highlight low-confidence exits.
+  - Manual override possible via dashboard.
+
+- [ ] **Regex & Prompt Tuning**
+  - Expand slang/emoji/abbreviation detection.
+  - Add newer patterns from recent trading messages.
+  - Use `CONFIDENCE_THRESHOLD` and scoring logic to control behavior.
+
+---
+
+## 🌐 WEB UI UPGRADE
+
+- [ ] **Admin Dashboard (All Tables)**
+  - Read views for every table: Messages, Trades, ModelLogs, MarketUpdates, etc.
+  - Write access for: ManualLabels, ChannelConfigs, MarketUpdates.
+
+- [ ] **P&L Trend View**
+  - Per-trade P&L sparkline
+  - Cumulative profit tracking over time
+
+- [ ] **Real-Time Debug Panel**
+  - Recent trade decisions, model responses, and WebSocket status
+
+- [ ] **Error / Data Quality Alerts**
+  - View daily logs of missing/invalid data
+  - Trigger re-analysis or repair from UI
+
+- [ ] **Show per-trade channel/trader info in UI**
+  - Done in MVP, verify it's consistent across all views
+
+- [ ] **Fix P&L bugs in trader stats**
+  - Ensure trades without exit prices are excluded from average calcs
+
+- [ ] **UI mode selector improvements**
+  - Period and mode toggles should reflect active view cleanly
+
+---
+
+## 🧠 BACKEND INFRASTRUCTURE
+
+- [ ] **Create Test Suites**
+  - Jest: REST endpoints, message → trade
+  - Pytest: LLM analysis, scheduled job integrity
+
+- [ ] **Dockerize Backend**
+  - Node + Python services in container
+  - GPU support for Mistral
+
+- [ ] **Staging Mode Support**
+  - Toggle to point to a testing DB + mock Robinhood
+
+- [ ] **Webhook Retry Queue**
+  - If delivery fails, retry posting LLM results or trade notifications
+
+- [ ] **Add file-based job logging**
+  - Extend structured logging for job status, include timestamp and result
+
+---
+
+## 📆 SCHEDULING / CRONS
+
+- [ ] **Verify Daily Job Health**
+  - Channel Analyzer
+  - Market Calendar
+  - Market News Import
+  - Data Quality Check
+
+- [ ] **Add Job Logs Table**
+  - Store timestamped records of each nightly job run
+  - Include error messages if any
+
+- [ ] **Add `/api/refresh-market-news` endpoint**
+  - Already implemented — confirm UI can call this on demand
+
+---
+
+## 🔐 SECURITY & STABILITY
+
+- [ ] **Web UI Auth Layer**
+  - Add password or token-based access
+  - Admin-only pages
+
+- [ ] **Prisma Input Validation**
+  - Sanitize inputs from API POSTs
+
+- [ ] **Rate Limiting**
+  - Prevent abuse of POST endpoints (e.g. manual labels)
+
+- [ ] **Session Token Audit for Robinhood**
+  - Alert if session is invalid and can't auto-refresh
+
+- [ ] **Validate environment vars at startup**
+  - Done for Node; ensure Python service mirrors this behavior
+
+---
+
+## 🧠 LONG TERM
+
+- [ ] **Alternative Broker Support**
+  - Investigate Alpaca, IBKR, TastyTrade APIs
+
+- [ ] **Automated Trade Evaluation Model**
+  - Train ML model on labeled signals + historical outcomes
+  - Output signal confidence or P&L projection
+
+- [ ] **Export / Backup Tools**
+  - Manual and scheduled PostgreSQL dumps
+
+- [ ] **Quantitative Metrics Leaderboard**
+  - Rank channels based on Sharpe, drawdown, win rate, and more
+
+- [ ] **Old log cleanup job**
+  - Ensure all logs older than 30 days are purged (already partially implemented)
+
+---
+
+This document should evolve weekly as more subsystems are stabilized and verified.
+
