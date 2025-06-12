@@ -307,6 +307,24 @@ app.post('/api/market-updates', async (req, res) => {
     }
 });
 
+// Refresh market news using the Python importer
+app.post('/api/refresh-market-news', async (req, res) => {
+    try {
+        const { spawn } = await import('child_process');
+        await new Promise((resolve, reject) => {
+            const child = spawn('python', ['api/market_news.py']);
+            child.on('error', reject);
+            child.on('close', code => {
+                code === 0 ? resolve() : reject(new Error(`exit code ${code}`));
+            });
+        });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error refreshing market news:', error);
+        res.status(500).json({ error: 'Failed to refresh market news' });
+    }
+});
+
 app.get('/api/manual-labels', async (req, res) => {
     try {
         const labels = await prisma.manualLabel.findMany({

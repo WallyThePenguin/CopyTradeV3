@@ -30,6 +30,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 - **Trade Signal & Channel Config Storage**: Confirmed signals and per-channel settings persist through dedicated endpoints.
 - **Market Calendar**: A helper script populates a `MarketCalendar` table with events from an ICS feed, and `/api/market-calendar` exposes upcoming events.
 - **Market News Importer**: `api/market_news.py` reads a JSON feed nightly to create `MarketUpdate` records automatically.
+- **News Refresh Endpoint**: `/api/refresh-market-news` triggers the importer so fresh headlines can be pulled on demand.
 - **Daily Calendar Updates**: The FastAPI server refreshes the market calendar every night so new events appear automatically.
 - **Performance History**: Channel analysis results are stored in the `PerformanceHistory` table whenever configs are updated.
 - **Unified Logging**: Both the Node and Python services write logs to `data/logs` for easier troubleshooting.
@@ -92,7 +93,10 @@ The virtual environment created by `setup.sh` (or `setup.bat`) lives in `api/ven
   - Create a market summary record: `{ "channelId": "id", "messageId": "123", "summary": "FOMC today", "sentiment": "NEUTRAL" }`
   - Updates may come from news APIs or broker feeds so the database tracks significant headlines.
   - Include `X-API-KEY` header if `API_KEY` is configured
-- **POST /api/manual-labels**
+- **POST /api/refresh-market-news**
+  - Manually trigger `api/market_news.py` to pull the latest headlines defined by `NEWS_FEED_PATH`.
+  - Useful for forcing a refresh outside the nightly schedule.
+  - **POST /api/manual-labels**
   - Label a message manually: `{ "messageId": "123", "label": "SCALP", "confidence": 0.9 }`
   - Use these labels to build a high quality training set for future models.
   - Include `X-API-KEY` header if `API_KEY` is configured

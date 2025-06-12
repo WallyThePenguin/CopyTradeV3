@@ -12,7 +12,7 @@ This file provides a high level overview of how the main pieces of the system fi
 * **web/server.js** – Express server that exposes REST endpoints and a WebSocket for real‑time updates used by the Web UI. The server now initializes the trading service on startup so Robinhood sessions are ready. A `/api/positions` route returns open positions from the active trading service, `/api/order-history` lists recent orders and `/api/historical-prices` fetches candle data. Order history responses are persisted in an `OrderRecord` table which is exposed via `/api/order-records`. The web UI shows these holdings in a new table.
 * **Authentication** – POST routes honor an `X-API-KEY` header when `API_KEY` is defined in the environment. This secures market updates, manual labels and channel configuration.
 * **market calendar pipeline** – nightly job that fetches scheduled events like FOMC meetings and stores them in a `MarketCalendar` table. Events can be queried via `/api/market-calendar` for display in the dashboard.
-* **market news importer** – a new script `api/market_news.py` runs nightly to ingest headlines from a JSON feed into the `MarketUpdate` table.
+* **market news importer** – a script `api/market_news.py` runs nightly to ingest headlines from a JSON feed into the `MarketUpdate` table. A companion endpoint `/api/refresh-market-news` can invoke this importer manually.
 
 ### Python FastAPI Service (`api/`)
 * **mistral_server.py** – Loads the Mistral LLM, parses messages and returns structured trade information. It now reads environment variables from `.env` automatically and schedules channel analysis, market calendar updates and the nightly news importer.

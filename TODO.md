@@ -36,7 +36,7 @@ write to the same log directory.
 - **Robinhood Initialization Fix** – expose an `initialize()` method on `robinhood.js` so the simulator and trading service can safely start. *Completed: `web/server.js` initializes the trading service on startup and `TradeTracker` ensures it before each order.*
 - **Robinhood Session Refresh** – automatically re-login when the stored token becomes invalid so trades can continue without manual intervention. *Implemented in `robinhood.js`.*
  - **Market Calendar Table** – a `MarketCalendar` model now exists and events can be queried via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` nightly.*
- - **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically. *In progress: `api/market_news.py` imports a JSON feed each night via the FastAPI scheduler.*
+ - **Auto-Populate Market Updates** – hook the `MarketUpdate` table to a news feed or broker API so live market headlines are captured automatically. *In progress: `api/market_news.py` imports a JSON feed each night via the FastAPI scheduler and can now be triggered on demand via `/api/refresh-market-news`.*
  - **Data Quality Plan** – run the new `npm run quality` script to flag missing fields or invalid trades. The script now also checks for invalid trade statuses and zero quantities. Assign a steward to review the report regularly.
 
 These improvements will help achieve the goal of collecting comprehensive trader data while keeping the system maintainable and secure.

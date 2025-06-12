@@ -29,7 +29,8 @@ This document collects ideas and reminders for future contributors (including fu
 - **Market Calendar Table**
   - A `MarketCalendar` model and Python ingestion script now exist. Upcoming events are available via `/api/market-calendar`. *The FastAPI server now calls `update_market_calendar()` every night so upcoming catalysts appear automatically.*
  - **Automatic Market Updates**
-  - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud. *`api/market_news.py` now imports a JSON feed nightly as a proof of concept.*
+ - Populate `MarketUpdate` entries from news feeds or broker APIs. Robinhood surfaces market news on individual stocks; consider polling these endpoints or a free service like IEX Cloud. *`api/market_news.py` now imports a JSON feed nightly as a proof of concept.*
+  - A POST endpoint `/api/refresh-market-news` was added so the importer can be triggered manually from the dashboard.
 - **Data Quality Standards**
   - Poor data hurts model training and decision making. The `npm run quality` script now reports missing prices, invalid option types, bad statuses and zero quantities. Define rules based on this output and appoint a steward to check the report regularly.
   - A cron job now runs the quality script every day and logs the results so issues are tracked automatically.
