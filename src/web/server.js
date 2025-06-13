@@ -115,7 +115,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../../dist/web')));
 
 // API Routes
 app.get('/api/stats', async (req, res) => {
