@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 import tradingService from './tradingService.js';
 import robinhoodSimulator from './robinhoodSimulator.js';
 import { logExecution } from './auditLogger.js';
+import { logger } from '../utils/logger.js';
 
 class TradeTracker {
     constructor() {

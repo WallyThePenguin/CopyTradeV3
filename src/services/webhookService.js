@@ -1,4 +1,5 @@
 import { WebhookClient, MessageEmbed } from 'discord.js-selfbot-v13';
+import { logger } from '../utils/logger.js';
 
 /**
  * Send a trade signal webhook with Discord embed
