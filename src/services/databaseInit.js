@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { channels as channelConfig } from '../config/channels.js';
+import { logger } from '../utils/logger.js';
 
 const prisma = new PrismaClient();
 

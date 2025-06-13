@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import robinhoodService from './robinhood.js';
 import dotenv from 'dotenv';
+import { logger } from '../utils/logger.js';
 
 dotenv.config();
 

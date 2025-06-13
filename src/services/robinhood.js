@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import { PrismaClient } from '@prisma/client';
+import { logger } from '../utils/logger.js';
 
 const prisma = new PrismaClient();
 const __filename = fileURLToPath(import.meta.url);
