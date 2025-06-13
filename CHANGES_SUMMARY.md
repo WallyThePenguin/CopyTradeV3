@@ -6,3 +6,4 @@
 - Admin UI now includes ModelEval tab with Chart.js and uses unified logger.
 
 - Replaced web UI with React TypeScript admin dashboard and switched server to serve dist/web
+- Added migration for trade mode column
