@@ -5,3 +5,4 @@
 - Implemented `/api/model-eval-results` and improved `/api/job-logs` route.
 - Admin UI now includes ModelEval tab with Chart.js and uses unified logger.
 
+- Replaced web UI with React TypeScript admin dashboard and switched server to serve dist/web
