@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
 
 export interface TradeRecord {
   tradeId: string;
@@ -30,7 +30,7 @@ const formatDuration = (sec?: number) => {
 };
 
 const TradeLogTable: React.FC<Props> = ({ trades }) => (
-  <TableContainer>
+  <TableContainer component={Paper}>
     <Typography variant="h6" gutterBottom>Trade Log</Typography>
     <Table size="small">
       <TableHead>
