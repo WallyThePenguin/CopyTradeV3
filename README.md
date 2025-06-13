@@ -59,7 +59,7 @@ CopyTradeV3 is an advanced trading message analysis backend that combines:
 
 1. **Clone the repo**
 2. **Install dependencies** by running `bash setup.sh` on Linux/macOS or `setup.bat` on Windows. This script creates a fresh Python virtual environment under `api/venv`, installs `torch==2.5.1+cu121` from the CUDA repository and installs all remaining Python and Node packages.
-3. **Copy `.env.example` to `.env`** and update the values for your environment. At minimum set `WEBHOOK_URL`, `DISCORD_TOKEN` and database credentials. `API_KEY` secures write routes and `NEWS_FEED_PATH` can point to a file or URL for market headlines. `WEB_PORT` controls the dashboard port and `CONFIDENCE_THRESHOLD`, `CONFIDENCE_BASE`, `CONFIDENCE_STEP` configure exit detection sensitivity.
+3. **Copy `.env.example` to `.env`** and update the values for your environment. At minimum set `WEBHOOK_URL`, `DISCORD_TOKEN` and database credentials. `API_KEY` secures write routes, `ADMIN_PASSWORD` protects the admin dashboard, and `NEWS_FEED_PATH` can point to a file or URL for market headlines. `WEB_PORT` controls the dashboard port and `CONFIDENCE_THRESHOLD`, `CONFIDENCE_BASE`, `CONFIDENCE_STEP` configure exit detection sensitivity.
    The FastAPI service reads this file automatically on startup.
    The Node services validate required variables on launch and will exit if any are missing.
 4. **Configure your model path and GPU settings** in `mistral_server.py` (see `initialize_model`)
