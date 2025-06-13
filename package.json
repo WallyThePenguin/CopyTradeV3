@@ -10,7 +10,9 @@
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
         "prisma:studio": "prisma studio",
-        "quality": "node src/utils/dataQuality.js"
+        "quality": "node src/utils/dataQuality.js",
+        "web-dev": "vite",
+        "web-build": "vite build"
     },
     "dependencies": {
         "@prisma/client": "^5.10.2",
@@ -23,10 +25,20 @@
         "node-fetch": "^3.3.2",
         "node-llama-cpp": "^2.8.12",
         "robinhood-api": "^1.0.0",
-        "ws": "^8.18.2"
+        "ws": "^8.18.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "@mui/material": "^5.17.1",
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0"
     },
     "devDependencies": {
         "nodemon": "^3.1.0",
-        "prisma": "^5.10.2"
+        "prisma": "^5.10.2",
+        "typescript": "^5.4.5",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "vite": "^5.2.0",
+        "@vitejs/plugin-react": "^4.2.0"
     }
 }
