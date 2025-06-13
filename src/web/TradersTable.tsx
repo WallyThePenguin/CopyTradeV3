@@ -13,7 +13,8 @@ import {
   InputLabel,
   Typography,
   Chip,
-  Box
+  Box,
+  Paper
 } from '@mui/material';
 
 export interface TraderInfo {
@@ -35,7 +36,7 @@ interface Props {
 }
 
 const TradersTable: React.FC<Props> = ({ traders, onToggleAutoCopy, onChangeMode }) => (
-  <TableContainer>
+  <TableContainer component={Paper}>
     <Typography variant="h6" gutterBottom>
       Trader Channels
     </Typography>

@@ -41,6 +41,7 @@ const wss = new WebSocketServer({
 
 // Store connected WebSocket clients
 const wsClients = new Set();
+const channelModes = new Map();
 
 // WebSocket connection handler
 wss.on('connection', (ws) => {
@@ -186,11 +187,46 @@ app.get('/api/channels', async (req, res) => {
             where,
             orderBy: { name: 'asc' }
         });
-        res.json(channels);
+        const result = channels.map(ch => ({
+            channelId: ch.id,
+            name: ch.name,
+            autoCopy: ch.enabled,
+            mode: channelModes.get(ch.id) || 'score',
+            winRate: ch.winRate,
+            avgReturn: ch.avgProfit,
+            tradeCount: ch.totalTrades,
+            score: ch.performance
+        }));
+        res.json(result);
     } catch (error) {
         logger.error('Error fetching channels:', error);
         res.status(500).json({ error: 'Failed to fetch channels' });
     }
+});
+
+// Toggle auto-copy for a channel
+app.patch('/api/channels/:id/auto-copy', async (req, res) => {
+    try {
+        const { enabled } = req.body;
+        await prisma.channel.update({
+            where: { id: req.params.id },
+            data: { enabled: !!enabled }
+        });
+        res.json({ success: true });
+    } catch (error) {
+        logger.error('Error updating auto-copy', error);
+        res.status(500).json({ error: 'Failed to update auto-copy' });
+    }
+});
+
+// Change copy mode for a channel
+app.patch('/api/channels/:id/mode', async (req, res) => {
+    const { mode } = req.body;
+    if (mode !== 'manual' && mode !== 'score') {
+        return res.status(400).json({ error: 'Invalid mode' });
+    }
+    channelModes.set(req.params.id, mode);
+    res.json({ success: true });
 });
 
 // List recent trades with optional mode/channel filter
@@ -287,6 +323,30 @@ app.get('/api/order-records', async (req, res) => {
     } catch (error) {
         logger.error('Error fetching order records:', error);
         res.status(500).json({ error: 'Failed to fetch order records' });
+    }
+});
+
+// Approve a pending trade (placeholder implementation)
+app.post('/api/trades/:id/approve', async (req, res) => {
+    try {
+        const trade = await prisma.trade.findUnique({ where: { id: req.params.id } });
+        if (trade) {
+            broadcastSignal({ type: 'trade_opened', data: trade });
+        }
+        res.json({ success: true });
+    } catch (error) {
+        logger.error('Error approving trade', error);
+        res.status(500).json({ error: 'Failed to approve trade' });
+    }
+});
+
+// Optional reject endpoint
+app.post('/api/trades/:id/reject', async (req, res) => {
+    try {
+        res.json({ success: true });
+    } catch (error) {
+        logger.error('Error rejecting trade', error);
+        res.status(500).json({ error: 'Failed to reject trade' });
     }
 });
 

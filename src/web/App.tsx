@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Snackbar } from '@mui/material';
+import { AppBar, Toolbar, Typography, Container, Grid, Snackbar, Paper } from '@mui/material';
 import TradersTable, { TraderInfo } from './TradersTable';
 import TradeLogTable, { TradeRecord } from './TradeLog';
 import ApproveTradeModal, { TradeSignal } from './ApproveTradeModal';
@@ -7,7 +7,7 @@ import ApproveTradeModal, { TradeSignal } from './ApproveTradeModal';
 const WS_URL = (() => {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.host;
-  return `${protocol}//${host}/ws`;
+  return `${protocol}//${host}/ws/signals`;
 })();
 
 const App: React.FC = () => {
@@ -102,13 +102,24 @@ const App: React.FC = () => {
     }
   };
 
+  const closeModal = () =>
+    setPending((prev) => {
+      const [next, ...rest] = prev;
+      if (next) {
+        setModal(next);
+      } else {
+        setModal(null);
+      }
+      return rest;
+    });
+
   const handleApprove = async (trade: TradeSignal) => {
     try {
       await fetch(`/api/trades/${trade.tradeId}/approve`, { method: 'POST' });
     } catch {
       setErrorMsg('Failed to approve trade');
     }
-    setModal(null);
+    closeModal();
   };
 
   const handleReject = async (trade: TradeSignal) => {
@@ -117,26 +128,39 @@ const App: React.FC = () => {
     } catch {
       console.warn('reject failed');
     }
-    setModal(null);
+    closeModal();
   };
 
   return (
-    <Container sx={{ py: 4 }} maxWidth="xl">
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <TradersTable traders={traders} onToggleAutoCopy={handleToggleAutoCopy} onChangeMode={handleChangeMode} />
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            CopyTrade Dashboard
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Container sx={{ py: 4 }} maxWidth="xl">
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 2 }}>
+              <TradersTable traders={traders} onToggleAutoCopy={handleToggleAutoCopy} onChangeMode={handleChangeMode} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 2 }}>
+              <TradeLogTable trades={tradeLog} />
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <TradeLogTable trades={tradeLog} />
-        </Grid>
-      </Grid>
 
-      {modal && (
-        <ApproveTradeModal trade={modal} onApprove={handleApprove} onReject={handleReject} onClose={() => setModal(null)} />
-      )}
+        {modal && (
+          <ApproveTradeModal trade={modal} onApprove={handleApprove} onReject={handleReject} onClose={closeModal} />
+        )}
 
-      <Snackbar open={!!errorMsg} message={errorMsg} autoHideDuration={6000} onClose={() => setErrorMsg(null)} />
-    </Container>
+        <Snackbar open={!!errorMsg} message={errorMsg} autoHideDuration={6000} onClose={() => setErrorMsg(null)} />
+      </Container>
+    </>
   );
 };
 
