@@ -6,3 +6,4 @@ api/venv
 __pycache__
 **/__pycache__/
 prisma/migrations
+dist/
