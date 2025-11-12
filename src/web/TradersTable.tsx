@@ -35,57 +35,60 @@ interface Props {
   onChangeMode: (id: string, mode: 'manual' | 'score') => void;
 }
 
-const TradersTable: React.FC<Props> = ({ traders, onToggleAutoCopy, onChangeMode }) => (
-  <TableContainer component={Paper}>
-    <Typography variant="h6" gutterBottom>
-      Trader Channels
-    </Typography>
-    <Table size="small">
-      <TableHead>
-        <TableRow>
-          <TableCell>Trader</TableCell>
-          <TableCell align="center">Auto-Copy</TableCell>
-          <TableCell align="center">Mode</TableCell>
-          <TableCell align="center">Win Rate</TableCell>
-          <TableCell align="center">Avg Return</TableCell>
-          <TableCell align="center">Trades</TableCell>
-          <TableCell align="center">Score</TableCell>
-          <TableCell align="center">Status</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {traders.map((tr) => (
-          <TableRow key={tr.channelId}>
-            <TableCell>{tr.name || tr.channelId}</TableCell>
-            <TableCell align="center">
-              <Switch checked={tr.autoCopy} onChange={(e) => onToggleAutoCopy(tr.channelId, e.target.checked)} />
-            </TableCell>
-            <TableCell align="center">
-              <FormControl size="small" variant="standard">
-                <InputLabel id={`mode-label-${tr.channelId}`}>Mode</InputLabel>
-                <Select
-                  labelId={`mode-label-${tr.channelId}`}
-                  value={tr.mode}
-                  onChange={(e) => onChangeMode(tr.channelId, e.target.value as 'manual' | 'score')}
-                  label="Mode"
-                >
-                  <MenuItem value="manual">Manual</MenuItem>
-                  <MenuItem value="score">Score</MenuItem>
-                </Select>
-              </FormControl>
-            </TableCell>
-            <TableCell align="center">{(tr.winRate * 100).toFixed(1)}%</TableCell>
-            <TableCell align="center">{(tr.avgReturn * 100).toFixed(1)}%</TableCell>
-            <TableCell align="center">{tr.tradeCount}</TableCell>
-            <TableCell align="center">{tr.score.toFixed(2)}</TableCell>
-            <TableCell align="center">
-              {tr.active ? <Chip label="Active" color="success" size="small" /> : <Box component="span" sx={{ color: '#888' }}>–</Box>}
-            </TableCell>
+const TradersTable: React.FC<Props> = ({ traders, onToggleAutoCopy, onChangeMode }) => {
+  const safeTraders = Array.isArray(traders) ? traders : [];
+  return (
+    <TableContainer component={Paper}>
+      <Typography variant="h6" gutterBottom>
+        Trader Channels
+      </Typography>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Trader</TableCell>
+            <TableCell align="center">Auto-Copy</TableCell>
+            <TableCell align="center">Mode</TableCell>
+            <TableCell align="center">Win Rate</TableCell>
+            <TableCell align="center">Avg Return</TableCell>
+            <TableCell align="center">Trades</TableCell>
+            <TableCell align="center">Score</TableCell>
+            <TableCell align="center">Status</TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </TableContainer>
-);
+        </TableHead>
+        <TableBody>
+          {safeTraders.map((tr) => (
+            <TableRow key={tr.channelId}>
+              <TableCell>{tr.name || tr.channelId}</TableCell>
+              <TableCell align="center">
+                <Switch checked={tr.autoCopy} onChange={(e) => onToggleAutoCopy(tr.channelId, e.target.checked)} />
+              </TableCell>
+              <TableCell align="center">
+                <FormControl size="small" variant="standard">
+                  <InputLabel id={`mode-label-${tr.channelId}`}>Mode</InputLabel>
+                  <Select
+                    labelId={`mode-label-${tr.channelId}`}
+                    value={tr.mode}
+                    onChange={(e) => onChangeMode(tr.channelId, e.target.value as 'manual' | 'score')}
+                    label="Mode"
+                  >
+                    <MenuItem value="manual">Manual</MenuItem>
+                    <MenuItem value="score">Score</MenuItem>
+                  </Select>
+                </FormControl>
+              </TableCell>
+              <TableCell align="center">{typeof tr.winRate === 'number' && !isNaN(tr.winRate) ? (tr.winRate * 100).toFixed(1) : '0.0'}%</TableCell>
+              <TableCell align="center">{typeof tr.avgReturn === 'number' && !isNaN(tr.avgReturn) ? (tr.avgReturn * 100).toFixed(1) : '0.0'}%</TableCell>
+              <TableCell align="center">{tr.tradeCount}</TableCell>
+              <TableCell align="center">{typeof tr.score === 'number' && !isNaN(tr.score) ? tr.score.toFixed(2) : '0.00'}</TableCell>
+              <TableCell align="center">
+                {tr.active ? <Chip label="Active" color="success" size="small" /> : <Box component="span" sx={{ color: '#888' }}>–</Box>}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
 
 export default TradersTable;
