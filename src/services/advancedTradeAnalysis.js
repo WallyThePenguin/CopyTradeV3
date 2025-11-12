@@ -63,7 +63,7 @@ class AdvancedTradeAnalysis {
      */
     extractLegs(match, pattern) {
         const legs = [];
-        
+
         if (pattern.source.includes('spread')) {
             legs.push({
                 strike: parseFloat(match[2]),
@@ -91,7 +91,7 @@ class AdvancedTradeAnalysis {
                 });
             }
         }
-        
+
         return legs;
     }
 
@@ -135,10 +135,10 @@ class AdvancedTradeAnalysis {
         }
 
         // Check confidence modifiers
-        const hasHighConfidence = this.sentimentKeywords.highConfidence.some(keyword => 
+        const hasHighConfidence = this.sentimentKeywords.highConfidence.some(keyword =>
             lowerMessage.includes(keyword)
         );
-        const hasLowConfidence = this.sentimentKeywords.lowConfidence.some(keyword => 
+        const hasLowConfidence = this.sentimentKeywords.lowConfidence.some(keyword =>
             lowerMessage.includes(keyword)
         );
 
@@ -236,7 +236,7 @@ class AdvancedTradeAnalysis {
 
         // Find most active hour
         const mostActiveHour = Object.entries(tradingHours)
-            .sort(([,a], [,b]) => b - a)[0]?.[0];
+            .sort(([, a], [, b]) => b - a)[0]?.[0];
 
         // Calculate win streaks
         let currentStreak = 0;

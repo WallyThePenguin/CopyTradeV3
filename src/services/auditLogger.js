@@ -6,7 +6,14 @@ const prisma = new PrismaClient();
 export async function logExecution({ tradeId, channelId, type, statusCode = null, rawResponse = {}, durationMs = null }) {
     try {
         await prisma.executionAuditLog.create({
-            data: { tradeId, channelId, type, statusCode, rawResponse, durationMs }
+            data: {
+                tradeId,
+                channelId,
+                type,
+                statusCode,
+                rawResponse: typeof rawResponse === 'string' ? rawResponse : JSON.stringify(rawResponse),
+                durationMs
+            }
         });
     } catch (error) {
         logger.error('Failed to log execution audit', error);

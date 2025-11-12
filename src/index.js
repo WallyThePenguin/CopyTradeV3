@@ -1,12 +1,18 @@
 import { Client, WebhookClient } from 'discord.js-selfbot-v13';
 import { mistralService } from './services/mistral.js';
 import { tradeTracker } from './services/tradeTracker.js';
+import calloutService from './services/calloutService.js';
 import { logger } from './utils/logger.js';
 import { validateEnv } from './utils/validateEnv.js';
 import chokidar from 'chokidar';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import './web/server.js';
+import { initializeWebSocket } from './web/websocket.js';
+import express from 'express';
+import https from 'https';
+import http from 'http';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -111,21 +117,37 @@ async function processMessage(message, isShortform = true) {
 
         // If trade signal detected
         if (analysis.isTradeSignal) {
+            let calloutRecord = null;
+            try {
+                calloutRecord = await calloutService.recordDiscordCallout({
+                    message,
+                    analysis,
+                    channelConfig
+                });
+            } catch (error) {
+                logger.error('Failed to record callout', {
+                    messageId: message.id,
+                    channelId: message.channel.id,
+                    error
+                });
+            }
+
             // Track the trade
-        const trade = await tradeTracker.trackTrade({
-            symbol: analysis.symbol,
-            action: analysis.action,
-            optionType: analysis.optionType,
-            strikePrice: analysis.strikePrice,
-            quantity: analysis.quantity || 1,
-            entryPrice: analysis.entryPrice ?? null, // fallback if Python provides a price
-            channelId: message.channel.id,
-            channelName: channelConfig?.name || message.channel.name || 'Unknown Channel',
-            channelType: channelConfig?.type || (isShortform ? 'shortform' : 'longform'),
-            signalType: analysis.signalType || 'ENTRY', // make sure this is passed
-            author: message.author.id,
-            confidence: analysis.confidence,
-        });
+            const trade = await tradeTracker.trackTrade({
+                symbol: analysis.symbol,
+                action: analysis.action,
+                optionType: analysis.optionType,
+                strikePrice: analysis.strikePrice,
+                quantity: analysis.quantity || 1,
+                entryPrice: analysis.entryPrice ?? null, // fallback if Python provides a price
+                channelId: message.channel.id,
+                channelName: channelConfig?.name || message.channel.name || 'Unknown Channel',
+                channelType: channelConfig?.type || (isShortform ? 'shortform' : 'longform'),
+                signalType: analysis.signalType || 'ENTRY', // make sure this is passed
+                author: message.author.id,
+                confidence: analysis.confidence,
+                calloutId: calloutRecord?.callout?.id || null
+            });
 
             await tradeTracker.logTradeSignal({
                 tradeId: trade.id,
@@ -164,6 +186,10 @@ async function processMessage(message, isShortform = true) {
         }
 
         // Track message for analysis
+        const serializedAnalysis = analysis == null
+            ? null
+            : (typeof analysis === 'string' ? analysis : JSON.stringify(analysis));
+
         const msgRecord = await tradeTracker.trackMessage({
             channelId: message.channel.id,
             channelName: channelConfig?.name || message.channel.name || 'Unknown Channel',
@@ -172,7 +198,7 @@ async function processMessage(message, isShortform = true) {
             authorId: message.author.id,
             authorName: message.author.username,
             timestamp: message.createdAt,
-            parsedData: analysis,
+            parsedData: serializedAnalysis,
             modelUsed: 'mistral',
             parsedAt: new Date()
         });
@@ -243,4 +269,11 @@ client.on('error', (error) => {
 client.login(process.env.DISCORD_TOKEN).catch(error => {
     logger.error('Error logging in', error);
     process.exit(1);
-}); 
+});
+
+// Initialize Express server
+const app = express();
+const server = http.createServer(app);
+
+// Initialize WebSocket server
+initializeWebSocket(server); 

@@ -1,0 +1,305 @@
+2025-06-12 02:31:33,727 - INFO - Model initialized successfully
+2025-06-12 02:31:33,766 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-12 02:31:33,776 - INFO - Trade context initialized
+2025-06-12 02:31:33,777 - INFO - Channel analyzer initialized successfully
+2025-06-12 02:31:34,033 - INFO - Analyzing channel 1375771480037785640
+2025-06-12 02:31:34,048 - ERROR - Error calculating channel performance: float() argument must be a string or a real number, not 'NoneType'
+2025-06-12 02:31:34,048 - WARNING - Insufficient data for channel 1375771480037785640
+2025-06-12 02:32:30,971 - INFO - Received message for analysis: Testing
+2025-06-12 02:32:33,981 - INFO - Full LLM analysis time: 3.003s
+2025-06-12 02:32:34,001 - ERROR - Failed to parse LLM response: Based on the provided message "Testing", there is no trade information detected. Therefore, the output will be an empty JSON object:
+
+```json
+{}
+```
+2025-06-12 02:32:34,007 - INFO - Error response sent in 3.036 seconds
+2025-06-12 02:32:34,830 - INFO - Webhook sent: 400
+2025-06-12 02:32:56,181 - INFO - Received message for analysis: QQQ 515 P
+2025-06-12 02:32:58,115 - INFO - Full LLM analysis time: 1.934s
+2025-06-12 02:32:58,118 - INFO - Analysis completed in 1.934 seconds
+2025-06-12 02:32:58,714 - INFO - Webhook sent: 400
+2025-06-12 02:55:20,459 - INFO - Received message for analysis: testing
+2025-06-12 02:55:22,108 - INFO - Full LLM analysis time: 1.649s
+2025-06-12 02:55:22,108 - INFO - Analysis completed in 1.649 seconds
+2025-06-12 02:55:22,763 - INFO - Webhook sent: 400
+2025-06-12 02:55:40,635 - INFO - Received message for analysis: QQQ 515 P
+2025-06-12 02:55:42,615 - INFO - Full LLM analysis time: 1.98s
+2025-06-12 02:55:42,617 - INFO - Analysis completed in 1.98 seconds
+2025-06-12 02:55:43,259 - INFO - Webhook sent: 400
+2025-06-12 02:55:58,802 - INFO - Received message for analysis: sell
+2025-06-12 02:55:58,812 - INFO - Confirmed full exit in 0.01s
+2025-06-12 02:55:59,408 - INFO - Webhook sent: 400
+2025-06-12 03:02:38,871 - INFO - Received message for analysis: sell
+2025-06-12 03:02:38,871 - INFO - Confirmed full exit in 0.0s
+2025-06-12 03:02:39,471 - INFO - Webhook sent: 400
+2025-06-12 03:05:25,344 - INFO - Received message for analysis: SPY 591 CALL
+2025-06-12 03:05:26,441 - INFO - Buy LLM confirmation time: 1.096s
+2025-06-12 03:05:26,442 - INFO - Confirmed buy in 1.098s
+2025-06-12 03:05:27,021 - INFO - Webhook sent: 400
+2025-06-12 03:05:40,483 - INFO - Received message for analysis: SPY 591 C
+2025-06-12 03:05:43,722 - INFO - Full LLM analysis time: 3.239s
+2025-06-12 03:05:43,724 - INFO - Analysis completed in 3.239 seconds
+2025-06-12 03:05:44,315 - INFO - Webhook sent: 400
+2025-06-12 03:06:47,054 - INFO - Received message for analysis: sell
+2025-06-12 03:06:47,056 - INFO - Confirmed full exit in 0.002s
+2025-06-12 03:06:47,663 - INFO - Webhook sent: 400
+2025-06-13 15:06:45,919 - INFO - Model initialized successfully
+2025-06-13 15:06:45,951 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-13 15:06:45,960 - INFO - Trade context initialized
+2025-06-13 15:06:45,960 - INFO - Channel analyzer initialized successfully
+2025-06-13 15:06:46,232 - INFO - Analyzing channel 1375771480037785640
+2025-06-13 15:06:46,241 - ERROR - Error calculating channel performance: float() argument must be a string or a real number, not 'NoneType'
+2025-06-13 15:06:46,241 - WARNING - Insufficient data for channel 1375771480037785640
+2025-06-13 15:50:43,248 - INFO - Received message for analysis: SPY 591 C
+2025-06-13 15:50:48,712 - INFO - Full LLM analysis time: 5.456s
+2025-06-13 15:50:48,715 - INFO - Analysis completed in 5.466 seconds
+2025-06-13 15:50:49,469 - INFO - Webhook sent: 400
+2025-06-13 16:01:11,580 - INFO - Received message for analysis: im gay
+2025-06-13 16:01:15,331 - INFO - Full LLM analysis time: 3.75s
+2025-06-13 16:01:15,331 - INFO - Analysis completed in 3.751 seconds
+2025-06-13 16:01:15,976 - INFO - Webhook sent: 400
+2025-06-13 16:01:34,817 - INFO - Received message for analysis: SPY 591 C
+2025-06-13 16:01:37,505 - INFO - Full LLM analysis time: 2.687s
+2025-06-13 16:01:37,508 - INFO - Analysis completed in 2.689 seconds
+2025-06-13 16:01:38,216 - INFO - Webhook sent: 400
+2025-06-17 10:13:06,039 - INFO - Model initialized successfully
+2025-06-17 10:13:06,156 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.5625}
+2025-06-17 10:13:06,157 - INFO - Trade context initialized
+2025-06-17 10:13:06,158 - INFO - Channel analyzer initialized successfully
+2025-06-17 10:13:06,312 - INFO - Analyzing channel 1375771480037785640
+2025-06-17 10:13:06,320 - ERROR - Error calculating channel performance: float() argument must be a string or a real number, not 'NoneType'
+2025-06-17 10:13:06,320 - WARNING - Insufficient data for channel 1375771480037785640
+2025-06-17 10:41:49,086 - INFO - Received message for analysis: dash breakevem
+2025-06-17 10:41:52,978 - INFO - Full LLM analysis time: 3.888s
+2025-06-17 10:41:52,978 - ERROR - Failed to parse LLM response: Based on the given message, it appears to be referring to a potential breakout or breakdown in price for a ticker symbol. However, the message does not contain enough information to determine if this is an open or close trade, the type of security (stock or option), or the specific ticker symbol and strike price. Therefore, I cannot generate a JSON object based on this message alone.
+
+Output: {}
+2025-06-17 10:41:52,979 - INFO - Error response sent in 3.893 seconds
+2025-06-17 10:41:53,686 - INFO - Webhook sent: 400
+2025-06-18 00:00:06,870 - INFO - Analyzing channel 1375771480037785640
+2025-06-18 00:00:06,880 - ERROR - Error calculating channel performance: float() argument must be a string or a real number, not 'NoneType'
+2025-06-18 00:00:06,881 - WARNING - Insufficient data for channel 1375771480037785640
+2025-06-18 00:00:06,881 - INFO - Analyzing channel channel-2
+2025-06-18 00:00:06,885 - WARNING - Insufficient data for channel channel-2
+2025-06-18 00:00:06,885 - INFO - Analyzing channel channel-1
+2025-06-18 00:00:06,887 - WARNING - Insufficient data for channel channel-1
+2025-11-11 10:18:04,109 - INFO - Model initialized successfully
+2025-11-11 10:18:04,124 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 10:18:04,132 - INFO - Trade context initialized
+2025-11-11 10:18:04,133 - INFO - Channel analyzer initialized successfully
+2025-11-11 10:18:04,142 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 12, 15, 18, 4, 134618),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-11 10:19:45,741 - INFO - Model initialized successfully
+2025-11-11 10:19:45,755 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 10:19:45,756 - INFO - Trade context initialized
+2025-11-11 10:19:45,756 - INFO - Channel analyzer initialized successfully
+2025-11-11 10:19:45,758 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 12, 15, 19, 45, 757419),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-11 10:20:25,397 - INFO - Model initialized successfully
+2025-11-11 10:20:25,411 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 10:20:25,411 - INFO - Trade context initialized
+2025-11-11 10:20:25,412 - INFO - Channel analyzer initialized successfully
+2025-11-11 10:20:25,414 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 12, 15, 20, 25, 413807),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-11 10:31:45,849 - INFO - Received message for analysis: testing
+2025-11-11 10:31:47,391 - INFO - Full LLM analysis time: 1.541s
+2025-11-11 10:31:47,391 - INFO - Analysis completed in 1.542 seconds
+2025-11-11 10:31:47,561 - INFO - Webhook sent: 400
+2025-11-11 10:32:11,996 - INFO - Received message for analysis: SPY 591 C
+2025-11-11 10:32:13,969 - INFO - Full LLM analysis time: 1.973s
+2025-11-11 10:32:13,970 - INFO - Analysis completed in 1.973 seconds
+2025-11-11 10:32:14,101 - INFO - Webhook sent: 400
+2025-11-11 10:32:34,156 - INFO - Received message for analysis: sell
+2025-11-11 10:32:35,243 - INFO - Sell LLM confirmation time: 1.087s
+2025-11-11 10:32:35,243 - INFO - Confirmed sell/exit in 1.087s
+2025-11-11 10:32:35,408 - INFO - Webhook sent: 400
+2025-11-11 10:36:23,377 - INFO - Model initialized successfully
+2025-11-11 10:36:23,392 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 10:36:23,402 - INFO - Trade context initialized
+2025-11-11 10:36:23,402 - INFO - Channel analyzer initialized successfully
+2025-11-11 10:36:23,404 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 12, 15, 36, 23, 403645),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-11 10:38:17,552 - INFO - Received message for analysis: SPY 591 C
+2025-11-11 10:38:20,462 - INFO - Full LLM analysis time: 2.908s
+2025-11-11 10:38:20,464 - INFO - Analysis completed in 2.91 seconds
+2025-11-11 10:38:20,699 - INFO - Webhook sent: 400
+2025-11-11 10:39:49,691 - INFO - Received message for analysis: sell
+2025-11-11 10:39:50,798 - INFO - Sell LLM confirmation time: 1.107s
+2025-11-11 10:39:50,798 - INFO - Confirmed sell/exit in 1.107s
+2025-11-11 10:39:50,944 - INFO - Webhook sent: 400
+2025-11-11 10:45:50,150 - INFO - Received message for analysis: AMD 240 C
+2025-11-11 10:45:53,190 - INFO - Full LLM analysis time: 3.04s
+2025-11-11 10:45:53,192 - INFO - Analysis completed in 3.04 seconds
+2025-11-11 10:45:53,347 - INFO - Webhook sent: 400
+2025-11-11 11:46:46,482 - INFO - Received message for analysis: AMD 240 c
+2025-11-11 11:46:49,377 - INFO - Full LLM analysis time: 2.894s
+2025-11-11 11:46:49,379 - INFO - Analysis completed in 2.894 seconds
+2025-11-11 11:46:49,549 - INFO - Webhook sent: 400
+2025-11-11 11:46:49,552 - INFO - Received message for analysis: AMD 240 c
+2025-11-11 11:46:52,094 - INFO - Full LLM analysis time: 2.543s
+2025-11-11 11:46:52,099 - INFO - Analysis completed in 2.543 seconds
+2025-11-11 11:46:52,317 - INFO - Webhook sent: 400
+2025-11-11 11:46:52,318 - INFO - Received message for analysis: AMD 240 c
+2025-11-11 11:46:54,989 - INFO - Full LLM analysis time: 2.671s
+2025-11-11 11:46:54,990 - INFO - Analysis completed in 2.672 seconds
+2025-11-11 11:46:55,155 - INFO - Webhook sent: 400
+2025-11-11 11:52:06,459 - INFO - Received message for analysis: amd 240 c
+2025-11-11 11:52:08,450 - INFO - Full LLM analysis time: 1.99s
+2025-11-11 11:52:08,452 - INFO - Analysis completed in 1.992 seconds
+2025-11-11 11:52:08,595 - INFO - Webhook sent: 400
+2025-11-11 11:52:08,597 - INFO - Received message for analysis: amd 240 c
+2025-11-11 11:52:10,186 - INFO - Full LLM analysis time: 1.589s
+2025-11-11 11:52:10,187 - INFO - Analysis completed in 1.589 seconds
+2025-11-11 11:52:10,328 - INFO - Webhook sent: 400
+2025-11-11 11:52:10,330 - INFO - Received message for analysis: amd 240 c
+2025-11-11 11:52:11,846 - INFO - Full LLM analysis time: 1.515s
+2025-11-11 11:52:11,848 - INFO - Analysis completed in 1.517 seconds
+2025-11-11 11:52:12,029 - INFO - Webhook sent: 400
+2025-11-11 11:57:03,392 - INFO - Model initialized successfully
+2025-11-11 11:57:03,405 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 11:57:03,413 - INFO - Trade context initialized
+2025-11-11 11:57:03,414 - INFO - Channel analyzer initialized successfully
+2025-11-11 11:57:03,415 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 12, 16, 57, 3, 414959),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-11 12:02:49,562 - INFO - Received message for analysis: amd 240 c
+2025-11-11 12:02:52,415 - INFO - Full LLM analysis time: 2.852s
+2025-11-11 12:02:52,417 - INFO - Analysis completed in 2.854 seconds
+2025-11-11 12:02:52,546 - INFO - Webhook sent: 400
+2025-11-11 12:02:52,548 - INFO - Received message for analysis: amd 240 c
+2025-11-11 12:02:55,119 - INFO - Full LLM analysis time: 2.57s
+2025-11-11 12:02:55,121 - INFO - Analysis completed in 2.572 seconds
+2025-11-11 12:02:55,274 - INFO - Webhook sent: 400
+2025-11-11 12:02:55,276 - INFO - Received message for analysis: amd 240 c
+2025-11-11 12:02:56,892 - INFO - Full LLM analysis time: 1.616s
+2025-11-11 12:02:56,894 - INFO - Analysis completed in 1.616 seconds
+2025-11-11 12:02:57,043 - INFO - Webhook sent: 400
+2025-11-11 14:39:37,105 - INFO - Model initialized successfully
+2025-11-11 14:39:37,119 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 14:39:37,127 - INFO - Trade context initialized
+2025-11-11 14:39:37,128 - INFO - Channel analyzer initialized successfully
+2025-11-11 14:39:37,130 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 12, 19, 39, 37, 129911),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-11 14:40:31,511 - INFO - Received message for analysis: amd 240 c
+2025-11-11 14:40:34,407 - INFO - Full LLM analysis time: 2.894s
+2025-11-11 14:40:34,409 - INFO - Analysis completed in 2.896 seconds
+2025-11-11 14:40:34,557 - INFO - Webhook sent: 400
+2025-11-11 14:45:47,517 - INFO - Received message for analysis: amd 240 c
+2025-11-11 14:45:50,487 - INFO - Full LLM analysis time: 2.97s
+2025-11-11 14:45:50,488 - INFO - Analysis completed in 2.97 seconds
+2025-11-11 14:45:50,620 - INFO - Webhook sent: 400
+2025-11-11 15:02:26,666 - INFO - Received message for analysis: amd 240 c
+2025-11-11 15:02:28,595 - INFO - Full LLM analysis time: 1.929s
+2025-11-11 15:02:28,597 - INFO - Analysis completed in 1.93 seconds
+2025-11-11 15:02:28,743 - INFO - Webhook sent: 400
+2025-11-11 15:38:30,609 - INFO - Received message for analysis: amd 240 c
+2025-11-11 15:38:32,350 - INFO - Full LLM analysis time: 1.741s
+2025-11-11 15:38:32,352 - INFO - Analysis completed in 1.741 seconds
+2025-11-11 15:38:32,510 - INFO - Webhook sent: 400
+2025-11-11 18:46:44,991 - INFO - Received message for analysis: amd 240 c
+2025-11-11 18:46:46,923 - INFO - Full LLM analysis time: 1.932s
+2025-11-11 18:46:46,924 - INFO - Analysis completed in 1.933 seconds
+2025-11-11 18:46:47,077 - INFO - Webhook sent: 400
+2025-11-11 19:53:12,517 - INFO - Received message for analysis: amd 240 c
+2025-11-11 19:53:14,423 - INFO - Full LLM analysis time: 1.907s
+2025-11-11 19:53:14,426 - INFO - Analysis completed in 1.908 seconds
+2025-11-11 19:53:14,574 - INFO - Webhook sent: 400
+2025-11-11 19:55:01,387 - INFO - Received message for analysis: sell
+2025-11-11 19:55:02,539 - INFO - Sell LLM confirmation time: 1.151s
+2025-11-11 19:55:02,539 - INFO - Confirmed sell/exit in 1.151s
+2025-11-11 19:55:02,700 - INFO - Webhook sent: 400
+2025-11-11 19:55:37,697 - INFO - Received message for analysis: buying 5 shares of amd
+2025-11-11 19:55:38,817 - INFO - Buy LLM confirmation time: 1.119s
+2025-11-11 19:55:38,818 - INFO - Confirmed buy in 1.121s
+2025-11-11 19:55:38,966 - INFO - Webhook sent: 400
+2025-11-11 20:31:58,938 - INFO - Model initialized successfully
+2025-11-11 20:31:58,953 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 20:31:58,961 - INFO - Trade context initialized
+2025-11-11 20:31:58,962 - INFO - Channel analyzer initialized successfully
+2025-11-11 20:31:58,964 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 13, 1, 31, 58, 963543),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-11 20:38:40,897 - INFO - Model initialized successfully
+2025-11-11 20:38:40,912 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-11 20:38:40,912 - INFO - Trade context initialized
+2025-11-11 20:38:40,913 - INFO - Channel analyzer initialized successfully
+2025-11-11 20:38:40,915 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 13, 1, 38, 40, 913119),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-12 01:57:33,779 - INFO - Model initialized successfully
+2025-11-12 01:57:33,795 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-12 01:57:33,803 - INFO - Trade context initialized
+2025-11-12 01:57:33,804 - INFO - Channel analyzer initialized successfully
+2025-11-12 01:57:33,807 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 13, 6, 57, 33, 805448),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-12 01:58:01,392 - INFO - Received message for analysis: qqq 500 c
+2025-11-12 01:58:04,872 - INFO - Full LLM analysis time: 3.478s
+2025-11-12 01:58:04,874 - INFO - Analysis completed in 3.48 seconds
+2025-11-12 01:58:05,055 - INFO - Webhook sent: 400
+2025-11-12 01:58:19,547 - INFO - Received message for analysis: sell
+2025-11-12 01:58:20,640 - INFO - Sell LLM confirmation time: 1.092s
+2025-11-12 01:58:20,640 - INFO - Confirmed sell/exit in 1.093s
+2025-11-12 01:58:20,778 - INFO - Webhook sent: 400
+2025-11-12 02:08:49,536 - INFO - Model initialized successfully
+2025-11-12 02:08:49,550 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-12 02:08:49,558 - INFO - Trade context initialized
+2025-11-12 02:08:49,559 - INFO - Channel analyzer initialized successfully
+2025-11-12 02:08:49,561 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 13, 7, 8, 49, 560556),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

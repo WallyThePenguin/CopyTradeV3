@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -24,6 +24,8 @@ model Channel {
   avgProfit   Float @default(0)
   performance Float @default(0)
 
+  mode String @default("manual")
+
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   marketUpdates      MarketUpdate[]
@@ -31,6 +33,7 @@ model Channel {
   performanceHistory PerformanceHistory[]
   trades             Trade[]
   traderStats        TraderStats[]
+  callouts           Callout[]
 }
 
 model Trade {
@@ -43,7 +46,7 @@ model Trade {
   exitPrice   Float?
   quantity    Int
   author      String?
-  mode        String   @default("SIMULATED")
+  mode        String    @default("SIMULATED")
   status      String
   entryTime   DateTime  @default(now())
   exitTime    DateTime?
@@ -56,8 +59,12 @@ model Trade {
   channelId String
 
   // ✅ One-to-one relation
-  executionStats ExecutionStats?
-  signals        TradeSignal[]
+  executionStats     ExecutionStats?
+  signals            TradeSignal[]
+  executionAuditLogs ExecutionAuditLog[] @relation("TradeToAuditLog")
+  calloutId          String?             @unique
+  callout            Callout?            @relation(fields: [calloutId], references: [id])
+  priceSnapshots     PriceSnapshot[]
 }
 
 model Message {
@@ -66,7 +73,7 @@ model Message {
   discordId    String        @unique
   author       String
   content      String
-  parsedData   Json?
+  parsedData   String?
   type         String
   modelUsed    String?
   parsedAt     DateTime?
@@ -78,11 +85,89 @@ model Message {
 }
 
 model PriceSnapshot {
-  id         String   @id @default(uuid())
+  id         String         @id @default(uuid())
   symbol     String
   source     String
   price      Float
-  recordedAt DateTime @default(now())
+  recordedAt DateTime       @default(now())
+  metadata   String?
+  calloutId  String?
+  tradeId    String?
+  callout    Callout?       @relation(fields: [calloutId], references: [id])
+  trade      Trade?         @relation(fields: [tradeId], references: [id])
+  matches    CalloutMatch[]
+}
+
+model Callout {
+  id              String          @id @default(uuid())
+  source          String
+  sourceMessageId String?
+  sourceChannelId String?
+  channelId       String?
+  channelName     String?
+  traderName      String?
+  assetType       String          @default("EQUITY")
+  symbol          String
+  action          String?
+  strikePrice     Float?
+  expirationDate  DateTime?
+  optionType      String?
+  targetEntry     Float?
+  targetExit      Float?
+  quantity        Int?
+  confidence      Float?
+  status          String          @default("PENDING")
+  notes           String?
+  rawMessage      String?
+  rawAnalysis     String?
+  calloutAt       DateTime        @default(now())
+  matchedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  channel         Channel?        @relation(fields: [channelId], references: [id])
+  trade           Trade?
+  matches         CalloutMatch[]
+  snapshots       PriceSnapshot[]
+
+  @@index([symbol])
+  @@index([status])
+}
+
+model CalloutMatch {
+  id              String         @id @default(uuid())
+  calloutId       String
+  matchType       String         @default("CALLOUT")
+  quoteSource     String         @default("robinhood")
+  priceSnapshotId String?
+  symbol          String
+  referencePrice  Float?
+  bidPrice        Float?
+  askPrice        Float?
+  markPrice       Float?
+  instrumentId    String?
+  quoteTimestamp  DateTime       @default(now())
+  latencyMs       Int?
+  createdAt       DateTime       @default(now())
+  callout         Callout        @relation(fields: [calloutId], references: [id])
+  priceSnapshot   PriceSnapshot? @relation(fields: [priceSnapshotId], references: [id])
+
+  @@index([calloutId])
+}
+
+model InstrumentCache {
+  id             String    @id @default(uuid())
+  symbol         String
+  assetType      String    @default("EQUITY")
+  strikePrice    Float?
+  optionType     String?
+  expirationDate DateTime?
+  instrumentUrl  String?
+  chainId        String?
+  metadata       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([symbol, strikePrice, optionType, expirationDate])
 }
 
 model MarketUpdate {
@@ -139,17 +224,17 @@ model TradeSignal {
 }
 
 model ExecutionStats {
-  id            String   @id @default(uuid())
-  tradeId       String   @unique // ✅ enforce 1-to-1
-  executedAt    DateTime
-  executedPrice Float
-  exitPrice     Float?
+  id             String   @id @default(uuid())
+  tradeId        String   @unique // ✅ enforce 1-to-1
+  executedAt     DateTime
+  executedPrice  Float
+  exitPrice      Float?
   exitConfidence Float?
-  result        String
-  pnl           Float?
-  durationSec   Int?
-  createdAt     DateTime @default(now())
-  trade         Trade    @relation(fields: [tradeId], references: [id])
+  result         String
+  pnl            Float?
+  durationSec    Int?
+  createdAt      DateTime @default(now())
+  trade          Trade    @relation(fields: [tradeId], references: [id])
 }
 
 model PerformanceHistory {
@@ -167,16 +252,16 @@ model PerformanceHistory {
 }
 
 model OrderRecord {
-  id           String   @id @default(uuid())
-  brokerOrderId String  @unique
-  symbol       String
-  type         String?
-  side         String?
-  quantity     Int
-  price        Float?
-  status       String?
-  filledAt     DateTime?
-  createdAt    DateTime @default(now())
+  id            String    @id @default(uuid())
+  brokerOrderId String    @unique
+  symbol        String
+  type          String?
+  side          String?
+  quantity      Int
+  price         Float?
+  status        String?
+  filledAt      DateTime?
+  createdAt     DateTime  @default(now())
 }
 
 model ChannelConfig {
@@ -198,8 +283,8 @@ model TraderStats {
   successfulSignals Int       @default(0)
   avgConfidence     Float     @default(0)
   avgProfitLoss     Float     @default(0)
-  bestSymbols       Json // Array of {symbol, winRate, totalTrades}
-  tradingHours      Json // Array of {hour, winRate, totalTrades}
+  bestSymbols       String    @default("[]") // JSON string: [{symbol, winRate, totalTrades}]
+  tradingHours      String    @default("[]") // JSON string: [{hour, winRate, totalTrades}]
   lastActive        DateTime  @default(now())
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -262,53 +347,54 @@ model BotStats {
   activeChannels         Int     @default(0)
   bestPerformingChannel  String? // Channel ID
   worstPerformingChannel String?
-  channelWinRates        Json // Array of {channelId, winRate, totalTrades}
-  channelProfitLoss      Json // Array of {channelId, profitLoss, totalTrades}
+  channelWinRates        String  @default("[]") // JSON string array
+  channelProfitLoss      String  @default("[]") // JSON string array
 
   // Trader Analysis
   totalTraders          Int     @default(0)
   activeTraders         Int     @default(0)
   bestPerformingTrader  String? // Trader username
   worstPerformingTrader String?
-  traderWinRates        Json // Array of {trader, winRate, totalTrades}
-  traderProfitLoss      Json // Array of {trader, profitLoss, totalTrades}
+  traderWinRates        String  @default("[]") // JSON string array
+  traderProfitLoss      String  @default("[]")
 
   // Symbol Analysis
   mostTradedSymbol  String?
-  symbolStats       Json // Array of {symbol, winRate, profitLoss, totalTrades}
-  sectorPerformance Json // Array of {sector, winRate, profitLoss, totalTrades}
+  symbolStats       String  @default("[]") // JSON string array
+  sectorPerformance String  @default("[]")
 
   // Signal Quality
-  avgSignalLatency    Int   @default(0) // Time between signal and execution
-  signalAccuracy      Float @default(0) // How often signals lead to profitable trades
-  falsePositiveRate   Float @default(0) // Rate of unprofitable signals
-  avgConfidenceByType Json // Confidence levels by trade type
+  avgSignalLatency    Int    @default(0) // Time between signal and execution
+  signalAccuracy      Float  @default(0) // How often signals lead to profitable trades
+  falsePositiveRate   Float  @default(0) // Rate of unprofitable signals
+  avgConfidenceByType String @default("{}") // JSON string map
 
   // System Health
-  uptime              Float @default(0) // Percentage of time system is active
-  errorRate           Float @default(0) // Rate of system errors
-  avgProcessingTime   Int   @default(0) // Average time to process signals
-  resourceUtilization Json // CPU, Memory, Network usage stats
+  uptime              Float  @default(0) // Percentage of time system is active
+  errorRate           Float  @default(0) // Rate of system errors
+  avgProcessingTime   Int    @default(0) // Average time to process signals
+  resourceUtilization String @default("{}") // JSON string map
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model ExecutionAuditLog {
   id          String   @id @default(uuid())
-  tradeId     String   @map("trade_id")
-  channelId   String   @map("channel_id")
+  tradeId     String
+  channelId   String?
   type        String
   statusCode  Int?
-  rawResponse Json
+  rawResponse String?  @default("{}")
   durationMs  Int?
   timestamp   DateTime @default(now())
-  Trade       Trade    @relation(fields: [tradeId], references: [id])
+  Trade       Trade    @relation("TradeToAuditLog", fields: [tradeId], references: [id])
 }
 
 model JobLog {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   jobName   String
-  startedAt DateTime @default(now())
+  startedAt DateTime  @default(now())
   endedAt   DateTime?
   status    String
   errorText String?

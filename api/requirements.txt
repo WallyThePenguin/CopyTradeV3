@@ -7,7 +7,7 @@ uvicorn==0.24.0
 diskcache>=5.6.1
 --extra-index-url https://download.pytorch.org/whl/cu121
 torch==2.5.1+cu121
-pydantic==1.10.13
+pydantic==1.10.15
 python-dotenv==1.0.0
 
 # Analysis dependencies
@@ -30,5 +30,5 @@ fsspec
 jinja2
 networkx
 setuptools
-sympy>=1.13.3
+sympy==1.13.1
 ics==0.7.2

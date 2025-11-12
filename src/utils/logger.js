@@ -61,12 +61,14 @@ class Logger {
         }
     }
 
-    async error(message, error) {
-        const errorData = {
-            message: error.message,
-            stack: error.stack,
-            name: error.name
-        };
+    async error(message, error = null) {
+        const errorData = error
+            ? {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            }
+            : undefined;
         await this.log(`ERROR: ${message}`, errorData);
     }
 

@@ -11,10 +11,24 @@ are automatically loaded from ``.env`` at startup.
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
+import os
+from pathlib import Path
+
+# Ensure CUDA runtime DLLs are on PATH before importing llama_cpp
+def _ensure_cuda_on_path():
+    cuda_path = os.getenv("CUDA_PATH") or os.getenv("CUDA_PATH_V12_4")
+    if not cuda_path:
+        return
+    bin_path = Path(cuda_path) / "bin"
+    if bin_path.exists():
+        os.environ["PATH"] = f"{bin_path}{os.pathsep}{os.environ.get('PATH','')}"
+
+
+_ensure_cuda_on_path()
+
 from llama_cpp import Llama
 import torch
 import gc
-import os
 from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 from utils.gpu import clear_gpu_memory, get_gpu_info, optimize_for_rtx2060

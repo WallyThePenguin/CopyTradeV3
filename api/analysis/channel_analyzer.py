@@ -1,16 +1,13 @@
 import os
 import sys
-import json
 import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
 from pathlib import Path
 import schedule
 import time
-import pytz
 from utils.logger import logger
 
 # Logger is configured in utils.logger
@@ -22,12 +19,11 @@ load_dotenv(env_path)
 
 class ChannelAnalyzer:
     def __init__(self):
-        # Use PostgreSQL connection URL
         db_url = os.getenv('DATABASE_URL')
         if not db_url:
             raise ValueError(f"No database URL found in environment variables. Looking for .env at: {env_path}")
-            
-        self.engine = create_engine(db_url)
+
+        self.engine = create_engine(self._resolve_connection_url(db_url))
         self.analysis_window = 30  # days
         self.min_trades_for_analysis = 10
         self.risk_levels = {
@@ -35,55 +31,130 @@ class ChannelAnalyzer:
             'MEDIUM': {'max_trades': 5, 'min_confidence': 0.75},
             'HIGH': {'max_trades': 8, 'min_confidence': 0.65}
         }
+        self._channel_cache: Dict[str, pd.DataFrame] = {}
+
+    def _resolve_connection_url(self, db_url: str) -> str:
+        """Normalize DATABASE_URL so SQLAlchemy can talk to SQLite or Postgres."""
+        normalized = db_url.strip().strip('"').strip("'")
+        if normalized.startswith("file:"):
+            relative_path = normalized.replace("file:", "", 1)
+            db_path = Path(relative_path)
+            if not db_path.is_absolute():
+                db_path = (project_root / db_path).resolve()
+            return f"sqlite:///{db_path.as_posix()}"
+        return normalized
+
+    def _window_start(self) -> datetime:
+        return datetime.utcnow() - timedelta(days=self.analysis_window)
+
+    def _load_channel_trades(self, channel_id: str) -> pd.DataFrame:
+        """Fetch trade + execution stats once per channel and reuse for derived metrics."""
+        if channel_id in self._channel_cache:
+            return self._channel_cache[channel_id]
+
+        start_time = self._window_start()
+        trade_query = text("""
+            SELECT
+                id AS trade_id,
+                "channelId" AS channel_id,
+                "entryTime" AS entry_time,
+                "exitTime" AS exit_time,
+                "optionType" AS option_type,
+                status
+            FROM "Trade"
+            WHERE "channelId" = :channel_id
+              AND "entryTime" >= :start_time
+        """)
+
+        with self.engine.connect() as conn:
+            trades_df = pd.read_sql_query(
+                trade_query,
+                conn,
+                params={'channel_id': channel_id, 'start_time': start_time}
+            )
+
+            if trades_df.empty:
+                self._channel_cache[channel_id] = trades_df
+                return trades_df
+
+            exec_query = text("""
+                SELECT
+                    "tradeId" AS trade_id,
+                    result,
+                    pnl,
+                    "durationSec" AS duration_sec,
+                    "executedAt" AS executed_at
+                FROM "ExecutionStats"
+                WHERE "tradeId" IN (
+                    SELECT id FROM "Trade"
+                    WHERE "channelId" = :channel_id
+                      AND "entryTime" >= :start_time
+                )
+            """)
+            exec_df = pd.read_sql_query(
+                exec_query,
+                conn,
+                params={'channel_id': channel_id, 'start_time': start_time}
+            )
+
+        if not exec_df.empty:
+            exec_df = (
+                exec_df.sort_values('executed_at')
+                .groupby('trade_id', as_index=False)
+                .last()
+            )
+
+        merged = trades_df.merge(exec_df, on='trade_id', how='left', suffixes=('', '_exec'))
+        for col in ('entry_time', 'exit_time', 'executed_at'):
+            if col in merged.columns:
+                merged[col] = pd.to_datetime(merged[col], errors='coerce')
+
+        self._channel_cache[channel_id] = merged
+        return merged
 
     def get_channel_performance(self, channel_id: str) -> Dict:
         """Calculate comprehensive channel performance metrics."""
         try:
-            query = text("""
-                WITH trade_metrics AS (
-                    SELECT 
-                        t.*,
-                        e."executedPrice" as entry_price,
-                        e2."executedPrice" as exit_price,
-                        e2.pnl,
-                        e2."durationSec",
-                        e2.result
-                    FROM "Trade" t
-                    LEFT JOIN "ExecutionStats" e ON t.id = e."tradeId" AND e."executedAt" = t."entryTime"
-                    LEFT JOIN "ExecutionStats" e2 ON t.id = e2."tradeId" AND e2."executedAt" = t."exitTime"
-                    WHERE t."channelId" = :channel_id
-                    AND t."entryTime" >= NOW() - INTERVAL ':window days'
-                )
-                SELECT 
-                    COUNT(*) as total_trades,
-                    AVG(CASE WHEN result = 'WIN' THEN 1.0 ELSE 0.0 END) as win_rate,
-                    AVG(pnl) as avg_profit,
-                    AVG("durationSec") as avg_duration,
-                    STDDEV(pnl) as profit_stddev,
-                    MIN(pnl) as min_profit,
-                    MAX(pnl) as max_profit,
-                    AVG(CASE WHEN "optionType" IS NOT NULL THEN 1.0 ELSE 0.0 END) as options_ratio
-                FROM trade_metrics
-            """)
-            
-            with self.engine.connect() as conn:
-                result = conn.execute(query, {
-                    'channel_id': channel_id,
-                    'window': self.analysis_window
-                }).fetchone()
-
-            if not result or result.total_trades < self.min_trades_for_analysis:
+            df = self._load_channel_trades(channel_id)
+            if df.empty or len(df) < self.min_trades_for_analysis:
                 return None
 
+            total_trades = len(df)
+
+            result_series = df.get('result')
+            win_rate = 0.0
+            if result_series is not None and not result_series.empty:
+                normalized = result_series.fillna('').str.upper()
+                valid_results = normalized[normalized != '']
+                if not valid_results.empty:
+                    win_rate = float((valid_results == 'WIN').sum() / len(valid_results))
+
+            profit_series = pd.to_numeric(df.get('pnl'), errors='coerce').dropna()
+            avg_profit = float(profit_series.mean()) if not profit_series.empty else 0.0
+            profit_stddev = float(profit_series.std(ddof=1)) if len(profit_series) > 1 else 0.0
+            min_profit = float(profit_series.min()) if not profit_series.empty else 0.0
+            max_profit = float(profit_series.max()) if not profit_series.empty else 0.0
+
+            duration_series = pd.to_numeric(df.get('duration_sec'), errors='coerce').dropna()
+            if duration_series.empty and {'entry_time', 'exit_time'}.issubset(df.columns):
+                fallback = (df['exit_time'] - df['entry_time']).dt.total_seconds().dropna()
+                duration_series = fallback
+            avg_duration = float(duration_series.mean()) if not duration_series.empty else 0.0
+
+            option_series = df.get('option_type')
+            options_ratio = 0.0
+            if option_series is not None and len(option_series) > 0:
+                options_ratio = float(option_series.notna().mean())
+
             return {
-                'total_trades': result.total_trades,
-                'win_rate': float(result.win_rate),
-                'avg_profit': float(result.avg_profit),
-                'avg_duration': float(result.avg_duration),
-                'profit_stddev': float(result.profit_stddev),
-                'min_profit': float(result.min_profit),
-                'max_profit': float(result.max_profit),
-                'options_ratio': float(result.options_ratio)
+                'total_trades': total_trades,
+                'win_rate': win_rate,
+                'avg_profit': avg_profit,
+                'avg_duration': avg_duration,
+                'profit_stddev': profit_stddev,
+                'min_profit': min_profit,
+                'max_profit': max_profit,
+                'options_ratio': options_ratio
             }
         except Exception as e:
             logger.error(f"Error calculating channel performance: {str(e)}")
@@ -92,54 +163,59 @@ class ChannelAnalyzer:
     def analyze_trade_patterns(self, channel_id: str) -> Dict:
         """Analyze trading patterns and behaviors."""
         try:
-            query = text("""
-                WITH trade_times AS (
-                    SELECT 
-                        EXTRACT(HOUR FROM "entryTime") as hour,
-                        EXTRACT(DOW FROM "entryTime") as weekday,
-                        "optionType",
-                        result
-                    FROM "Trade" t
-                    JOIN "ExecutionStats" e ON t.id = e."tradeId"
-                    WHERE t."channelId" = :channel_id
-                    AND t."entryTime" >= NOW() - INTERVAL ':window days'
-                )
-                SELECT 
-                    hour,
-                    weekday,
-                    COUNT(*) as trade_count,
-                    AVG(CASE WHEN result = 'WIN' THEN 1.0 ELSE 0.0 END) as win_rate
-                FROM trade_times
-                GROUP BY hour, weekday
-                ORDER BY trade_count DESC
-            """)
-            
-            with self.engine.connect() as conn:
-                results = conn.execute(query, {
-                    'channel_id': channel_id,
-                    'window': self.analysis_window
-                }).fetchall()
+            df = self._load_channel_trades(channel_id)
+            if df.empty:
+                return None
 
-            patterns = {
-                'best_hours': [],
-                'best_days': [],
-                'total_trades': len(results)
+            time_df = df[df['entry_time'].notna()].copy()
+            if time_df.empty:
+                return None
+
+            time_df['hour'] = time_df['entry_time'].dt.hour
+            time_df['weekday'] = time_df['entry_time'].dt.weekday
+            if 'result' in time_df.columns:
+                time_df['is_win'] = time_df['result'].fillna('').str.upper() == 'WIN'
+            else:
+                time_df['is_win'] = False
+
+            hour_group = (
+                time_df.groupby('hour')
+                .agg(trade_count=('trade_id', 'count'), win_rate=('is_win', 'mean'))
+                .reset_index()
+            )
+            day_group = (
+                time_df.groupby('weekday')
+                .agg(trade_count=('trade_id', 'count'), win_rate=('is_win', 'mean'))
+                .reset_index()
+            )
+
+            best_hours = [
+                {
+                    'hour': int(row.hour),
+                    'win_rate': float(row.win_rate if pd.notna(row.win_rate) else 0),
+                    'trade_count': int(row.trade_count)
+                }
+                for row in hour_group.itertuples()
+                if row.trade_count >= 3
+            ]
+            best_days = [
+                {
+                    'day': int(row.weekday),
+                    'win_rate': float(row.win_rate if pd.notna(row.win_rate) else 0),
+                    'trade_count': int(row.trade_count)
+                }
+                for row in day_group.itertuples()
+                if row.trade_count >= 3
+            ]
+
+            best_hours.sort(key=lambda item: item['trade_count'], reverse=True)
+            best_days.sort(key=lambda item: item['trade_count'], reverse=True)
+
+            return {
+                'best_hours': best_hours,
+                'best_days': best_days,
+                'total_trades': int(len(time_df))
             }
-
-            for row in results:
-                if row.trade_count >= 3:  # Minimum threshold for pattern analysis
-                    patterns['best_hours'].append({
-                        'hour': int(row.hour),
-                        'win_rate': float(row.win_rate),
-                        'trade_count': row.trade_count
-                    })
-                    patterns['best_days'].append({
-                        'day': int(row.weekday),
-                        'win_rate': float(row.win_rate),
-                        'trade_count': row.trade_count
-                    })
-
-            return patterns
         except Exception as e:
             logger.error(f"Error analyzing trade patterns: {str(e)}")
             return None
@@ -147,44 +223,29 @@ class ChannelAnalyzer:
     def calculate_risk_metrics(self, channel_id: str) -> Dict:
         """Calculate risk-adjusted performance metrics."""
         try:
-            query = text("""
-                WITH trade_returns AS (
-                    SELECT 
-                        pnl,
-                        "durationSec",
-                        "optionType"
-                    FROM "Trade" t
-                    JOIN "ExecutionStats" e ON t.id = e."tradeId"
-                    WHERE t."channelId" = :channel_id
-                    AND t."entryTime" >= NOW() - INTERVAL ':window days'
-                    AND e.result IN ('WIN', 'LOSS')
-                )
-                SELECT 
-                    AVG(pnl) as avg_return,
-                    STDDEV(pnl) as return_stddev,
-                    MIN(pnl) as max_drawdown,
-                    AVG("durationSec") as avg_duration,
-                    COUNT(*) as total_trades
-                FROM trade_returns
-            """)
-            
-            with self.engine.connect() as conn:
-                result = conn.execute(query, {
-                    'channel_id': channel_id,
-                    'window': self.analysis_window
-                }).fetchone()
-
-            if not result or result.total_trades < self.min_trades_for_analysis:
+            df = self._load_channel_trades(channel_id)
+            profit_series = pd.to_numeric(df.get('pnl'), errors='coerce').dropna()
+            if len(profit_series) < self.min_trades_for_analysis:
                 return None
 
-            # Calculate Sharpe Ratio (assuming risk-free rate of 0.02)
-            sharpe_ratio = (float(result.avg_return) - 0.02) / float(result.return_stddev) if float(result.return_stddev) != 0 else 0
+            avg_return = float(profit_series.mean())
+            return_stddev = float(profit_series.std(ddof=1)) if len(profit_series) > 1 else 0.0
+
+            cumulative = profit_series.cumsum()
+            running_max = cumulative.cummax()
+            drawdowns = running_max - cumulative
+            max_drawdown = float(drawdowns.max()) if not drawdowns.empty else 0.0
+
+            duration_series = pd.to_numeric(df.get('duration_sec'), errors='coerce').dropna()
+            avg_duration = float(duration_series.mean()) if not duration_series.empty else 0.0
+
+            sharpe_ratio = (avg_return - 0.02) / return_stddev if return_stddev else 0.0
 
             return {
                 'sharpe_ratio': sharpe_ratio,
-                'max_drawdown': float(result.max_drawdown),
-                'return_stddev': float(result.return_stddev),
-                'avg_duration': float(result.avg_duration)
+                'max_drawdown': max_drawdown,
+                'return_stddev': return_stddev,
+                'avg_duration': avg_duration
             }
         except Exception as e:
             logger.error(f"Error calculating risk metrics: {str(e)}")
@@ -220,7 +281,7 @@ class ChannelAnalyzer:
 
             # Save to database or config file
             self._save_channel_config(channel_id, config)
-            logger.info(f"Updated channel {channel_id} configuration", config)
+            logger.info(f"Updated channel {channel_id} configuration: {config}")
 
             # Record performance history so results can be reviewed later
             self._record_performance_history(channel_id, performance)
@@ -232,20 +293,40 @@ class ChannelAnalyzer:
         """Save channel configuration to database."""
         try:
             query = text("""
-                INSERT INTO "ChannelConfig" ("channelId", config, "updatedAt")
-                VALUES (:channel_id, :config, NOW())
-                ON CONFLICT ("channelId") 
-                DO UPDATE SET 
-                    config = :config,
-                    "updatedAt" = NOW()
+                INSERT INTO "ChannelConfig" (
+                    "channelId",
+                    "isEnabled",
+                    "minConfidence",
+                    "maxTrades",
+                    "riskLevel",
+                    "updatedAt"
+                )
+                VALUES (
+                    :channel_id,
+                    :is_enabled,
+                    :min_confidence,
+                    :max_trades,
+                    :risk_level,
+                    CURRENT_TIMESTAMP
+                )
+                ON CONFLICT("channelId") DO UPDATE SET
+                    "isEnabled" = excluded."isEnabled",
+                    "minConfidence" = excluded."minConfidence",
+                    "maxTrades" = excluded."maxTrades",
+                    "riskLevel" = excluded."riskLevel",
+                    "updatedAt" = CURRENT_TIMESTAMP
             """)
-            
-            with self.engine.connect() as conn:
-                conn.execute(query, {
-                    'channel_id': channel_id,
-                    'config': json.dumps(config)
-                })
-                conn.commit()
+
+            params = {
+                'channel_id': channel_id,
+                'is_enabled': True,
+                'min_confidence': config['min_confidence'],
+                'max_trades': config['max_trades'],
+                'risk_level': config['risk_level']
+            }
+
+            with self.engine.begin() as conn:
+                conn.execute(query, params)
         except Exception as e:
             logger.error(f"Error saving channel config: {str(e)}")
             raise
@@ -267,9 +348,9 @@ class ChannelAnalyzer:
 
             start_date = datetime.utcnow() - timedelta(days=self.analysis_window)
             end_date = datetime.utcnow()
-            perf_score = performance["win_rate"] * performance["avg_profit"]
+            perf_score = float(performance.get("win_rate", 0) * performance.get("avg_profit", 0))
 
-            with self.engine.connect() as conn:
+            with self.engine.begin() as conn:
                 conn.execute(
                     query,
                     {
@@ -277,33 +358,35 @@ class ChannelAnalyzer:
                         "period": f"LAST_{self.analysis_window}_DAYS",
                         "start_date": start_date,
                         "end_date": end_date,
-                        "total_trades": performance["total_trades"],
-                        "win_rate": performance["win_rate"],
-                        "avg_profit": performance["avg_profit"],
+                        "total_trades": performance.get("total_trades", 0),
+                        "win_rate": performance.get("win_rate", 0),
+                        "avg_profit": performance.get("avg_profit", 0),
                         "performance": perf_score,
                     },
                 )
-                conn.commit()
         except Exception as e:
             logger.error(f"Error recording performance history: {str(e)}")
 
     def analyze_all_channels(self) -> None:
         """Analyze all active channels."""
         try:
+            self._channel_cache.clear()
+            start_time = self._window_start()
             query = text("""
-                SELECT DISTINCT "channelId"
+                SELECT DISTINCT "channelId" AS channel_id
                 FROM "Trade"
-                WHERE "entryTime" >= NOW() - INTERVAL ':window days'
+                WHERE "entryTime" >= :start_time
             """)
             
             with self.engine.connect() as conn:
                 channels = conn.execute(query, {
-                    'window': self.analysis_window
+                    'start_time': start_time
                 }).fetchall()
 
             for channel in channels:
-                logger.info(f"Analyzing channel {channel.channelId}")
-                self.update_channel_config(channel.channelId)
+                channel_id = getattr(channel, 'channel_id', None) or getattr(channel, 'channelId', None) or channel[0]
+                logger.info(f"Analyzing channel {channel_id}")
+                self.update_channel_config(channel_id)
 
         except Exception as e:
             logger.error(f"Error analyzing all channels: {str(e)}")

@@ -1,10 +1,31 @@
 import os
 import json
 from datetime import datetime
-from sqlalchemy import create_engine, text
-import requests
+from pathlib import Path
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+import requests
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
+from uuid import uuid4
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(BASE_DIR / ".env")
+
+
+def _resolve_database_url(raw_url: str | None) -> str:
+    """Convert Prisma-style file: paths into SQLAlchemy SQLite URLs."""
+    if not raw_url:
+        raw_url = "file:./data/dev.db"
+    normalized = raw_url.strip().strip('"').strip("'")
+    if normalized.startswith("file:"):
+        db_path = Path(normalized.replace("file:", "", 1))
+        if not db_path.is_absolute():
+            db_path = (BASE_DIR / db_path).resolve()
+        return f"sqlite:///{db_path.as_posix()}"
+    return normalized
+
+
+DATABASE_URL = _resolve_database_url(os.environ.get("DATABASE_URL"))
 NEWS_FEED_PATH = os.environ.get("NEWS_FEED_PATH", "data/news/sample_news.json")
 
 engine = create_engine(DATABASE_URL)
@@ -26,10 +47,11 @@ def save_updates(items):
             conn.execute(
                 text(
                     'INSERT INTO "MarketUpdate" ("id","channelId","messageId","summary","sentiment","symbol","createdAt") '
-                    'VALUES (gen_random_uuid(), :channelId, :messageId, :summary, :sentiment, :symbol, :createdAt) '
+                    'VALUES (:id, :channelId, :messageId, :summary, :sentiment, :symbol, :createdAt) '
                     'ON CONFLICT ("messageId") DO NOTHING'
                 ),
                 {
+                    "id": str(uuid4()),
                     "channelId": item.get("channelId", "news"),
                     "messageId": item["messageId"],
                     "summary": item["summary"],
