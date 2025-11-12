@@ -1,9 +1,39 @@
-node_modules
-venv
-
-api/venv
-.env
-__pycache__
-**/__pycache__/
-prisma/migrations
+# Dependencies & builds
+node_modules/
 dist/
+coverage/
+
+# Virtual environments
+venv/
+api/venv/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+robinhood_device_token.json
+server.key
+server.cert
+
+# Logs & scratch data
+*.log
+data/logs/
+api/data/logs/
+temp.txt
+
+# Databases & generated data
+data/*.db
+prisma/data/
+prisma/data/*.db
+
+# Compiled Python artifacts
+__pycache__/
+**/__pycache__/
+
+# IDE / tooling
+.vscode/
+.cursor/
+
+# Model weights
+model/*.gguf
+

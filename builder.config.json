@@ -1,0 +1,6 @@
+{
+  "command": "npm start",
+  "serverUrl": "https://validtesting.tplinkdns.com:3000/",
+  "authenticateProxy": false,
+  "commitMode": "commits"
+}
