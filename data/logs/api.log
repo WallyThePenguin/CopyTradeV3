@@ -303,3 +303,31 @@ Output: {}
             ]
 [parameters: (datetime.datetime(2025, 10, 13, 7, 8, 49, 560556),)]
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-13 11:42:58,467 - INFO - Model initialized successfully
+2025-11-13 11:42:58,522 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-13 11:42:58,530 - INFO - Trade context initialized
+2025-11-13 11:42:58,530 - INFO - Channel analyzer initialized successfully
+2025-11-13 11:42:58,537 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 14, 16, 42, 58, 531569),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-13 12:47:52,851 - INFO - Model initialized successfully
+2025-11-13 12:47:52,867 - INFO - GPU Info: {'available': True, 'device': 0, 'name': 'NVIDIA GeForce RTX 2060 SUPER', 'memory_allocated': 0.0, 'memory_reserved': 0.0, 'max_memory': 8191.6875}
+2025-11-13 12:47:52,868 - INFO - Trade context initialized
+2025-11-13 12:47:52,868 - INFO - Channel analyzer initialized successfully
+2025-11-13 12:47:52,871 - ERROR - Error analyzing all channels: (sqlite3.OperationalError) no such table: Trade
+[SQL: 
+                SELECT DISTINCT "channelId" AS channel_id
+                FROM "Trade"
+                WHERE "entryTime" >= ?
+            ]
+[parameters: (datetime.datetime(2025, 10, 14, 17, 47, 52, 869219),)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-11-13 12:51:27,548 - INFO - Received message for analysis: AMD 300 C
+2025-11-13 12:51:30,638 - INFO - Full LLM analysis time: 3.088s
+2025-11-13 12:51:30,640 - INFO - Analysis completed in 3.09 seconds
+2025-11-13 12:51:30,936 - INFO - Webhook sent: 400

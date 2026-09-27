@@ -581,5 +581,16 @@
       "entryPrice": null,
       "confidence": 0.95
     }
+  },
+  {
+    "timestamp": "2025-11-13T12:51:30.638051",
+    "action": "open",
+    "trade_info": {
+      "symbol": "AMD",
+      "optionType": "CALL",
+      "strikePrice": 300,
+      "entryPrice": null,
+      "confidence": 0.95
+    }
   }
 ]

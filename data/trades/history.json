@@ -726,5 +726,18 @@
     "status": "ACTIVE",
     "exitReason": null,
     "exitTime": null
+  },
+  {
+    "symbol": "AMD",
+    "action": "BUY",
+    "optionType": "CALL",
+    "strikePrice": 300,
+    "entryPrice": null,
+    "confidence": 0.95,
+    "signalType": "ENTRY",
+    "entryTime": 1763056290941,
+    "status": "ACTIVE",
+    "exitReason": null,
+    "exitTime": null
   }
 ]
